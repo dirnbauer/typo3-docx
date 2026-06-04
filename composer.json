@@ -1,6 +1,6 @@
 {
     "name": "webconsulting/docx-editor",
-    "description": "Edit .docx files in the TYPO3 v14 Media module with eigenpal/docx-editor, multi-user presence, and FAL persistence.",
+    "description": "DOCX Editor - WYSIWYG .docx editing in the TYPO3 v14 Media module with eigenpal/docx-editor",
     "type": "typo3-cms-extension",
     "license": "GPL-2.0-or-later",
     "keywords": [
@@ -25,7 +25,7 @@
         "source": "https://github.com/dirnbauer/typo3-docx"
     },
     "require": {
-        "php": "^8.3",
+        "php": "^8.2",
         "typo3/cms-backend": "^14.3",
         "typo3/cms-core": "^14.3",
         "typo3/cms-filelist": "^14.3",
@@ -64,7 +64,8 @@
         "ci": [
             "composer validate --strict",
             "@phpstan",
-            "@test:unit"
+            "@test:unit",
+            "@build:assets"
         ]
     },
     "extra": {

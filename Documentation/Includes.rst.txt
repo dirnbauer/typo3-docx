@@ -1,0 +1,5 @@
+..  Global substitutions for the DOCX Editor manual.
+
+..  |extension_key| replace:: docx_editor
+..  |extension_name| replace:: DOCX Editor
+..  |composer_name| replace:: webconsulting/docx-editor

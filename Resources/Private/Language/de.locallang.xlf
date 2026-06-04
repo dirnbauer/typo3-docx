@@ -41,6 +41,11 @@
         <source>{count, plural, one {# Bearbeiter online} other {# Bearbeiter online}}</source>
       </segment>
     </unit>
+    <unit id="editor.loading">
+      <segment>
+        <source>Dokument wird geladen…</source>
+      </segment>
+    </unit>
     <unit id="editor.buildMissing">
       <segment>
         <source>Frontend-Assets fehlen. Führen Sie <code>npm install</code> und <code>npm run build</code> im Extension-Verzeichnis aus.</source>

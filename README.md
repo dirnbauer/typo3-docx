@@ -1,70 +1,48 @@
-# TYPO3 DOCX Editor (`docx_editor`)
+# DOCX Editor for TYPO3 (`docx_editor`)
 
-TYPO3 **14.3+ only** extension that adds WYSIWYG `.docx` editing to the **Media** module, powered by [eigenpal/docx-editor](https://github.com/eigenpal/docx-editor).
+[![CI](https://github.com/dirnbauer/typo3-docx/actions/workflows/ci.yml/badge.svg)](https://github.com/dirnbauer/typo3-docx/actions/workflows/ci.yml)
 
-Editors open `.docx` files from the media file list, edit in the backend, and save back to FAL. Multiple backend users can work on the same file with **presence** (who is online) and **revision-aware saves** (conflict detection when someone else saved a newer copy).
+WYSIWYG `.docx` editing in the TYPO3 **14.3+** Media module, powered by [eigenpal/docx-editor](https://github.com/eigenpal/docx-editor).
+
+Editors open Word files from the media file list, edit in the backend, and save back to FAL. Multiple users see who is online; saves detect conflicts when someone else stored a newer revision.
 
 ## Requirements
 
-- TYPO3 14.3 LTS (`typo3/cms-core` ^14.3)
-- PHP 8.3+
-- Node.js 20+ (to build frontend assets)
+| | |
+| --- | --- |
+| TYPO3 | 14.3 LTS (`^14.3`) |
+| PHP | 8.2 – 8.4 (CI tests 8.3 and 8.4) |
+| Node.js | 20+ only when rebuilding frontend assets |
 
-## Installation
+## Quick start
 
 ```bash
 composer require webconsulting/docx-editor
-```
-
-Build the bundled editor (Lit glue + React adapter for docx-editor):
-
-```bash
-cd vendor/webconsulting/docx-editor
-npm ci
-npm run build
-```
-
-Activate the extension and run database updates so collaboration tables are created:
-
-```bash
 vendor/bin/typo3 extension:setup
 ```
 
-## Usage
+Pre-built JavaScript is included — no Node.js step is required for a normal install.
 
-1. Go to **Media** in the TYPO3 backend.
-2. Select a `.docx` file.
-3. Use the primary action **Edit DOCX** (or open the submodule route with a `file` query parameter).
-4. Edit the document and save from the editor toolbar (writes back to the FAL file).
-5. When another user saves, you get a reload banner; concurrent editors are listed in the toolbar.
+1. Open **Media** in the backend.
+2. Choose a `.docx` file → **Edit DOCX**.
+3. Edit and save from the editor toolbar.
 
-## Architecture
+## Documentation
 
-| Layer | Responsibility |
-| --- | --- |
-| PHP (TYPO3 v14) | FAL read/write, permissions, AJAX API, collaboration sessions, revision log |
-| Fluid 5 | Backend module markup, labels via XLIFF 2 + ICU |
-| Lit | `typo3-docx-editor` custom element — TYPO3-facing glue only |
-| React + `@eigenpal/docx-editor-react` | WYSIWYG editor UI (bundled, not loaded separately by TYPO3) |
-
-Collaboration today: **presence** + **revision polling** + optimistic locking on save. The editor library supports Yjs/Liveblocks-style backends for full real-time merging; this extension exposes stable revision endpoints so you can plug a dedicated sync service later.
+- [Full TYPO3 manual](Documentation/Index.rst) (Introduction, installation, usage, security)
+- [Changelog](CHANGELOG.md)
 
 ## Development
 
 ```bash
 composer install
-npm ci
-npm run build
+npm ci && npm run build   # only when changing Build/Sources/
 Build/Scripts/runTests.sh -s ci
 ```
 
-### Test suites
+## Collaboration
 
-```bash
-Build/Scripts/runTests.sh -s unit
-Build/Scripts/runTests.sh -s phpstan
-Build/Scripts/runTests.sh -s assets
-```
+**Presence** and **revision-aware saves** are included. Full real-time OT/CRDT (Yjs, etc.) is supported by the upstream editor but not wired in v1.0.0; see [Developer](Documentation/Developer/Index.rst) for extension points.
 
 ## License
 

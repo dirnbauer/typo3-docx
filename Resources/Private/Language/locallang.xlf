@@ -41,6 +41,11 @@
         <source>{count, plural, one {# editor online} other {# editors online}}</source>
       </segment>
     </unit>
+    <unit id="editor.loading">
+      <segment>
+        <source>Loading document…</source>
+      </segment>
+    </unit>
     <unit id="editor.buildMissing">
       <segment>
         <source>Frontend assets are missing. Run <code>npm install</code> and <code>npm run build</code> in the extension directory.</source>

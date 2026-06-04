@@ -67,6 +67,7 @@ export class Typo3DocxEditorElement extends LitElement {
       fileName: this.fileName,
       canWrite: this.canWrite,
       initialRevision: this.revision,
+      loadingLabel: this.labels.labelLoading || 'Loading document…',
       onStatus: (state, detail) => this.handleStatus(state, detail),
       onRemoteRevision: (revision, _hash, conflict) =>
         this.handleRemoteRevision(revision, conflict),

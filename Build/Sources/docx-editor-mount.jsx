@@ -17,6 +17,7 @@ function DocxEditorHost({
   fileName,
   canWrite,
   initialRevision,
+  loadingLabel = 'Loading document…',
   onStatus,
   onRemoteRevision,
 }) {
@@ -83,7 +84,7 @@ function DocxEditorHost({
   }, [fileIdentifier, onRemoteRevision, revision]);
 
   if (loading || !buffer) {
-    return <div className="docx-editor-loading">Loading…</div>;
+    return <div className="docx-editor-loading">{loadingLabel}</div>;
   }
 
   return (
