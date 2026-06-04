@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:2.0" version="2.0" srcLang="en">
+  <file id="default" original="default">
+    <unit id="filelist.action.editDocx">
+      <segment>
+        <source>DOCX bearbeiten</source>
+      </segment>
+    </unit>
+    <unit id="editor.backToMedia">
+      <segment>
+        <source>Zurück zu Medien</source>
+      </segment>
+    </unit>
+    <unit id="editor.saving">
+      <segment>
+        <source>Speichern…</source>
+      </segment>
+    </unit>
+    <unit id="editor.saved">
+      <segment>
+        <source>Gespeichert</source>
+      </segment>
+    </unit>
+    <unit id="editor.saveFailed">
+      <segment>
+        <source>Speichern fehlgeschlagen</source>
+      </segment>
+    </unit>
+    <unit id="editor.remoteUpdate">
+      <segment>
+        <source>Eine neuere Version wurde von einer anderen Person gespeichert.</source>
+      </segment>
+    </unit>
+    <unit id="editor.reload">
+      <segment>
+        <source>Dokument neu laden</source>
+      </segment>
+    </unit>
+    <unit id="editor.collaborators">
+      <segment>
+        <source>{count, plural, one {# Bearbeiter online} other {# Bearbeiter online}}</source>
+      </segment>
+    </unit>
+    <unit id="editor.buildMissing">
+      <segment>
+        <source>Frontend-Assets fehlen. Führen Sie <code>npm install</code> und <code>npm run build</code> im Extension-Verzeichnis aus.</source>
+      </segment>
+    </unit>
+  </file>
+</xliff>

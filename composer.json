@@ -1,0 +1,79 @@
+{
+    "name": "webconsulting/docx-editor",
+    "description": "Edit .docx files in the TYPO3 v14 Media module with eigenpal/docx-editor, multi-user presence, and FAL persistence.",
+    "type": "typo3-cms-extension",
+    "license": "GPL-2.0-or-later",
+    "keywords": [
+        "typo3",
+        "typo3-cms-extension",
+        "docx",
+        "media",
+        "collaboration",
+        "wysiwyg"
+    ],
+    "homepage": "https://github.com/dirnbauer/typo3-docx",
+    "authors": [
+        {
+            "name": "webconsulting",
+            "email": "office@webconsulting.at",
+            "homepage": "https://webconsulting.at",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/dirnbauer/typo3-docx/issues",
+        "source": "https://github.com/dirnbauer/typo3-docx"
+    },
+    "require": {
+        "php": "^8.3",
+        "typo3/cms-backend": "^14.3",
+        "typo3/cms-core": "^14.3",
+        "typo3/cms-filelist": "^14.3",
+        "typo3/cms-fluid": "^14.3"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.95",
+        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-strict-rules": "^2.0",
+        "phpunit/phpunit": "^11.5 || ^12.1 || ^13.0",
+        "saschaegerer/phpstan-typo3": "^3.0",
+        "typo3/testing-framework": "^9.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Webconsulting\\DocxEditor\\": "Classes/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Webconsulting\\DocxEditor\\Tests\\": "Tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "typo3/class-alias-loader": true,
+            "typo3/cms-composer-installers": true
+        }
+    },
+    "scripts": {
+        "phpstan": "phpstan analyse --memory-limit=1G",
+        "test": "@phpstan",
+        "test:unit": "phpunit -c Build/phpunit/UnitTests.xml",
+        "build:assets": "npm run build",
+        "ci": [
+            "composer validate --strict",
+            "@phpstan",
+            "@test:unit"
+        ]
+    },
+    "extra": {
+        "typo3/cms": {
+            "extension-key": "docx_editor",
+            "version": "1.0.0",
+            "Package": {
+                "providesPackages": {}
+            }
+        }
+    }
+}

@@ -1,0 +1,11 @@
+{
+  "Build/Sources/docx-editor.js": {
+    "file": "docx-editor.js",
+    "name": "Build/Sources/docx-editor.js",
+    "src": "Build/Sources/docx-editor.js",
+    "isEntry": true,
+    "css": [
+      "assets/docx-editor-Dor1GwSC.css"
+    ]
+  }
+}

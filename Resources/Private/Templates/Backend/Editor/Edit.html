@@ -1,0 +1,47 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:if condition="{bundleBuilt}">
+    <f:then>
+        <div class="docx-editor-module"
+             id="docx-editor-app"
+             data-file-identifier="{fileIdentifier}"
+             data-file-name="{fileName}"
+             data-file-hash="{fileHash}"
+             data-revision="{revision}"
+             data-content-hash="{contentHash}"
+             data-can-write="{canWrite}"
+             data-label-saving="{f:translate(key: 'editor.saving', extensionName: 'docx_editor')}"
+             data-label-saved="{f:translate(key: 'editor.saved', extensionName: 'docx_editor')}"
+             data-label-saveFailed="{f:translate(key: 'editor.saveFailed', extensionName: 'docx_editor')}"
+             data-label-remoteUpdate="{f:translate(key: 'editor.remoteUpdate', extensionName: 'docx_editor')}"
+             data-label-reload="{f:translate(key: 'editor.reload', extensionName: 'docx_editor')}"
+             data-label-collaborators="{f:translate(key: 'editor.collaborators', extensionName: 'docx_editor')}">
+            <div class="docx-editor-module__toolbar">
+                <a class="btn btn-default" href="{mediaListUrl}">
+                    <typo3-backend-icon identifier="actions-arrow-left" size="small"></typo3-backend-icon>
+                    <f:translate key="editor.backToMedia" extensionName="docx_editor" />
+                </a>
+                <span class="docx-editor-module__title">{fileName}</span>
+                <span class="docx-editor-module__presence" data-docx-presence></span>
+                <span class="docx-editor-module__status" data-docx-status></span>
+            </div>
+            <typo3-docx-editor
+                class="docx-editor-module__surface"
+                file-identifier="{fileIdentifier}"
+                file-name="{fileName}"
+                file-hash="{fileHash}"
+                revision="{revision}"
+                can-write="{canWrite}"></typo3-docx-editor>
+        </div>
+    </f:then>
+    <f:else>
+        <div class="callout callout-danger">
+            <div class="callout-body">
+                <f:translate key="editor.buildMissing" extensionName="docx_editor" />
+            </div>
+        </div>
+    </f:else>
+</f:if>
+
+</html>

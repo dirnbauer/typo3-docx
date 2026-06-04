@@ -1,0 +1,46 @@
+.docx-editor-module {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-height: calc(100vh - 12rem);
+}
+
+.docx-editor-module__toolbar {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.docx-editor-module__title {
+    font-weight: 600;
+}
+
+.docx-editor-module__presence {
+    color: var(--typo3-text-color-variant);
+    font-size: 0.875rem;
+    margin-left: auto;
+}
+
+.docx-editor-module__status {
+    font-size: 0.875rem;
+}
+
+.docx-editor-module__surface {
+    border: 1px solid var(--typo3-component-border-color);
+    border-radius: var(--typo3-border-radius);
+    display: block;
+    flex: 1 1 auto;
+    min-height: 70vh;
+    overflow: hidden;
+}
+
+.docx-editor-remote-banner {
+    align-items: center;
+    background: var(--typo3-state-warning-bg);
+    border-radius: var(--typo3-border-radius);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+}

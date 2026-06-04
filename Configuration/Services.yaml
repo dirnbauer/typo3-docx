@@ -1,0 +1,31 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  Webconsulting\DocxEditor\:
+    resource: '../Classes/*'
+    exclude:
+      - '../Classes/Domain/Model/*'
+
+  Webconsulting\DocxEditor\Controller\Backend\EditorController:
+    public: true
+    tags: ['backend.controller']
+
+  Webconsulting\DocxEditor\Controller\Backend\DocumentApiController:
+    public: true
+    tags: ['backend.controller']
+
+  Webconsulting\DocxEditor\Controller\Backend\CollaborationApiController:
+    public: true
+    tags: ['backend.controller']
+
+  Webconsulting\DocxEditor\Service\DocxFileService:
+    public: true
+
+  Webconsulting\DocxEditor\Service\RevisionService:
+    public: true
+
+  Webconsulting\DocxEditor\Service\CollaborationSessionService:
+    public: true
