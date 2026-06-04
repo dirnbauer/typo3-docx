@@ -4,6 +4,5 @@
 /var/
 .phpunit.cache/
 .phpstan.cache/
-composer.lock
 .DS_Store
 .idea/
