@@ -6,6 +6,14 @@ import { heartbeatSession, joinSession, leaveSession } from './docx-editor-api.j
  * Lit glue for TYPO3: hosts the React-based eigenpal/docx-editor bundle.
  */
 export class Typo3DocxEditorElement extends LitElement {
+  /**
+   * Light DOM so eigenpal/docx-editor global styles (.ep-root, toolbar, icons) apply.
+   * Shadow DOM would block the Vite CSS bundle loaded by the TYPO3 backend.
+   */
+  createRenderRoot() {
+    return this;
+  }
+
   static properties = {
     fileIdentifier: { type: String, attribute: 'file-identifier' },
     fileName: { type: String, attribute: 'file-name' },
@@ -39,6 +47,22 @@ export class Typo3DocxEditorElement extends LitElement {
     this.sessionUid = 0;
     this.heartbeatTimer = null;
     this.labels = {};
+    this.docxEditorApi = null;
+  }
+
+  async save() {
+    if (!this.docxEditorApi?.save) {
+      throw new Error('Editor is not ready yet.');
+    }
+    await this.docxEditorApi.save();
+  }
+
+  async saveAsToFolder(folderIdentifier, fileName) {
+    return this.docxEditorApi?.saveAs?.(folderIdentifier, fileName);
+  }
+
+  getDocumentFileName() {
+    return this.docxEditorApi?.getFileName?.() ?? '';
   }
 
   connectedCallback() {
@@ -62,16 +86,32 @@ export class Typo3DocxEditorElement extends LitElement {
 
   firstUpdated() {
     const host = this.renderRoot.querySelector('[data-docx-mount]');
-    this.unmountEditor = mountDocxEditor(host, {
-      fileIdentifier: this.fileIdentifier,
-      fileName: this.fileName,
-      canWrite: this.canWrite,
-      initialRevision: this.revision,
-      loadingLabel: this.labels.labelLoading || 'Loading document…',
-      onStatus: (state, detail) => this.handleStatus(state, detail),
-      onRemoteRevision: (revision, _hash, conflict) =>
-        this.handleRemoteRevision(revision, conflict),
-    });
+    this.unmountEditor = mountDocxEditor(
+      host,
+      {
+        fileIdentifier: this.fileIdentifier,
+        fileName: this.fileName,
+        canWrite: this.canWrite,
+        initialRevision: this.revision,
+        loadingLabel: this.labels.labelLoading || 'Loading document…',
+        editorLocale: this.labels.editorLocale || 'en',
+        headingLabels: {
+          group: this.labels.labelHeadingGroup,
+          heading1: this.labels.labelHeading1,
+          heading2: this.labels.labelHeading2,
+          heading3: this.labels.labelHeading3,
+          heading4: this.labels.labelHeading4,
+          heading1Title: this.labels.labelHeading1Title,
+          heading2Title: this.labels.labelHeading2Title,
+          heading3Title: this.labels.labelHeading3Title,
+          heading4Title: this.labels.labelHeading4Title,
+        },
+        onStatus: (state, detail) => this.handleStatus(state, detail),
+        onRemoteRevision: (revision, _hash, conflict) =>
+          this.handleRemoteRevision(revision, conflict),
+      },
+      this,
+    );
     this.startCollab();
   }
 
@@ -118,17 +158,18 @@ export class Typo3DocxEditorElement extends LitElement {
   }
 
   handleStatus(state, detail) {
-    const target = document.querySelector('[data-docx-status]');
-    if (!target) {
+    if (state === 'ready' || state === 'saving') {
       return;
     }
-    const map = {
-      saving: this.labels.labelSaving,
-      saved: this.labels.labelSaved,
-      error: `${this.labels.labelSaveFailed}: ${detail || ''}`,
-      ready: '',
-    };
-    target.textContent = map[state] || '';
+    document.dispatchEvent(
+      new CustomEvent('docx-editor:status', {
+        bubbles: true,
+        detail: {
+          state,
+          message: typeof detail === 'string' ? detail : '',
+        },
+      }),
+    );
   }
 
   handleRemoteRevision(revision, conflict) {
@@ -161,8 +202,17 @@ export class Typo3DocxEditorElement extends LitElement {
       return;
     }
     const count = participants.length;
-    const template = this.labels.labelCollaborators || '{count} editors online';
-    target.textContent = template.replace('{count}', String(count));
+    if (count === 0) {
+      target.textContent = '';
+      return;
+    }
+    if (count === 1 && this.labels.labelCollaboratorsOne) {
+      target.textContent = this.labels.labelCollaboratorsOne;
+      return;
+    }
+    const template =
+      this.labels.labelCollaboratorsOther || '{count} editors online';
+    target.textContent = template.replace(/\{count\}/g, String(count));
   }
 }
 

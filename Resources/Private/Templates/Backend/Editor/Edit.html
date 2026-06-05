@@ -11,21 +11,42 @@
              data-revision="{revision}"
              data-content-hash="{contentHash}"
              data-can-write="{canWrite}"
+             data-element-browser-url="{elementBrowserUrl}"
+             data-default-folder-identifier="{defaultFolderIdentifier}"
+             data-editor-module-url="{editorModuleUrl}"
+             data-save-as-field-name="docxEditorSaveAsFolder"
+             data-label-save="{f:translate(key: 'editor.save', extensionName: 'docx_editor')}"
+             data-label-save-as="{f:translate(key: 'editor.saveAs', extensionName: 'docx_editor')}"
+             data-label-save-as-prompt="{f:translate(key: 'editor.saveAsPrompt', extensionName: 'docx_editor')}"
+             data-label-save-as-success="{f:translate(key: 'editor.saveAsSuccess', extensionName: 'docx_editor')}"
              data-label-saving="{f:translate(key: 'editor.saving', extensionName: 'docx_editor')}"
              data-label-saved="{f:translate(key: 'editor.saved', extensionName: 'docx_editor')}"
              data-label-saveFailed="{f:translate(key: 'editor.saveFailed', extensionName: 'docx_editor')}"
              data-label-remoteUpdate="{f:translate(key: 'editor.remoteUpdate', extensionName: 'docx_editor')}"
              data-label-reload="{f:translate(key: 'editor.reload', extensionName: 'docx_editor')}"
-             data-label-collaborators="{f:translate(key: 'editor.collaborators', extensionName: 'docx_editor')}"
-             data-label-loading="{f:translate(key: 'editor.loading', extensionName: 'docx_editor')}">
-            <div class="docx-editor-module__toolbar">
-                <a class="btn btn-default" href="{mediaListUrl}">
-                    <typo3-backend-icon identifier="actions-arrow-left" size="small"></typo3-backend-icon>
-                    <f:translate key="editor.backToMedia" extensionName="docx_editor" />
-                </a>
-                <span class="docx-editor-module__title">{fileName}</span>
+             data-label-collaborators-one="{f:translate(key: 'editor.collaborators.one', extensionName: 'docx_editor')}"
+             data-label-collaborators-other="{f:translate(key: 'editor.collaborators.other', extensionName: 'docx_editor')}"
+             data-label-loading="{f:translate(key: 'editor.loading', extensionName: 'docx_editor')}"
+             data-editor-locale="{editorLocale}"
+             data-label-heading-group="{f:translate(key: 'editor.headings.group', extensionName: 'docx_editor')}"
+             data-label-heading1="{f:translate(key: 'editor.headings.h1', extensionName: 'docx_editor')}"
+             data-label-heading2="{f:translate(key: 'editor.headings.h2', extensionName: 'docx_editor')}"
+             data-label-heading3="{f:translate(key: 'editor.headings.h3', extensionName: 'docx_editor')}"
+             data-label-heading4="{f:translate(key: 'editor.headings.h4', extensionName: 'docx_editor')}"
+             data-label-heading1-title="{f:translate(key: 'editor.headings.h1.title', extensionName: 'docx_editor')}"
+             data-label-heading2-title="{f:translate(key: 'editor.headings.h2.title', extensionName: 'docx_editor')}"
+             data-label-heading3-title="{f:translate(key: 'editor.headings.h3.title', extensionName: 'docx_editor')}"
+             data-label-heading4-title="{f:translate(key: 'editor.headings.h4.title', extensionName: 'docx_editor')}">
+            <f:if condition="{canWrite} == '1'">
+                <input type="hidden" id="docxEditorSaveAsFolder" name="docxEditorSaveAsFolder" value="" />
+                <a href="{elementBrowserUrl}" id="docx-editor-save-as-browse" class="visually-hidden"
+                   data-mode="folder"
+                   data-field-reference="docxEditorSaveAsFolder"
+                   data-use-events="true"
+                   data-identifier="{defaultFolderIdentifier}"></a>
+            </f:if>
+            <div class="docx-editor-module__meta">
                 <span class="docx-editor-module__presence" data-docx-presence></span>
-                <span class="docx-editor-module__status" data-docx-status></span>
             </div>
             <typo3-docx-editor
                 class="docx-editor-module__surface"

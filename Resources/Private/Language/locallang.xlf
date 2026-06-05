@@ -11,6 +11,26 @@
         <source>Back to Media</source>
       </segment>
     </unit>
+    <unit id="editor.save">
+      <segment>
+        <source>Save</source>
+      </segment>
+    </unit>
+    <unit id="editor.saveAs">
+      <segment>
+        <source>Save as…</source>
+      </segment>
+    </unit>
+    <unit id="editor.saveAsPrompt">
+      <segment>
+        <source>Save as (file name)</source>
+      </segment>
+    </unit>
+    <unit id="editor.saveAsSuccess">
+      <segment>
+        <source>Document saved to the selected folder.</source>
+      </segment>
+    </unit>
     <unit id="editor.saving">
       <segment>
         <source>Saving…</source>
@@ -36,14 +56,64 @@
         <source>Reload document</source>
       </segment>
     </unit>
-    <unit id="editor.collaborators">
+    <unit id="editor.collaborators.one">
       <segment>
-        <source>{count, plural, one {# editor online} other {# editors online}}</source>
+        <source>1 editor online</source>
+      </segment>
+    </unit>
+    <unit id="editor.collaborators.other">
+      <segment>
+        <source>{count} editors online</source>
       </segment>
     </unit>
     <unit id="editor.loading">
       <segment>
         <source>Loading document…</source>
+      </segment>
+    </unit>
+    <unit id="editor.headings.group">
+      <segment>
+        <source>Headings</source>
+      </segment>
+    </unit>
+    <unit id="editor.headings.h1">
+      <segment>
+        <source>H1</source>
+      </segment>
+    </unit>
+    <unit id="editor.headings.h2">
+      <segment>
+        <source>H2</source>
+      </segment>
+    </unit>
+    <unit id="editor.headings.h3">
+      <segment>
+        <source>H3</source>
+      </segment>
+    </unit>
+    <unit id="editor.headings.h4">
+      <segment>
+        <source>H4</source>
+      </segment>
+    </unit>
+    <unit id="editor.headings.h1.title">
+      <segment>
+        <source>Heading 1</source>
+      </segment>
+    </unit>
+    <unit id="editor.headings.h2.title">
+      <segment>
+        <source>Heading 2</source>
+      </segment>
+    </unit>
+    <unit id="editor.headings.h3.title">
+      <segment>
+        <source>Heading 3</source>
+      </segment>
+    </unit>
+    <unit id="editor.headings.h4.title">
+      <segment>
+        <source>Heading 4</source>
       </segment>
     </unit>
     <unit id="editor.buildMissing">

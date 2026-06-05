@@ -40,6 +40,34 @@ export async function loadDocument(fileIdentifier) {
   return data;
 }
 
+export async function saveDocumentAs(folderIdentifier, fileName, arrayBuffer) {
+  const url = routes().docx_editor_document_save_as;
+  if (!url) {
+    throw new Error('docx_editor_document_save_as route is not registered.');
+  }
+  const bytes = new Uint8Array(arrayBuffer);
+  let binary = '';
+  const chunkSize = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+  }
+  const data = await requestJson(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      folder: folderIdentifier,
+      fileName,
+      data: btoa(binary),
+    }),
+  });
+  if (!data.ok) {
+    const error = new Error(data.error || 'Save as failed.');
+    error.httpStatus = data.httpStatus;
+    throw error;
+  }
+  return data;
+}
+
 export async function saveDocument(fileIdentifier, revision, arrayBuffer) {
   const url = routes().docx_editor_document_save;
   if (!url) {

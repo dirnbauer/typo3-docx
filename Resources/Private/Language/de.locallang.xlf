@@ -11,6 +11,26 @@
         <source>Zurück zu Medien</source>
       </segment>
     </unit>
+    <unit id="editor.save">
+      <segment>
+        <source>Speichern</source>
+      </segment>
+    </unit>
+    <unit id="editor.saveAs">
+      <segment>
+        <source>Speichern unter…</source>
+      </segment>
+    </unit>
+    <unit id="editor.saveAsPrompt">
+      <segment>
+        <source>Speichern unter (Dateiname)</source>
+      </segment>
+    </unit>
+    <unit id="editor.saveAsSuccess">
+      <segment>
+        <source>Dokument im gewählten Ordner gespeichert.</source>
+      </segment>
+    </unit>
     <unit id="editor.saving">
       <segment>
         <source>Speichern…</source>
@@ -36,14 +56,64 @@
         <source>Dokument neu laden</source>
       </segment>
     </unit>
-    <unit id="editor.collaborators">
+    <unit id="editor.collaborators.one">
       <segment>
-        <source>{count, plural, one {# Bearbeiter online} other {# Bearbeiter online}}</source>
+        <source>1 Bearbeiter online</source>
+      </segment>
+    </unit>
+    <unit id="editor.collaborators.other">
+      <segment>
+        <source>{count} Bearbeiter online</source>
       </segment>
     </unit>
     <unit id="editor.loading">
       <segment>
         <source>Dokument wird geladen…</source>
+      </segment>
+    </unit>
+    <unit id="editor.headings.group">
+      <segment>
+        <source>Überschriften</source>
+      </segment>
+    </unit>
+    <unit id="editor.headings.h1">
+      <segment>
+        <source>H1</source>
+      </segment>
+    </unit>
+    <unit id="editor.headings.h2">
+      <segment>
+        <source>H2</source>
+      </segment>
+    </unit>
+    <unit id="editor.headings.h3">
+      <segment>
+        <source>H3</source>
+      </segment>
+    </unit>
+    <unit id="editor.headings.h4">
+      <segment>
+        <source>H4</source>
+      </segment>
+    </unit>
+    <unit id="editor.headings.h1.title">
+      <segment>
+        <source>Überschrift 1</source>
+      </segment>
+    </unit>
+    <unit id="editor.headings.h2.title">
+      <segment>
+        <source>Überschrift 2</source>
+      </segment>
+    </unit>
+    <unit id="editor.headings.h3.title">
+      <segment>
+        <source>Überschrift 3</source>
+      </segment>
+    </unit>
+    <unit id="editor.headings.h4.title">
+      <segment>
+        <source>Überschrift 4</source>
       </segment>
     </unit>
     <unit id="editor.buildMissing">

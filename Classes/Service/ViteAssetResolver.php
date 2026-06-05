@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Webconsulting\DocxEditor\Service;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Utility\PathUtility;
 
 /**
  * Resolves the Vite build entry from Resources/Public/Vite/manifest.json.
@@ -13,9 +12,8 @@ use TYPO3\CMS\Core\Utility\PathUtility;
 final class ViteAssetResolver
 {
     private const MANIFEST_PATH = 'EXT:docx_editor/Resources/Public/Vite/manifest.json';
+    private const VITE_PUBLIC = 'EXT:docx_editor/Resources/Public/Vite/';
     private const ENTRY = 'Build/Sources/docx-editor.js';
-
-    private ?string $publicBase = null;
 
     public function hasBuild(): bool
     {
@@ -32,7 +30,7 @@ final class ViteAssetResolver
         if (!is_array($entry) || !is_string($entry['file'] ?? null)) {
             return null;
         }
-        return $this->publicUrl($entry['file']);
+        return $this->extensionResource($entry['file']);
     }
 
     public function resolveStylesheet(): ?string
@@ -42,14 +40,19 @@ final class ViteAssetResolver
             return null;
         }
         $entry = $manifest[self::ENTRY] ?? null;
-        if (!is_array($entry) || !is_array($entry['css'] ?? null)) {
-            return null;
+        if (is_array($entry) && is_array($entry['css'] ?? null)) {
+            $cssFile = $entry['css'][0] ?? null;
+            if (is_string($cssFile)) {
+                return $this->extensionResource($cssFile);
+            }
         }
-        $cssFile = $entry['css'][0] ?? null;
-        if (!is_string($cssFile)) {
-            return null;
+
+        $styleChunk = $manifest['style.css'] ?? null;
+        if (is_array($styleChunk) && is_string($styleChunk['file'] ?? null)) {
+            return $this->extensionResource($styleChunk['file']);
         }
-        return $this->publicUrl($cssFile);
+
+        return null;
     }
 
     /**
@@ -69,11 +72,8 @@ final class ViteAssetResolver
         return is_array($data) ? $data : null;
     }
 
-    private function publicUrl(string $relative): string
+    private function extensionResource(string $relative): string
     {
-        $base = $this->publicBase ??= PathUtility::getAbsoluteWebPath(
-            GeneralUtility::getFileAbsFileName('EXT:docx_editor/Resources/Public/Vite/'),
-        );
-        return $base . ltrim($relative, '/');
+        return self::VITE_PUBLIC . ltrim($relative, '/');
     }
 }

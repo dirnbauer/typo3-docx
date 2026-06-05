@@ -22,7 +22,7 @@ final class CollaborationApiController extends AbstractDocxApiController
     public function joinAction(ServerRequestInterface $request): ResponseInterface
     {
         return $this->runJson(function () use ($request): ResponseInterface {
-            $payload = $this->parsePayload($request);
+            $payload = $this->parseRequestPayload($request);
             $file = $this->docxFileService->resolveFile((string)$payload['file']);
             $this->docxFileService->assertCanRead($file);
             $fileHash = $this->docxFileService->getFileHash($file);
@@ -41,7 +41,7 @@ final class CollaborationApiController extends AbstractDocxApiController
     public function heartbeatAction(ServerRequestInterface $request): ResponseInterface
     {
         return $this->runJson(function () use ($request): ResponseInterface {
-            $payload = $this->parsePayload($request);
+            $payload = $this->parseRequestPayload($request);
             $file = $this->docxFileService->resolveFile((string)$payload['file']);
             $this->docxFileService->assertCanRead($file);
             $fileHash = $this->docxFileService->getFileHash($file);
@@ -60,7 +60,7 @@ final class CollaborationApiController extends AbstractDocxApiController
     public function leaveAction(ServerRequestInterface $request): ResponseInterface
     {
         return $this->runJson(function () use ($request): ResponseInterface {
-            $payload = $this->parsePayload($request);
+            $payload = $this->parseRequestPayload($request);
             $file = $this->docxFileService->resolveFile((string)$payload['file']);
             $fileHash = $this->docxFileService->getFileHash($file);
             $sessionUid = (int)($payload['sessionUid'] ?? 0);
@@ -103,15 +103,4 @@ final class CollaborationApiController extends AbstractDocxApiController
         });
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function parsePayload(ServerRequestInterface $request): array
-    {
-        $body = $request->getParsedBody();
-        if (!is_array($body)) {
-            throw new DocxEditorException('Invalid request body.', 400);
-        }
-        return $body;
-    }
 }

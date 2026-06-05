@@ -7,6 +7,7 @@ namespace Webconsulting\DocxEditor\Controller\Backend;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Core\Resource\Enum\DuplicationBehavior;
 use Webconsulting\DocxEditor\Exception\DocxEditorException;
 use Webconsulting\DocxEditor\Service\DocxFileService;
 use Webconsulting\DocxEditor\Service\RevisionService;
@@ -41,10 +42,7 @@ final class DocumentApiController extends AbstractDocxApiController
     public function saveAction(ServerRequestInterface $request): ResponseInterface
     {
         return $this->runJson(function () use ($request): ResponseInterface {
-            $body = $request->getParsedBody();
-            if (!is_array($body)) {
-                throw new DocxEditorException('Invalid request body.', 400);
-            }
+            $body = $this->parseRequestPayload($request);
 
             $fileIdentifier = (string)($body['file'] ?? '');
             $expectedRevision = (int)($body['revision'] ?? -1);
@@ -79,6 +77,48 @@ final class DocumentApiController extends AbstractDocxApiController
             );
 
             return $this->jsonSuccess([
+                'revision' => $revision,
+                'contentHash' => $contentHash,
+            ]);
+        });
+    }
+
+    public function saveAsAction(ServerRequestInterface $request): ResponseInterface
+    {
+        return $this->runJson(function () use ($request): ResponseInterface {
+            $body = $this->parseRequestPayload($request);
+
+            $folderIdentifier = (string)($body['folder'] ?? '');
+            $fileName = (string)($body['fileName'] ?? '');
+            $encoded = (string)($body['data'] ?? '');
+            if ($folderIdentifier === '' || $encoded === '') {
+                throw new DocxEditorException('Missing folder or document payload.', 400);
+            }
+
+            $binary = base64_decode($encoded, true);
+            if ($binary === false) {
+                throw new DocxEditorException('Invalid base64 payload.', 400);
+            }
+
+            $folder = $this->docxFileService->resolveFolder($folderIdentifier);
+            $file = $this->docxFileService->createDocxInFolder(
+                $folder,
+                $fileName,
+                $binary,
+                DuplicationBehavior::RENAME,
+            );
+
+            $contentHash = $this->revisionService->computeContentHash($binary);
+            $userId = (int)$this->getBackendUser()->user['uid'];
+            $revision = $this->revisionService->registerSave(
+                $file->getCombinedIdentifier(),
+                $contentHash,
+                $userId,
+            );
+
+            return $this->jsonSuccess([
+                'file' => $file->getCombinedIdentifier(),
+                'name' => $file->getName(),
                 'revision' => $revision,
                 'contentHash' => $contentHash,
             ]);

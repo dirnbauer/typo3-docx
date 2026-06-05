@@ -5,5 +5,9 @@ parameters:
     level: 6
     paths:
         - Classes
+    typo3:
+        requestGetAttributeMapping:
+            backend.user: TYPO3\CMS\Core\Authentication\BackendUserAuthentication
+            moduleData: TYPO3\CMS\Backend\Module\ModuleData
     excludePaths:
         - Tests/*

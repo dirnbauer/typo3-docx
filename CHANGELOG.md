@@ -2,6 +2,28 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.1.0] - 2026-06-04
+
+### Added
+
+- TYPO3 docheader integration: FAL breadcrumbs, standard button bar (back, save, save as).
+- H1–H4 heading shortcuts in the formatting toolbar and Heading 4 in the style picker fallback.
+- Save feedback via `@typo3/backend/notification.js` instead of inline status text.
+- Google Fonts CSP guard (`typo3-disable-external-fonts.js`) documented prominently in README and Security docs.
+
+### Changed
+
+- Editor chrome and toolbar icons mapped to TYPO3 backend design tokens (light/dark).
+- `Editor.css` loads after the Vite bundle so TYPO3 theme overrides win.
+- JSON API controllers parse `application/json` request bodies for TYPO3 compatibility.
+- ICU collaborator labels split into plain `one` / `other` XLIFF units for Fluid/JS.
+
+### Fixed
+
+- Save API exposed on the Lit host element (`typo3-docx-editor`) so toolbar save works.
+- File resolution via `retrieveFileOrFolderObject()` and `target` query alias.
+- PHPStan issues in `EditorController` and `DocxFileService`.
+
 ## [1.0.0] - 2026-06-04
 
 ### Added

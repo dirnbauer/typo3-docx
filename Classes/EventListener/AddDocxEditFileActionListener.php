@@ -7,9 +7,9 @@ namespace Webconsulting\DocxEditor\EventListener;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\Components\ActionGroup;
 use TYPO3\CMS\Backend\Template\Components\Buttons\LinkButton;
-use TYPO3\CMS\Core\Imaging\IconSize;
 use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Imaging\IconSize;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Filelist\Event\ProcessFileListActionsEvent;
 use Webconsulting\DocxEditor\Service\DocxFileService;
@@ -20,6 +20,8 @@ use Webconsulting\DocxEditor\Service\DocxFileService;
 )]
 final class AddDocxEditFileActionListener
 {
+    private const WORD_ICON = 'mimetypes-word';
+
     public function __construct(
         private readonly DocxFileService $docxFileService,
         private readonly UriBuilder $uriBuilder,
@@ -42,20 +44,36 @@ final class AddDocxEditFileActionListener
             return;
         }
 
+        $event->setAction(
+            $this->createEditButton($resource),
+            'docxEdit',
+            ActionGroup::primary,
+            after: 'download',
+        );
+        $event->setAction(
+            $this->createEditButton($resource),
+            'docxEditMenu',
+            ActionGroup::secondary,
+            after: 'download',
+        );
+    }
+
+    private function createEditButton(File $file): LinkButton
+    {
         $editUrl = (string)$this->uriBuilder->buildUriFromRoute(
             'docx_editor',
             [
-                'file' => $resource->getCombinedIdentifier(),
+                'file' => $file->getCombinedIdentifier(),
             ],
         );
 
         $button = new LinkButton();
         $button->setTitle($this->translate('filelist.action.editDocx'));
-        $button->setIcon($this->iconFactory->getIcon('docx-editor-action-edit', IconSize::SMALL));
+        $button->setIcon($this->iconFactory->getIcon(self::WORD_ICON, IconSize::SMALL));
         $button->setHref($editUrl);
         $button->setClasses('docx-editor-edit-action');
 
-        $event->setAction($button, 'docxEdit', ActionGroup::primary, after: 'download');
+        return $button;
     }
 
     private function translate(string $key): string

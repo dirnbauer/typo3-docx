@@ -1,3 +1,14 @@
+typo3-docx-editor {
+    display: block;
+    min-height: 70vh;
+    width: 100%;
+}
+
+typo3-docx-editor .mount {
+    min-height: 70vh;
+    width: 100%;
+}
+
 .docx-editor-module {
     display: flex;
     flex-direction: column;
@@ -5,30 +16,85 @@
     min-height: calc(100vh - 12rem);
 }
 
-.docx-editor-module__toolbar {
-    align-items: center;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
+/* Office fonts (Aptos, etc.) are not loaded from Google Fonts in TYPO3 (CSP). */
+.docx-editor-module__surface,
+.docx-editor-module__surface .ep-root {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-.docx-editor-module__title {
-    font-weight: 600;
+.docx-editor-module__meta {
+    display: flex;
+    justify-content: flex-end;
+    min-height: 1.25rem;
 }
 
 .docx-editor-module__presence {
     color: var(--typo3-text-color-variant);
-    font-size: 0.875rem;
-    margin-left: auto;
+    font-size: var(--typo3-font-size-small);
 }
 
-.docx-editor-module__status {
-    font-size: 0.875rem;
+/* H1–H4 quick styles in the eigenpal formatting toolbar (toolbarExtra) */
+.docx-editor-module__surface .docx-heading-toolbar {
+    align-items: center;
+    border-inline-end: var(--typo3-component-border-width) solid var(--typo3-component-border-color);
+    display: inline-flex;
+    gap: 0.125rem;
+    margin-inline-end: 0.5rem;
+    padding-inline-end: 0.5rem;
+}
+
+.docx-editor-module__surface .docx-heading-toolbar__btn {
+    background: transparent;
+    border: var(--typo3-component-border-width) solid transparent;
+    border-radius: var(--typo3-input-border-radius);
+    color: var(--typo3-state-default-color);
+    font-family: var(--typo3-header-font-family, var(--typo3-font-family));
+    font-size: var(--typo3-font-size-small);
+    font-weight: 600;
+    line-height: 1;
+    min-height: var(--typo3-scaffold-header-item-height, 2rem);
+    min-width: 2rem;
+    padding: 0.25rem 0.35rem;
+}
+
+.docx-editor-module__surface .docx-heading-toolbar__btn--h1 {
+    font-size: calc(var(--typo3-font-size-small) * 1.15);
+}
+
+.docx-editor-module__surface .docx-heading-toolbar__btn--h2 {
+    font-size: calc(var(--typo3-font-size-small) * 1.05);
+}
+
+.docx-editor-module__surface .docx-heading-toolbar__btn--h4 {
+    font-size: calc(var(--typo3-font-size-small) * 0.95);
+}
+
+.docx-editor-module__surface .docx-heading-toolbar__btn:hover:not(:disabled) {
+    background: var(--typo3-state-default-hover-bg);
+    border-color: var(--typo3-state-default-hover-border-color);
+    color: var(--typo3-state-default-hover-color);
+}
+
+.docx-editor-module__surface .docx-heading-toolbar__btn:focus-visible {
+    border-color: var(--typo3-state-default-focus-border-color);
+    outline: var(--typo3-outline-width) var(--typo3-outline-style)
+        color-mix(in srgb, var(--typo3-state-default-focus-border-color), transparent 25%);
+}
+
+.docx-editor-module__surface .docx-heading-toolbar__btn--active,
+.docx-editor-module__surface .docx-heading-toolbar__btn--active:hover {
+    background: var(--typo3-state-primary-bg);
+    border-color: var(--typo3-state-primary-border-color);
+    color: var(--typo3-state-primary-color);
+}
+
+.docx-editor-module__surface .docx-heading-toolbar__btn:disabled {
+    opacity: var(--typo3-btn-disabled-opacity, 0.65);
 }
 
 .docx-editor-module__surface {
     border: 1px solid var(--typo3-component-border-color);
-    border-radius: var(--typo3-border-radius);
+    border-radius: var(--typo3-component-border-radius);
     display: block;
     flex: 1 1 auto;
     min-height: 70vh;
@@ -38,9 +104,261 @@
 .docx-editor-remote-banner {
     align-items: center;
     background: var(--typo3-state-warning-bg);
-    border-radius: var(--typo3-border-radius);
+    border-radius: var(--typo3-component-border-radius);
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
     padding: 0.5rem 0.75rem;
+}
+
+/*
+ * eigenpal/docx-editor ships Google-docs-like tokens and Tailwind slate utilities.
+ * Remap to TYPO3 backend tokens so toolbar icons and chrome follow light/dark mode.
+ */
+.docx-editor-module__surface .ep-root {
+    --background: light-dark(0 0% 100%, 0 0% 12%);
+    --foreground: light-dark(222 84% 5%, 210 40% 98%);
+    --card: var(--typo3-component-bg);
+    --card-foreground: var(--typo3-component-color);
+    --popover: var(--typo3-component-bg);
+    --popover-foreground: var(--typo3-component-color);
+    --primary: light-dark(221 83% 53%, 210 40% 70%);
+    --primary-foreground: var(--typo3-state-primary-color);
+    --secondary: light-dark(210 40% 96%, 217 33% 17%);
+    --secondary-foreground: var(--typo3-component-color);
+    --muted: light-dark(210 40% 96%, 217 33% 17%);
+    --muted-foreground: var(--typo3-text-color-variant);
+    --accent: var(--typo3-state-default-hover-bg);
+    --accent-foreground: var(--typo3-state-default-hover-color);
+    --destructive: light-dark(0 84% 60%, 0 63% 45%);
+    --destructive-foreground: var(--typo3-state-danger-color);
+    --border: var(--typo3-component-border-color);
+    --input: var(--typo3-component-border-color);
+    --ring: var(--typo3-state-default-focus-border-color);
+    --radius: var(--typo3-input-border-radius);
+
+    --doc-bg: var(--typo3-scaffold-bg);
+    --doc-primary: var(--typo3-text-color-primary);
+    --doc-primary-hover: light-dark(
+        var(--token-color-primary-70),
+        var(--token-color-primary-40)
+    );
+    --doc-primary-light: var(--typo3-state-primary-bg);
+    --doc-text: var(--typo3-text-color-base);
+    --doc-text-muted: var(--typo3-text-color-variant);
+    --doc-text-subtle: var(--typo3-text-color-variant);
+    --doc-text-placeholder: var(--typo3-text-color-variant);
+    --doc-border: var(--typo3-component-border-color);
+    --doc-border-light: var(--typo3-component-border-color);
+    --doc-border-dark: var(--typo3-component-border-color);
+    --doc-border-input: var(--typo3-component-border-color);
+    --doc-bg-subtle: var(--typo3-component-bg);
+    --doc-bg-hover: var(--typo3-state-default-hover-bg);
+    --doc-bg-input: var(--typo3-component-bg);
+    --doc-hover: var(--typo3-state-default-hover-bg);
+    --doc-error: var(--typo3-state-danger-color);
+    --doc-error-bg: var(--typo3-state-danger-bg);
+    --doc-success: var(--typo3-state-success-color);
+    --doc-success-bg: var(--typo3-state-success-bg);
+    --doc-warning: var(--typo3-state-warning-color);
+    --doc-warning-bg: var(--typo3-state-warning-bg);
+    --doc-link: var(--typo3-text-color-primary);
+
+    color: var(--typo3-text-color-base);
+    font-family: var(--typo3-font-family);
+    font-size: var(--typo3-font-size);
+}
+
+/* Title bar + menu */
+.docx-editor-module__surface .ep-root [data-testid="editor-toolbar"] {
+    background: var(--typo3-component-bg);
+    border-bottom: var(--typo3-component-border-width) solid var(--typo3-component-border-color);
+    color: var(--typo3-component-color);
+}
+
+.docx-editor-module__surface .ep-root [data-testid="editor-toolbar"] input,
+.docx-editor-module__surface .ep-root [data-testid="editor-toolbar"] span {
+    color: var(--typo3-text-color-base) !important;
+}
+
+.docx-editor-module__surface .ep-root [data-testid="editor-toolbar"] button {
+    border-radius: var(--typo3-input-border-radius);
+    color: var(--typo3-state-default-color);
+    font-size: var(--typo3-font-size);
+}
+
+.docx-editor-module__surface .ep-root [data-testid="editor-toolbar"] button:hover {
+    background: var(--typo3-state-default-hover-bg);
+    color: var(--typo3-state-default-hover-color);
+}
+
+/* Formatting toolbar: flat TYPO3 bar instead of slate pill */
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] {
+    align-items: center;
+    background: var(--typo3-component-bg) !important;
+    border: var(--typo3-component-border-width) solid var(--typo3-component-border-color);
+    border-radius: var(--typo3-component-border-radius) !important;
+    box-shadow: none !important;
+    color: var(--typo3-component-color);
+    font-size: var(--typo3-font-size);
+    margin: 0 0 0.5rem !important;
+    min-height: calc(
+        var(--typo3-input-padding-y) * 2 + var(--typo3-font-size) * var(--typo3-line-height) +
+            var(--typo3-component-border-width) * 2 + 0.25rem
+    );
+    padding: 0.25rem 0.5rem !important;
+}
+
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] [role="separator"] {
+    background: var(--typo3-component-border-color) !important;
+    margin-inline: 0.35rem !important;
+}
+
+/* Icon buttons (shadcn ghost + eigenpal custom buttons) */
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] button,
+.docx-editor-module__surface .ep-root .docx-list-button,
+.docx-editor-module__surface .ep-root .docx-color-picker-button,
+.docx-editor-module__surface .ep-root .docx-color-picker-apply,
+.docx-editor-module__surface .ep-root .docx-color-picker-arrow {
+    background: transparent !important;
+    border: var(--typo3-component-border-width) solid transparent !important;
+    border-radius: var(--typo3-input-border-radius) !important;
+    box-shadow: none !important;
+    color: var(--typo3-state-default-color) !important;
+    min-height: var(--typo3-scaffold-header-item-height, 2rem);
+    min-width: var(--typo3-scaffold-header-item-height, 2rem);
+    outline: none;
+    padding: 0.25rem !important;
+    transition: var(--typo3-transition-color);
+}
+
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] button:hover,
+.docx-editor-module__surface .ep-root .docx-list-button:hover,
+.docx-editor-module__surface .ep-root .docx-color-picker-button:hover,
+.docx-editor-module__surface .ep-root .docx-color-picker-apply:hover,
+.docx-editor-module__surface .ep-root .docx-color-picker-arrow:hover {
+    background: var(--typo3-state-default-hover-bg) !important;
+    border-color: var(--typo3-state-default-hover-border-color) !important;
+    color: var(--typo3-state-default-hover-color) !important;
+}
+
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] button:focus-visible,
+.docx-editor-module__surface .ep-root .docx-list-button:focus-visible,
+.docx-editor-module__surface .ep-root .docx-color-picker-button:focus-visible {
+    border-color: var(--typo3-state-default-focus-border-color) !important;
+    outline: var(--typo3-outline-width) var(--typo3-outline-style)
+        color-mix(in srgb, var(--typo3-state-default-focus-border-color), transparent 25%);
+}
+
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] button[aria-pressed="true"],
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] button.bg-slate-900,
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] .bg-slate-900.text-white,
+.docx-editor-module__surface .ep-root .docx-list-button-active {
+    background: var(--typo3-state-primary-bg) !important;
+    border-color: var(--typo3-state-primary-border-color) !important;
+    color: var(--typo3-state-primary-color) !important;
+}
+
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] button.bg-slate-900:hover,
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] .bg-slate-900.text-white:hover {
+    background: var(--typo3-state-primary-hover-bg) !important;
+    color: var(--typo3-state-primary-hover-color) !important;
+}
+
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] button:disabled,
+.docx-editor-module__surface .ep-root .docx-list-button-disabled {
+    opacity: var(--typo3-btn-disabled-opacity, 0.65);
+}
+
+/* Material-style toolbar icons: inherit TYPO3 text color, TYPO3-like size */
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] svg,
+.docx-editor-module__surface .ep-root [data-testid="editor-toolbar"] svg,
+.docx-editor-module__surface .ep-root .docx-list-button svg,
+.docx-editor-module__surface .ep-root .docx-color-picker-button svg,
+.docx-editor-module__surface .ep-root .docx-color-picker-apply svg,
+.docx-editor-module__surface .ep-root .docx-color-picker-arrow svg,
+.docx-editor-module__surface .ep-root .docx-text-context-menu-item svg {
+    color: currentColor;
+    fill: currentColor;
+    flex-shrink: 0;
+    height: 1rem;
+    width: 1rem;
+}
+
+/* Dropdowns / selects in toolbar */
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] button[role="combobox"],
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] [data-radix-select-trigger] {
+    background: var(--typo3-component-bg) !important;
+    border: var(--typo3-component-border-width) solid var(--typo3-component-border-color) !important;
+    border-radius: var(--typo3-input-border-radius) !important;
+    color: var(--typo3-component-color) !important;
+    font-size: var(--typo3-font-size) !important;
+    min-height: calc(
+        var(--typo3-input-padding-y) * 2 + var(--typo3-font-size) * var(--typo3-line-height) +
+            var(--typo3-component-border-width) * 2
+    );
+}
+
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] button[role="combobox"]:hover,
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] [data-radix-select-trigger]:hover {
+    background: var(--typo3-state-default-hover-bg) !important;
+}
+
+/* Font size stepper borders */
+.docx-editor-module__surface .ep-root [data-testid="font-size-display"],
+.docx-editor-module__surface .ep-root [data-testid="font-size-input"] {
+    background: var(--typo3-component-bg) !important;
+    border-color: var(--typo3-component-border-color) !important;
+    color: var(--typo3-component-color) !important;
+}
+
+/* Tooltips */
+.docx-editor-module__surface .ep-root .fixed.z-50 {
+    background: light-dark(var(--token-color-neutral-90), var(--token-color-neutral-20)) !important;
+    border-radius: var(--typo3-input-border-radius) !important;
+    color: light-dark(var(--token-color-neutral-10), var(--token-color-neutral-90)) !important;
+    font-size: var(--typo3-font-size-small) !important;
+}
+
+/* Menus & dropdown panels */
+.docx-editor-module__surface .ep-root [data-testid="editor-toolbar"] [role="menu"],
+.docx-editor-module__surface .ep-root .docx-text-context-menu,
+.docx-editor-module__surface .ep-root [data-radix-select-content],
+.docx-editor-module__surface .ep-root [data-radix-popper-content-wrapper] > div {
+    background: var(--typo3-component-bg) !important;
+    border: var(--typo3-component-border-width) solid var(--typo3-component-border-color) !important;
+    border-radius: var(--typo3-component-border-radius) !important;
+    box-shadow: var(--typo3-component-box-shadow) !important;
+    color: var(--typo3-component-color) !important;
+}
+
+.docx-editor-module__surface .ep-root .docx-text-context-menu-item-highlighted,
+.docx-editor-module__surface .ep-root [data-testid="editor-toolbar"] button:hover {
+    background: var(--typo3-list-item-hover-bg) !important;
+    color: var(--typo3-list-item-hover-color) !important;
+}
+
+/* Neutralize hardcoded Tailwind slate utilities in toolbars only */
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] [class*="text-slate-"],
+.docx-editor-module__surface .ep-root [data-testid="editor-toolbar"] [class*="text-slate-"] {
+    color: var(--typo3-state-default-color);
+}
+
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] [class*="hover:text-slate-"]:hover,
+.docx-editor-module__surface .ep-root [data-testid="editor-toolbar"] [class*="hover:text-slate-"]:hover {
+    color: var(--typo3-state-default-hover-color) !important;
+}
+
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] [class*="hover:bg-slate-"]:hover:not(.bg-slate-900),
+.docx-editor-module__surface .ep-root [data-testid="editor-toolbar"] [class*="hover:bg-slate-"]:hover {
+    background: var(--typo3-state-default-hover-bg) !important;
+}
+
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] [class*="border-slate-"],
+.docx-editor-module__surface .ep-root [data-testid="editor-toolbar"] [class*="border-slate-"] {
+    border-color: var(--typo3-component-border-color);
+}
+
+.docx-editor-module__surface .ep-root .text-red-600 {
+    color: var(--typo3-state-danger-color) !important;
 }

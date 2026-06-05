@@ -16,6 +16,11 @@ return [
         'target' => DocumentApiController::class . '::saveAction',
         'methods' => ['POST'],
     ],
+    'docx_editor_document_save_as' => [
+        'path' => '/docx-editor/document/save-as',
+        'target' => DocumentApiController::class . '::saveAsAction',
+        'methods' => ['POST'],
+    ],
     'docx_editor_collab_join' => [
         'path' => '/docx-editor/collab/join',
         'target' => CollaborationApiController::class . '::joinAction',
