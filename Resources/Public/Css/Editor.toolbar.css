@@ -1,0 +1,143 @@
+/*
+ * Formatting toolbar: compact TYPO3 bar, multi-line wrap (no horizontal scroll).
+ * eigenpal ships overflow-x-auto on this bar; override for backend width constraints.
+ */
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] {
+    align-content: flex-start;
+    align-items: center;
+    background: var(--typo3-component-bg) !important;
+    border: var(--typo3-component-border-width) solid var(--typo3-component-border-color);
+    border-radius: var(--typo3-component-border-radius) !important;
+    box-shadow: none !important;
+    color: var(--typo3-component-color);
+    display: flex !important;
+    flex-wrap: wrap !important;
+    font-size: var(--typo3-font-size-small);
+    gap: var(--docx-toolbar-gap, 0.125rem 0.25rem);
+    height: auto !important;
+    margin: 0 0 0.5rem !important;
+    max-width: 100%;
+    min-height: 0 !important;
+    overflow: visible !important;
+    overflow-x: visible !important;
+    padding: var(--docx-toolbar-padding, 0.125rem 0.375rem) !important;
+    width: 100%;
+}
+
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] > *,
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] [role="group"] {
+    flex: 0 0 auto;
+    max-width: 100%;
+}
+
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] [role="group"] {
+    border-inline-end-color: var(--typo3-component-border-color) !important;
+    gap: 0.0625rem !important;
+    padding-inline: 0.25rem !important;
+}
+
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] [role="separator"] {
+    align-self: stretch;
+    background: var(--typo3-component-border-color) !important;
+    height: auto;
+    margin-inline: 0.125rem !important;
+    min-height: 1.25rem;
+    width: 1px;
+}
+
+/* Icon buttons (shadcn ghost + eigenpal custom buttons) */
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] :is(
+    button,
+    .docx-list-button,
+    .docx-color-picker-button,
+    .docx-color-picker-apply,
+    .docx-color-picker-arrow
+) {
+    background: transparent !important;
+    border: var(--typo3-component-border-width) solid transparent !important;
+    border-radius: var(--typo3-input-border-radius) !important;
+    box-shadow: none !important;
+    color: var(--typo3-state-default-color) !important;
+    min-height: var(--docx-toolbar-btn-size, 1.375rem);
+    min-width: var(--docx-toolbar-btn-size, 1.375rem);
+    outline: none;
+    padding: 0.125rem !important;
+    transition: var(--typo3-transition-color);
+}
+
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] :is(
+    button,
+    .docx-list-button,
+    .docx-color-picker-button,
+    .docx-color-picker-apply,
+    .docx-color-picker-arrow
+):hover {
+    background: var(--typo3-state-default-hover-bg) !important;
+    border-color: var(--typo3-state-default-hover-border-color) !important;
+    color: var(--typo3-state-default-hover-color) !important;
+}
+
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] :is(
+    button,
+    .docx-list-button,
+    .docx-color-picker-button
+):focus-visible {
+    border-color: var(--typo3-state-default-focus-border-color) !important;
+    outline: var(--typo3-outline-width) var(--typo3-outline-style)
+        color-mix(in srgb, var(--typo3-state-default-focus-border-color), transparent 25%);
+}
+
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] button[aria-pressed="true"],
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] button.bg-slate-900,
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] .bg-slate-900.text-white,
+.docx-editor-module__surface .ep-root .docx-list-button-active {
+    background: var(--typo3-state-primary-bg) !important;
+    border-color: var(--typo3-state-primary-border-color) !important;
+    color: var(--typo3-state-primary-color) !important;
+}
+
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] button.bg-slate-900:hover,
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] .bg-slate-900.text-white:hover {
+    background: var(--typo3-state-primary-hover-bg) !important;
+    color: var(--typo3-state-primary-hover-color) !important;
+}
+
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] button:disabled,
+.docx-editor-module__surface .ep-root .docx-list-button-disabled {
+    opacity: var(--typo3-btn-disabled-opacity, 0.65);
+}
+
+/* Dropdowns / selects in toolbar */
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] :is(
+    button[role="combobox"],
+    [data-radix-select-trigger]
+) {
+    background: var(--typo3-component-bg) !important;
+    border: var(--typo3-component-border-width) solid var(--typo3-component-border-color) !important;
+    border-radius: var(--typo3-input-border-radius) !important;
+    color: var(--typo3-component-color) !important;
+    font-size: var(--typo3-font-size) !important;
+    min-height: var(--docx-toolbar-btn-size, 1.375rem);
+    padding-block: 0.125rem !important;
+    padding-inline: 0.375rem !important;
+}
+
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] :is(
+    button[role="combobox"],
+    [data-radix-select-trigger]
+):hover {
+    background: var(--typo3-state-default-hover-bg) !important;
+}
+
+/* Font size stepper borders */
+.docx-editor-module__surface .ep-root [data-testid="font-size-display"],
+.docx-editor-module__surface .ep-root [data-testid="font-size-input"] {
+    background: var(--typo3-component-bg) !important;
+    border-color: var(--typo3-component-border-color) !important;
+    color: var(--typo3-component-color) !important;
+}
+
+/* Neutralize hardcoded Tailwind slate hover on formatting bar only */
+.docx-editor-module__surface .ep-root [data-testid="formatting-bar"] [class*="hover:bg-slate-"]:hover {
+    background: var(--typo3-state-default-hover-bg) !important;
+}

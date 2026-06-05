@@ -1,0 +1,217 @@
+typo3-docx-editor {
+    display: block;
+    min-height: 70vh;
+    width: 100%;
+}
+
+typo3-docx-editor .mount {
+    min-height: 70vh;
+    width: 100%;
+}
+
+.docx-editor-module {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-height: calc(100vh - 12rem);
+}
+
+/* Office fonts (Aptos, etc.) are not loaded from Google Fonts in TYPO3 (CSP). */
+.docx-editor-module__surface,
+.docx-editor-module__surface .ep-root {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.docx-editor-module__meta {
+    display: flex;
+    justify-content: flex-end;
+    min-height: 1.25rem;
+}
+
+.docx-editor-module__presence {
+    color: var(--typo3-text-color-variant);
+    font-size: var(--typo3-font-size-small);
+}
+
+.docx-editor-module__surface {
+    border: 1px solid var(--typo3-component-border-color);
+    border-radius: var(--typo3-component-border-radius);
+    display: block;
+    flex: 1 1 auto;
+    min-height: 70vh;
+    overflow: hidden;
+}
+
+.docx-editor-remote-banner {
+    align-items: center;
+    background: var(--typo3-state-warning-bg);
+    border-radius: var(--typo3-component-border-radius);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.docx-editor-remote-banner.d-none {
+    display: none;
+}
+
+/* H1–H4 quick styles in the eigenpal formatting toolbar (toolbarExtra) */
+.docx-editor-module__surface .docx-heading-toolbar {
+    align-items: center;
+    border-inline-end: var(--typo3-component-border-width) solid var(--typo3-component-border-color);
+    display: inline-flex;
+    flex: 0 0 auto;
+    flex-wrap: wrap;
+    gap: 0.0625rem;
+    margin-inline-end: 0.25rem;
+    max-width: 100%;
+    padding-inline-end: 0.25rem;
+}
+
+.docx-editor-module__surface .docx-heading-toolbar__btn {
+    background: transparent;
+    border: var(--typo3-component-border-width) solid transparent;
+    border-radius: var(--typo3-input-border-radius);
+    color: var(--typo3-state-default-color);
+    font-family: var(--typo3-header-font-family, var(--typo3-font-family));
+    font-size: var(--typo3-font-size-small);
+    font-weight: 600;
+    line-height: 1;
+    min-height: var(--docx-toolbar-btn-size, 1.375rem);
+    min-width: var(--docx-toolbar-btn-size, 1.375rem);
+    padding: 0.125rem 0.25rem;
+}
+
+.docx-editor-module__surface .docx-heading-toolbar__btn--h1 {
+    font-size: calc(var(--typo3-font-size-small) * 1.15);
+}
+
+.docx-editor-module__surface .docx-heading-toolbar__btn--h2 {
+    font-size: calc(var(--typo3-font-size-small) * 1.05);
+}
+
+.docx-editor-module__surface .docx-heading-toolbar__btn--h4 {
+    font-size: calc(var(--typo3-font-size-small) * 0.95);
+}
+
+.docx-editor-module__surface .docx-heading-toolbar__btn:hover:not(:disabled) {
+    background: var(--typo3-state-default-hover-bg);
+    border-color: var(--typo3-state-default-hover-border-color);
+    color: var(--typo3-state-default-hover-color);
+}
+
+.docx-editor-module__surface .docx-heading-toolbar__btn:focus-visible {
+    border-color: var(--typo3-state-default-focus-border-color);
+    outline: var(--typo3-outline-width) var(--typo3-outline-style)
+        color-mix(in srgb, var(--typo3-state-default-focus-border-color), transparent 25%);
+}
+
+.docx-editor-module__surface .docx-heading-toolbar__btn--active,
+.docx-editor-module__surface .docx-heading-toolbar__btn--active:hover {
+    background: var(--typo3-state-primary-bg);
+    border-color: var(--typo3-state-primary-border-color);
+    color: var(--typo3-state-primary-color);
+}
+
+.docx-editor-module__surface .docx-heading-toolbar__btn:disabled {
+    opacity: var(--typo3-btn-disabled-opacity, 0.65);
+}
+
+/* Title bar + menu */
+.docx-editor-module__surface .ep-root [data-testid="editor-toolbar"] {
+    background: var(--typo3-component-bg);
+    border-bottom: var(--typo3-component-border-width) solid var(--typo3-component-border-color);
+    color: var(--typo3-component-color);
+}
+
+.docx-editor-module__surface .ep-root [data-testid="editor-toolbar"] input,
+.docx-editor-module__surface .ep-root [data-testid="editor-toolbar"] span {
+    color: var(--typo3-text-color-base) !important;
+}
+
+.docx-editor-module__surface .ep-root [data-testid="editor-toolbar"] button {
+    border-radius: var(--typo3-input-border-radius);
+    color: var(--typo3-state-default-color);
+    font-size: var(--typo3-font-size);
+}
+
+.docx-editor-module__surface .ep-root [data-testid="editor-toolbar"] button:hover {
+    background: var(--typo3-state-default-hover-bg);
+    color: var(--typo3-state-default-hover-color);
+}
+
+/* Shared toolbar chrome (title bar + formatting bar) */
+.docx-editor-module__surface .ep-root :is(
+    [data-testid="formatting-bar"],
+    [data-testid="editor-toolbar"]
+) svg,
+.docx-editor-module__surface .ep-root .docx-list-button svg,
+.docx-editor-module__surface .ep-root .docx-color-picker-button svg,
+.docx-editor-module__surface .ep-root .docx-color-picker-apply svg,
+.docx-editor-module__surface .ep-root .docx-color-picker-arrow svg,
+.docx-editor-module__surface .ep-root .docx-text-context-menu-item svg {
+    color: currentColor;
+    fill: currentColor;
+    flex-shrink: 0;
+    height: var(--docx-toolbar-icon-size, 0.875rem);
+    width: var(--docx-toolbar-icon-size, 0.875rem);
+}
+
+.docx-editor-module__surface .ep-root :is(
+    [data-testid="formatting-bar"],
+    [data-testid="editor-toolbar"]
+) [class*="text-slate-"] {
+    color: var(--typo3-state-default-color);
+}
+
+.docx-editor-module__surface .ep-root :is(
+    [data-testid="formatting-bar"],
+    [data-testid="editor-toolbar"]
+) [class*="hover:text-slate-"]:hover {
+    color: var(--typo3-state-default-hover-color) !important;
+}
+
+.docx-editor-module__surface .ep-root :is(
+    [data-testid="formatting-bar"],
+    [data-testid="editor-toolbar"]
+) [class*="hover:bg-slate-"]:hover:not(.bg-slate-900) {
+    background: var(--typo3-state-default-hover-bg) !important;
+}
+
+.docx-editor-module__surface .ep-root :is(
+    [data-testid="formatting-bar"],
+    [data-testid="editor-toolbar"]
+) [class*="border-slate-"] {
+    border-color: var(--typo3-component-border-color);
+}
+
+/* Tooltips */
+.docx-editor-module__surface .ep-root .fixed.z-50 {
+    background: light-dark(var(--token-color-neutral-90), var(--token-color-neutral-20)) !important;
+    border-radius: var(--typo3-input-border-radius) !important;
+    color: light-dark(var(--token-color-neutral-10), var(--token-color-neutral-90)) !important;
+    font-size: var(--typo3-font-size-small) !important;
+}
+
+/* Menus & dropdown panels */
+.docx-editor-module__surface .ep-root [data-testid="editor-toolbar"] [role="menu"],
+.docx-editor-module__surface .ep-root .docx-text-context-menu,
+.docx-editor-module__surface .ep-root [data-radix-select-content],
+.docx-editor-module__surface .ep-root [data-radix-popper-content-wrapper] > div {
+    background: var(--typo3-component-bg) !important;
+    border: var(--typo3-component-border-width) solid var(--typo3-component-border-color) !important;
+    border-radius: var(--typo3-component-border-radius) !important;
+    box-shadow: var(--typo3-component-box-shadow) !important;
+    color: var(--typo3-component-color) !important;
+}
+
+.docx-editor-module__surface .ep-root .docx-text-context-menu-item-highlighted,
+.docx-editor-module__surface .ep-root [data-testid="editor-toolbar"] button:hover {
+    background: var(--typo3-list-item-hover-bg) !important;
+    color: var(--typo3-list-item-hover-color) !important;
+}
+
+.docx-editor-module__surface .ep-root .text-red-600 {
+    color: var(--typo3-state-danger-color) !important;
+}
