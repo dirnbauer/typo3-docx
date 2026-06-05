@@ -74,6 +74,7 @@ run_assets() {
         exit 1
     fi
     npm ci
+    npm run test:build
     npm run build
     if [[ ! -f Resources/Public/Vite/manifest.json ]]; then
         echo "Vite manifest was not created." >&2

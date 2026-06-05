@@ -1,5 +1,5 @@
 import { createRoot } from 'react-dom/client';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { DocxEditor } from '@eigenpal/docx-editor-react';
 import {
   decodeBase64ToArrayBuffer,
@@ -8,8 +8,7 @@ import {
   saveDocument,
   saveDocumentAs,
 } from './docx-editor-api.js';
-import { buildDocxEditorI18n } from './docx-editor-i18n.js';
-import { DocxHeadingToolbar } from './docx-heading-toolbar.jsx';
+import { useTypo3DocxEditorOptions } from './use-typo3-docx-editor-options.jsx';
 
 /**
  * React adapter for eigenpal/docx-editor. Mounted by the Lit glue element only.
@@ -29,13 +28,7 @@ function DocxEditorHost({
   const [buffer, setBuffer] = useState(null);
   const [revision, setRevision] = useState(initialRevision);
   const [loading, setLoading] = useState(true);
-  const [activeStyleId, setActiveStyleId] = useState(null);
   const savingRef = useRef(false);
-  const editorRef = useRef(null);
-  const editorI18n = useMemo(
-    () => buildDocxEditorI18n(editorLocale, headingLabels),
-    [editorLocale, headingLabels],
-  );
 
   const reload = useCallback(async () => {
     setLoading(true);
@@ -96,6 +89,8 @@ function DocxEditorHost({
     [persistBuffer],
   );
 
+  const editorRef = useRef(null);
+
   const exportCurrentBuffer = useCallback(async () => {
     const fromEditor = await editorRef.current?.save();
     if (fromEditor) {
@@ -104,24 +99,17 @@ function DocxEditorHost({
     return buffer;
   }, [buffer]);
 
-  useEffect(() => {
-    if (!editorApi) {
-      return undefined;
-    }
-    editorApi.save = async () => {
-      const arrayBuffer = await exportCurrentBuffer();
-      await persistBuffer(arrayBuffer);
-    };
-    editorApi.saveAs = async (folderIdentifier, targetFileName) => {
-      const arrayBuffer = await exportCurrentBuffer();
-      return persistBuffer(arrayBuffer, {
-        saveAsFolder: folderIdentifier,
-        saveAsFileName: targetFileName,
-      });
-    };
-    editorApi.getFileName = () => fileName;
-    return undefined;
-  }, [editorApi, exportCurrentBuffer, fileName, persistBuffer]);
+  const { editorI18n, headingToolbar, onSelectionChange } = useTypo3DocxEditorOptions({
+    editorApi,
+    editorRef,
+    editorLocale,
+    headingLabels,
+    canWrite,
+    loading,
+    fileName,
+    exportCurrentBuffer,
+    persistBuffer,
+  });
 
   useEffect(() => {
     const interval = window.setInterval(async () => {
@@ -144,16 +132,6 @@ function DocxEditorHost({
     return <div className="docx-editor-loading">{loadingLabel}</div>;
   }
 
-  const headingToolbar =
-    canWrite ? (
-      <DocxHeadingToolbar
-        editorRef={editorRef}
-        activeStyleId={activeStyleId}
-        disabled={loading}
-        labels={headingLabels}
-      />
-    ) : null;
-
   return (
     <DocxEditor
       ref={editorRef}
@@ -164,7 +142,7 @@ function DocxEditorHost({
       i18n={editorI18n}
       toolbarExtra={headingToolbar}
       onSave={canWrite ? handleSave : undefined}
-      onSelectionChange={(state) => setActiveStyleId(state?.styleId ?? null)}
+      onSelectionChange={onSelectionChange}
       onError={(error) => onStatus?.('error', error.message)}
     />
   );

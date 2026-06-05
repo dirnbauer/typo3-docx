@@ -1,10 +1,7 @@
 import Modal from '@typo3/backend/modal.js';
 import Notification from '@typo3/backend/notification.js';
 import { MessageUtility } from '@typo3/backend/utility/message-utility.js';
-
-function getApp() {
-  return document.getElementById('docx-editor-app');
-}
+import { notifyDocxEditorStatus } from '@webconsulting/docx-editor/notify.js';
 
 function getEditorElement() {
   return document.querySelector('typo3-docx-editor');
@@ -19,27 +16,6 @@ function getDocHeaderButton(identifier) {
   return document.querySelector(`[data-identifier="${identifier}"]`);
 }
 
-function notifyStatus(app, state, detail = '') {
-  switch (state) {
-    case 'saved':
-      Notification.success(
-        readLabel(app, 'saved', 'Saved'),
-        '',
-      );
-      break;
-    case 'error':
-      Notification.error(
-        readLabel(app, 'saveFailed', 'Save failed'),
-        detail || readLabel(app, 'saveFailed', 'Save failed'),
-      );
-      break;
-    case 'saving':
-      break;
-    default:
-      break;
-  }
-}
-
 async function triggerSave() {
   const editor = getEditorElement();
   if (!editor) {
@@ -48,7 +24,7 @@ async function triggerSave() {
   try {
     await editor.save();
   } catch {
-    // Error toast is emitted via docx-editor:status from typo3-docx-editor.
+    // Error toast is handled by typo3-docx-editor via notifyDocxEditorStatus.
   }
 }
 
@@ -78,8 +54,7 @@ function openFolderBrowser(app) {
   });
 }
 
-async function completeSaveAs(folderIdentifier) {
-  const app = getApp();
+async function completeSaveAs(app, folderIdentifier) {
   const editor = getEditorElement();
   if (!app || !editor || !folderIdentifier) {
     return;
@@ -112,12 +87,11 @@ async function completeSaveAs(folderIdentifier) {
       window.location.href = target.toString();
     }
   } catch (error) {
-    notifyStatus(app, 'error', error?.message || String(error));
+    notifyDocxEditorStatus(app, 'error', error?.message || String(error));
   }
 }
 
-function handleFolderSelection(data) {
-  const app = getApp();
+function handleFolderSelection(app, data) {
   const fieldName = app?.dataset?.saveAsFieldName || 'docxEditorSaveAsFolder';
   if (data.fieldName !== fieldName || typeof data.value !== 'string' || data.value === '') {
     return;
@@ -129,25 +103,7 @@ function handleFolderSelection(data) {
   }
 
   Modal.dismiss();
-  completeSaveAs(data.value);
-}
-
-function handleElementBrowserMessage(event) {
-  if (event.type === 'typo3:element-browser:message') {
-    handleFolderSelection(event.detail || {});
-    return;
-  }
-
-  if (!MessageUtility.verifyOrigin(event.origin)) {
-    return;
-  }
-
-  const data = event.data;
-  if (!data || data.actionName !== 'typo3:elementBrowser:elementAdded') {
-    return;
-  }
-
-  handleFolderSelection(data);
+  completeSaveAs(app, data.value);
 }
 
 function bindDocHeaderButton(button, handler) {
@@ -161,41 +117,80 @@ function bindDocHeaderButton(button, handler) {
   });
 }
 
-function bindToolbar(app) {
-  bindDocHeaderButton(getDocHeaderButton('docx-editor-save'), () => triggerSave());
-  bindDocHeaderButton(getDocHeaderButton('docx-editor-save-as'), () => openFolderBrowser(app));
-
-  if (!window.docxEditorToolbarMessageListener) {
-    window.docxEditorToolbarMessageListener = true;
-    window.addEventListener('message', handleElementBrowserMessage);
-    document.addEventListener('typo3:element-browser:message', handleElementBrowserMessage);
+class DocxEditorToolbarController {
+  /**
+   * @param {HTMLElement} app
+   */
+  constructor(app) {
+    this.app = app;
+    this.onMessage = (event) => this.handleElementBrowserMessage(event);
+    this.onKeydown = (event) => this.handleKeydown(event);
   }
 
-  if (!window.docxEditorToolbarKeyListener) {
-    window.docxEditorToolbarKeyListener = true;
-    window.addEventListener('keydown', (event) => {
-      if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 's' || event.shiftKey) {
-        return;
-      }
-      const editor = getEditorElement();
-      if (!editor || app?.dataset?.canWrite !== '1') {
-        return;
-      }
-      event.preventDefault();
-      triggerSave();
-    });
+  bind() {
+    bindDocHeaderButton(getDocHeaderButton('docx-editor-save'), () => triggerSave());
+    bindDocHeaderButton(getDocHeaderButton('docx-editor-save-as'), () => openFolderBrowser(this.app));
+    window.addEventListener('message', this.onMessage);
+    document.addEventListener('typo3:element-browser:message', this.onMessage);
+    window.addEventListener('keydown', this.onKeydown);
   }
 
-  if (!window.docxEditorStatusListener) {
-    window.docxEditorStatusListener = true;
-    document.addEventListener('docx-editor:status', (event) => {
-      const detail = event.detail || {};
-      notifyStatus(getApp(), detail.state, detail.message);
-    });
+  destroy() {
+    window.removeEventListener('message', this.onMessage);
+    document.removeEventListener('typo3:element-browser:message', this.onMessage);
+    window.removeEventListener('keydown', this.onKeydown);
+  }
+
+  handleElementBrowserMessage(event) {
+    if (event.type === 'typo3:element-browser:message') {
+      handleFolderSelection(this.app, event.detail || {});
+      return;
+    }
+
+    if (!MessageUtility.verifyOrigin(event.origin)) {
+      return;
+    }
+
+    const data = event.data;
+    if (!data || data.actionName !== 'typo3:elementBrowser:elementAdded') {
+      return;
+    }
+
+    handleFolderSelection(this.app, data);
+  }
+
+  handleKeydown(event) {
+    if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 's' || event.shiftKey) {
+      return;
+    }
+    const editor = getEditorElement();
+    if (!editor || this.app?.dataset?.canWrite !== '1') {
+      return;
+    }
+    event.preventDefault();
+    triggerSave();
   }
 }
 
-const app = getApp();
+/** @type {DocxEditorToolbarController | null} */
+let activeController = null;
+
+/**
+ * @param {HTMLElement | null} app
+ */
+export function initDocxEditorToolbar(app) {
+  if (!app) {
+    return;
+  }
+  if (activeController?.app === app) {
+    return;
+  }
+  activeController?.destroy();
+  activeController = new DocxEditorToolbarController(app);
+  activeController.bind();
+}
+
+const app = document.getElementById('docx-editor-app');
 if (app) {
-  bindToolbar(app);
+  initDocxEditorToolbar(app);
 }

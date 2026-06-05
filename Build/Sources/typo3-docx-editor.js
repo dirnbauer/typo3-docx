@@ -1,5 +1,7 @@
 import { LitElement, css, html } from 'lit';
+import { notifyDocxEditorStatus } from '@webconsulting/docx-editor/notify.js';
 import { mountDocxEditor } from './docx-editor-mount.jsx';
+import { readAppLabels, readHeadingLabels } from './docx-labels.js';
 import { heartbeatSession, joinSession, leaveSession } from './docx-editor-api.js';
 
 /**
@@ -46,8 +48,11 @@ export class Typo3DocxEditorElement extends LitElement {
     this.unmountEditor = null;
     this.sessionUid = 0;
     this.heartbeatTimer = null;
+    this.app = null;
     this.labels = {};
+    this.headingLabels = {};
     this.docxEditorApi = null;
+    this.remoteReloadBound = false;
   }
 
   async save() {
@@ -67,10 +72,9 @@ export class Typo3DocxEditorElement extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
-    const app = document.getElementById('docx-editor-app');
-    if (app?.dataset) {
-      this.labels = { ...app.dataset };
-    }
+    this.app = document.getElementById('docx-editor-app');
+    this.labels = readAppLabels(this.app);
+    this.headingLabels = readHeadingLabels(this.app);
   }
 
   disconnectedCallback() {
@@ -95,17 +99,7 @@ export class Typo3DocxEditorElement extends LitElement {
         initialRevision: this.revision,
         loadingLabel: this.labels.labelLoading || 'Loading document…',
         editorLocale: this.labels.editorLocale || 'en',
-        headingLabels: {
-          group: this.labels.labelHeadingGroup,
-          heading1: this.labels.labelHeading1,
-          heading2: this.labels.labelHeading2,
-          heading3: this.labels.labelHeading3,
-          heading4: this.labels.labelHeading4,
-          heading1Title: this.labels.labelHeading1Title,
-          heading2Title: this.labels.labelHeading2Title,
-          heading3Title: this.labels.labelHeading3Title,
-          heading4Title: this.labels.labelHeading4Title,
-        },
+        headingLabels: this.headingLabels,
         onStatus: (state, detail) => this.handleStatus(state, detail),
         onRemoteRevision: (revision, _hash, conflict) =>
           this.handleRemoteRevision(revision, conflict),
@@ -161,14 +155,10 @@ export class Typo3DocxEditorElement extends LitElement {
     if (state === 'ready' || state === 'saving') {
       return;
     }
-    document.dispatchEvent(
-      new CustomEvent('docx-editor:status', {
-        bubbles: true,
-        detail: {
-          state,
-          message: typeof detail === 'string' ? detail : '',
-        },
-      }),
+    notifyDocxEditorStatus(
+      this.app,
+      state,
+      typeof detail === 'string' ? detail : '',
     );
   }
 
@@ -177,23 +167,16 @@ export class Typo3DocxEditorElement extends LitElement {
       this.revision = revision;
       return;
     }
-    let banner = document.querySelector('[data-docx-remote-banner]');
+    const banner = document.querySelector('[data-docx-remote-banner]');
     if (!banner) {
-      banner = document.createElement('div');
-      banner.className = 'docx-editor-remote-banner';
-      banner.dataset.docxRemoteBanner = '';
-      const app = document.getElementById('docx-editor-app');
-      app?.prepend(banner);
+      return;
     }
-    banner.innerHTML = '';
-    const text = document.createElement('span');
-    text.textContent = this.labels.labelRemoteUpdate || 'Document updated remotely.';
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'btn btn-sm btn-warning';
-    button.textContent = this.labels.labelReload || 'Reload';
-    button.addEventListener('click', () => window.location.reload());
-    banner.append(text, button);
+    banner.classList.remove('d-none');
+    const reloadButton = banner.querySelector('[data-docx-remote-reload]');
+    if (reloadButton && !this.remoteReloadBound) {
+      this.remoteReloadBound = true;
+      reloadButton.addEventListener('click', () => window.location.reload());
+    }
   }
 
   renderPresence(participants = []) {

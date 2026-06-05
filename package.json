@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite build --watch --mode development",
-    "build": "vite build --mode production"
+    "build": "vite build --mode production",
+    "test:build": "node --test Build/vite/plugins/heading4-fallback.test.js"
   },
   "dependencies": {
     "@eigenpal/docx-editor-core": "^1.2.1",
