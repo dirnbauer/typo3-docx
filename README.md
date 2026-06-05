@@ -39,20 +39,39 @@ Pre-built JavaScript is included — no Node.js step is required for a normal in
 
 1. Open **Media** in the backend.
 2. Choose a `.docx` file → **Edit DOCX**.
-3. Edit and save from the editor toolbar.
+3. Edit and save from the **docheader** (back, save, save as) or use **Ctrl/Cmd+S**.
+
+Save feedback uses the TYPO3 backend Notification API. The formatting toolbar wraps to multiple lines and follows TYPO3 light/dark tokens.
+
+## Architecture
+
+| Layer | Location | Role |
+| --- | --- | --- |
+| PHP | `Classes/` | FAL I/O, permissions, revision/collaboration APIs, backend module |
+| Fluid | `Resources/Private/Templates/` | Module shell, labels, remote-revision banner |
+| TYPO3 ES modules | `Resources/Public/JavaScript/` | Docheader toolbar, Notification helper |
+| Vite bundle | `Resources/Public/Vite/docx-editor.js` | Lit glue + React + eigenpal editor |
+| Theme CSS | `Resources/Public/Css/Editor*.css` | TYPO3 token overrides (no Vite rebuild needed) |
+
+Frontend sources and rebuild details: [Build/Sources/README.md](Build/Sources/README.md).
 
 ## Documentation
 
 - [Full TYPO3 manual](Documentation/Index.rst) (Introduction, installation, usage, security)
+- [Developer guide](Documentation/Developer/Index.rst) (architecture, quality gates, extension boundaries)
 - [Changelog](CHANGELOG.md)
 
 ## Development
 
 ```bash
 composer install
-npm ci && npm run build   # only when changing Build/Sources/
+npm ci && npm run test:build && npm run build   # after changing Build/Sources/
 Build/Scripts/runTests.sh -s ci
 ```
+
+- Change `Build/Sources/` → run `npm run build` and commit `Resources/Public/Vite/docx-editor.js`
+- Change `Resources/Public/Css/Editor*.css` → no Node.js step; flush TYPO3 caches and hard-refresh
+- Upgrade `@eigenpal/docx-editor-react` → run `npm run test:build` (pins the Heading 4 Vite patch)
 
 ## Collaboration
 

@@ -18,7 +18,8 @@ Key features
 ============
 
 - Primary **Edit DOCX** action in the Media file list
-- Full-page backend editor with toolbar save back to FAL
+- Full-page backend editor with TYPO3 docheader (save, save as, FAL breadcrumbs)
+- Compact formatting toolbar with H1–H4 shortcuts and TYPO3 light/dark tokens
 - Active editor presence (who is online)
 - Revision tracking and conflict-safe saves
 - English and German backend labels (XLIFF 2.0, ICU)

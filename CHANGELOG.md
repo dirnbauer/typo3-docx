@@ -2,6 +2,26 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.2.0] - 2026-06-04
+
+### Added
+
+- Split editor theme CSS into `Editor.tokens.css`, `Editor.base.css`, and `Editor.toolbar.css`.
+- `docx-editor-notify.js` TYPO3 module for save feedback via the Notification API.
+- `docx-labels.js` and JSON `data-heading-labels` attribute for translated H1–H4 labels.
+- `use-typo3-docx-editor-options.jsx` hook for TYPO3-specific React editor wiring.
+- Fluid partial `RemoteRevisionBanner` for remote-revision conflict UI.
+- Heading 4 Vite patch extracted to `Build/vite/plugins/heading4-fallback.js` with `npm run test:build`.
+- `Build/Sources/README.md` documenting frontend layout and rebuild workflow.
+
+### Changed
+
+- Formatting toolbar: compact controls, multi-line wrap, no horizontal scroll.
+- `docx-editor-toolbar.js`: `DocxEditorToolbarController` replaces `window.*` listener flags.
+- `EditorController`: shared `addBackToMediaButton()` and `buildHeadingLabelsJson()`.
+- Save status flows directly from Lit to `notifyDocxEditorStatus()` (no custom event bridge).
+- CI assets suite runs `npm run test:build` before the production build.
+
 ## [1.1.0] - 2026-06-04
 
 ### Added

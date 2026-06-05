@@ -41,7 +41,14 @@ packages:
     :caption: Rebuild the Vite bundle
 
     npm ci
+    npm run test:build
     npm run build
+
+``test:build`` verifies the Heading 4 Vite patch still matches the installed
+``@eigenpal/docx-editor-react`` version.
 
 Commit the generated files in :file:`Resources/Public/Vite/` before tagging a
 release.
+
+Theme-only changes in :file:`Resources/Public/Css/Editor*.css` do not require
+a Node.js rebuild — flush caches and hard-refresh the backend instead.
