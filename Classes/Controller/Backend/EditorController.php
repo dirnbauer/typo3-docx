@@ -74,6 +74,7 @@ final class EditorController
             'defaultFolderIdentifier' => $parentFolder->getCombinedIdentifier(),
             'editorModuleUrl' => (string)$this->uriBuilder->buildUriFromRoute('docx_editor'),
             'editorLocale' => $this->resolveEditorLocale($request),
+            'headingLabelsJson' => $this->buildHeadingLabelsJson(),
         ]);
 
         return $view->renderResponse('Backend/Editor/Edit');
@@ -99,20 +100,7 @@ final class EditorController
         bool $canWrite,
     ): void {
         $view->getDocHeaderComponent()->setResourceBreadcrumb($file);
-
-        $mediaFolderUrl = (string)$this->uriBuilder->buildUriFromRoute('media_management', [
-            'id' => $parentFolder->getCombinedIdentifier(),
-        ]);
-
-        $view->addButtonToButtonBar(
-            $this->componentFactory->createLinkButton()
-                ->setHref($mediaFolderUrl)
-                ->setTitle($this->translateLabel('editor.backToMedia'))
-                ->setIcon($this->iconFactory->getIcon('actions-arrow-left-alt', IconSize::SMALL))
-                ->setShowLabelText(true),
-            ButtonBar::BUTTON_POSITION_LEFT,
-            10,
-        );
+        $this->addBackToMediaButton($view, $parentFolder);
 
         if (!$canWrite) {
             return;
@@ -187,21 +175,51 @@ final class EditorController
             $this->translate('docx_editor.mod:tabs.label'),
             $this->translate('docx_editor.mod:error.title'),
         );
-        $mediaListUrl = (string)$this->uriBuilder->buildUriFromRoute('media_management');
+        $this->addBackToMediaButton($view);
+        $view->assignMultiple([
+            'errorMessage' => $message,
+            'mediaListUrl' => (string)$this->uriBuilder->buildUriFromRoute('media_management'),
+        ]);
+        return $view->renderResponse('Backend/Editor/Error');
+    }
+
+    private function addBackToMediaButton(ModuleTemplate $view, ?Folder $parentFolder = null): void
+    {
+        $routeParams = [];
+        if ($parentFolder !== null) {
+            $routeParams['id'] = $parentFolder->getCombinedIdentifier();
+        }
+        $mediaFolderUrl = (string)$this->uriBuilder->buildUriFromRoute('media_management', $routeParams);
+
         $view->addButtonToButtonBar(
             $this->componentFactory->createLinkButton()
-                ->setHref($mediaListUrl)
+                ->setHref($mediaFolderUrl)
                 ->setTitle($this->translateLabel('editor.backToMedia'))
                 ->setIcon($this->iconFactory->getIcon('actions-arrow-left-alt', IconSize::SMALL))
                 ->setShowLabelText(true),
             ButtonBar::BUTTON_POSITION_LEFT,
             10,
         );
-        $view->assignMultiple([
-            'errorMessage' => $message,
-            'mediaListUrl' => $mediaListUrl,
-        ]);
-        return $view->renderResponse('Backend/Editor/Error');
+    }
+
+    private function buildHeadingLabelsJson(): string
+    {
+        $labels = [
+            'group' => $this->translateLabel('editor.headings.group'),
+            'heading1' => $this->translateLabel('editor.headings.h1'),
+            'heading2' => $this->translateLabel('editor.headings.h2'),
+            'heading3' => $this->translateLabel('editor.headings.h3'),
+            'heading4' => $this->translateLabel('editor.headings.h4'),
+            'heading1Title' => $this->translateLabel('editor.headings.h1.title'),
+            'heading2Title' => $this->translateLabel('editor.headings.h2.title'),
+            'heading3Title' => $this->translateLabel('editor.headings.h3.title'),
+            'heading4Title' => $this->translateLabel('editor.headings.h4.title'),
+        ];
+
+        return json_encode(
+            $labels,
+            JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT,
+        );
     }
 
     private function translate(string $key): string
