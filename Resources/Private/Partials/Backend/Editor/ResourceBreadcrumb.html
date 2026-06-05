@@ -1,0 +1,12 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:if condition="{breadcrumbJson}">
+    <div class="docx-editor-module__breadcrumb">
+        <typo3-breadcrumb
+            label="{f:translate(key: 'LLL:EXT:backend/Resources/Private/Language/locallang_layout.xlf:breadcrumb')}"
+            nodes="{breadcrumbJson -> f:format.raw()}"></typo3-breadcrumb>
+    </div>
+</f:if>
+
+</html>

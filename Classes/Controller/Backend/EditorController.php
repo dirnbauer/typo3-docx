@@ -7,6 +7,8 @@ namespace Webconsulting\DocxEditor\Controller\Backend;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Backend\Breadcrumb\BreadcrumbContext;
+use TYPO3\CMS\Backend\Template\Components\Breadcrumb;
 use TYPO3\CMS\Backend\Template\Components\ButtonBar;
 use TYPO3\CMS\Backend\Template\Components\ComponentFactory;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
@@ -33,6 +35,7 @@ final class EditorController
         private readonly PageRenderer $pageRenderer,
         private readonly ComponentFactory $componentFactory,
         private readonly IconFactory $iconFactory,
+        private readonly Breadcrumb $breadcrumb,
     ) {}
 
     public function editAction(ServerRequestInterface $request): ResponseInterface
@@ -75,6 +78,8 @@ final class EditorController
             'editorModuleUrl' => (string)$this->uriBuilder->buildUriFromRoute('docx_editor'),
             'editorLocale' => $this->resolveEditorLocale($request),
             'headingLabelsJson' => $this->buildHeadingLabelsJson(),
+            'breadcrumbJson' => $this->buildBreadcrumbJson($file, $request),
+            'filePath' => $this->buildFilePathLabel($file),
         ]);
 
         return $view->renderResponse('Backend/Editor/Edit');
@@ -137,6 +142,7 @@ final class EditorController
         }
         // After eigenpal/Tailwind bundle so TYPO3 token overrides win in cascade.
         $this->pageRenderer->addCssFile('EXT:docx_editor/Resources/Public/Css/Editor.css');
+        $this->pageRenderer->loadJavaScriptModule('@typo3/backend/element/breadcrumb.js');
         if ($this->viteAssetResolver->hasBuild()) {
             $this->pageRenderer->loadJavaScriptModule('@webconsulting/docx-editor/docx-editor.js');
             $this->pageRenderer->loadJavaScriptModule('@webconsulting/docx-editor/toolbar.js');
@@ -200,6 +206,27 @@ final class EditorController
             ButtonBar::BUTTON_POSITION_LEFT,
             10,
         );
+    }
+
+    private function buildBreadcrumbJson(File $file, ServerRequestInterface $request): string
+    {
+        $nodes = $this->breadcrumb->getBreadcrumb(
+            $request,
+            new BreadcrumbContext($file, []),
+        );
+
+        return json_encode(
+            $nodes,
+            JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT,
+        );
+    }
+
+    private function buildFilePathLabel(File $file): string
+    {
+        $storageName = $file->getStorage()->getName();
+        $identifier = ltrim($file->getIdentifier(), '/');
+
+        return $storageName !== '' ? $storageName . ' / ' . $identifier : $identifier;
     }
 
     private function buildHeadingLabelsJson(): string

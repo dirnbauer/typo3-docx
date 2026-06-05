@@ -15,7 +15,10 @@ function readLabel(app, key, fallback) {
 export function notifyDocxEditorStatus(app, state, detail = '') {
   switch (state) {
     case 'saved':
-      Notification.success(readLabel(app, 'saved', 'Saved'), '');
+      Notification.success(
+        readLabel(app, 'saved', 'Saved'),
+        readLabel(app, 'savedDetail', app?.dataset?.filePath || app?.dataset?.fileName || ''),
+      );
       break;
     case 'error':
       Notification.error(

@@ -41,6 +41,11 @@
         <source>Gespeichert</source>
       </segment>
     </unit>
+    <unit id="editor.savedDetail">
+      <segment>
+        <source>Gespeichert unter {0}</source>
+      </segment>
+    </unit>
     <unit id="editor.saveFailed">
       <segment>
         <source>Speichern fehlgeschlagen</source>

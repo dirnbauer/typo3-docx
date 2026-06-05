@@ -22,6 +22,12 @@ typo3-docx-editor .mount {
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
+.docx-editor-module__breadcrumb {
+    flex: 0 0 auto;
+    min-width: 0;
+    width: 100%;
+}
+
 .docx-editor-module__meta {
     display: flex;
     justify-content: flex-end;
@@ -39,7 +45,12 @@ typo3-docx-editor .mount {
     display: block;
     flex: 1 1 auto;
     min-height: 70vh;
-    overflow: hidden;
+    /* Keep toolbar menus (position:fixed) and poppers unclipped — like Media module chrome. */
+    overflow: visible;
+}
+
+.docx-editor-module__surface .ep-root {
+    overflow: visible;
 }
 
 .docx-editor-remote-banner {
@@ -194,16 +205,20 @@ typo3-docx-editor .mount {
     font-size: var(--typo3-font-size-small) !important;
 }
 
-/* Menus & dropdown panels */
+/* Menus & dropdown panels (in-editor and Radix portals on <body>) */
 .docx-editor-module__surface .ep-root [data-testid="editor-toolbar"] [role="menu"],
 .docx-editor-module__surface .ep-root .docx-text-context-menu,
 .docx-editor-module__surface .ep-root [data-radix-select-content],
-.docx-editor-module__surface .ep-root [data-radix-popper-content-wrapper] > div {
+.docx-editor-module__surface .ep-root [data-radix-popper-content-wrapper] > div,
+body > div > .ep-root [data-radix-select-content],
+body > div > .ep-root [data-radix-popper-content-wrapper] > div,
+body > div > .ep-root [role="menu"] {
     background: var(--typo3-component-bg) !important;
     border: var(--typo3-component-border-width) solid var(--typo3-component-border-color) !important;
     border-radius: var(--typo3-component-border-radius) !important;
     box-shadow: var(--typo3-component-box-shadow) !important;
     color: var(--typo3-component-color) !important;
+    z-index: calc(var(--typo3-zindex-modal, 1700) - 1);
 }
 
 .docx-editor-module__surface .ep-root .docx-text-context-menu-item-highlighted,

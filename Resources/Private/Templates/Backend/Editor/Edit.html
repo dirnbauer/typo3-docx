@@ -7,6 +7,7 @@
              id="docx-editor-app"
              data-file-identifier="{fileIdentifier}"
              data-file-name="{fileName}"
+             data-file-path="{filePath}"
              data-file-hash="{fileHash}"
              data-revision="{revision}"
              data-content-hash="{contentHash}"
@@ -22,6 +23,7 @@
              data-label-save-as-success="{f:translate(key: 'editor.saveAsSuccess', extensionName: 'docx_editor')}"
              data-label-saving="{f:translate(key: 'editor.saving', extensionName: 'docx_editor')}"
              data-label-saved="{f:translate(key: 'editor.saved', extensionName: 'docx_editor')}"
+             data-label-saved-detail="{f:translate(key: 'editor.savedDetail', extensionName: 'docx_editor', arguments: '{0: filePath}')}"
              data-label-saveFailed="{f:translate(key: 'editor.saveFailed', extensionName: 'docx_editor')}"
              data-label-collaborators-one="{f:translate(key: 'editor.collaborators.one', extensionName: 'docx_editor')}"
              data-label-collaborators-other="{f:translate(key: 'editor.collaborators.other', extensionName: 'docx_editor')}"
@@ -36,6 +38,7 @@
                    data-use-events="true"
                    data-identifier="{defaultFolderIdentifier}"></a>
             </f:if>
+            <f:render partial="Backend/Editor/ResourceBreadcrumb" arguments="{breadcrumbJson: breadcrumbJson}" />
             <div class="docx-editor-module__meta">
                 <span class="docx-editor-module__presence" data-docx-presence></span>
             </div>

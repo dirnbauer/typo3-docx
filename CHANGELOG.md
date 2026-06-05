@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented in this file.
 
+## [Unreleased]
+
+### Fixed
+
+- FAL breadcrumb trail rendered above the editor surface (Media-style path in the content pane).
+- Toolbar and Radix dropdown panels no longer clip or misalign (`overflow: visible`, body-level overlay styles).
+- Save notification now confirms the fileadmin path (`Saved to {storage / path}`).
+
 ## [1.2.0] - 2026-06-04
 
 ### Added
