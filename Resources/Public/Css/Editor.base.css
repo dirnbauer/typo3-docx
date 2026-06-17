@@ -146,11 +146,25 @@ typo3-docx-editor .mount {
     opacity: var(--typo3-btn-disabled-opacity, 0.65);
 }
 
-/* Title bar + menu */
+/* Title bar + menu — transparent wrapper; the title row below is its own box. */
 .docx-editor-module__surface .ep-root [data-testid="editor-toolbar"] {
-    background: var(--typo3-component-bg);
-    border-bottom: var(--typo3-component-border-width) solid var(--typo3-component-border-color);
+    background: transparent;
     color: var(--typo3-component-color);
+}
+
+/* Title + menu rendered as a contained box above the formatting (icon) bar. */
+.docx-editor-module__surface .ep-root [data-testid="title-bar"] {
+    background-color: var(--typo3-component-bg);
+    border: var(--typo3-component-border-width) solid var(--typo3-component-border-color);
+    border-radius: var(--typo3-component-border-radius);
+    margin-bottom: 0.5rem;
+}
+
+/* Small, muted document icon beside the title (override eigenpal's inline size). */
+.docx-editor-module__surface .ep-root [data-testid="title-bar"] svg {
+    height: 0.75rem !important;
+    opacity: 0.55;
+    width: 0.75rem !important;
 }
 
 .docx-editor-module__surface .ep-root [data-testid="editor-toolbar"] input,
