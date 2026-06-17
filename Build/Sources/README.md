@@ -21,6 +21,7 @@ Commit `Resources/Public/Vite/docx-editor.js` and `manifest.json` when shipping 
 | `docx-labels.js` | Reads translated labels from `#docx-editor-app` dataset |
 | `docx-editor-api.js` | Backend AJAX calls |
 | `docx-heading-toolbar.jsx` | H1–H4 quick-style buttons (`toolbarExtra`) |
+| `docx-icu-format.js` | Tiny ICU MessageFormat resolver (plural + `{var}`) for XLIFF 2 labels |
 
 TYPO3 ES modules (not in the Vite bundle):
 
@@ -31,27 +32,45 @@ TYPO3 ES modules (not in the Vite bundle):
 
 ## Vite patches: paragraph-style dropdown
 
-Two build-time text patches tune the eigenpal `Co` style-select. Both target the
-same chunk (`chunk-SW2JOSQG` in `@eigenpal/docx-editor-react@1.2.1`) and are
-guarded by `npm run test:build`, which fails if the chunk name or a needle drifts.
+Two build-time text patches tune the eigenpal style-select. Both scan **all**
+chunks under `node_modules/@eigenpal/docx-editor-react/dist/` by content
+pattern — they no longer care which chunk filename holds the needle, so a
+straight upstream bump usually just works. `npm run test:build` is the gate.
 
 | Plugin | What it does |
 | --- | --- |
-| `heading4-fallback.js` | Appends `Heading4` to eigenpal's built-in `vo` style list (upstream stops at Heading 3). |
-| `style-dropdown-headings.js` | Forces the dropdown to ignore the document's own styles and show exactly **Normal + Heading 1–4** (from `vo`). Without it, a Word file surfaces arbitrary names like "List Paragraph". |
+| `heading4-fallback.js` | Appends `Heading4` to eigenpal's built-in fallback style array (upstream stops at Heading 3). |
+| `style-dropdown-headings.js` | Forces the dropdown to ignore the document's own styles and show exactly **Normal + Heading 1–4** (filtered from the fallback array). Without it, a Word file surfaces arbitrary names like "List Paragraph". |
 
-After upgrading `@eigenpal/docx-editor-react`:
+### Upgrading `@eigenpal/docx-editor-react`
 
-1. Run `npm run test:build` — it fails if the chunk name or a needle changed.
-2. Update `EIGENPAL_FALLBACK_STYLES_CHUNK` / `HEADING3_FALLBACK_TAIL` (heading4) or
-   `STYLE_DROPDOWN_OPTION_SOURCE` (dropdown) to match the new build.
-3. If upstream adds Heading 4 natively, drop `heading4-fallback`. If upstream adds
-   a prop to filter the style dropdown, drop `style-dropdown-headings` and configure
-   it via `<DocxEditor>` instead. Delete the matching test(s) too.
+1. Bump the version in `package.json` and `rm package-lock.json && npm install`.
+2. `npm run test:build` — both plugins assert their needles still match somewhere
+   in `dist/*.mjs`.
+3. If `heading4-fallback` fails: the fallback-array tail shape changed. Compare
+   `dist/chunk-*.mjs` against `HEADING3_FALLBACK_TAIL` and update it. If upstream
+   ships Heading 4 natively (`styles.heading4` already present), DROP this
+   plugin and its test entirely.
+4. If `style-dropdown-headings` fails: upstream refactored the dropdown logic
+   again. **Don't change existing entries in `SHAPES`** (old fallback paths stay
+   useful). **Add a new entry** with a unique `id` (e.g. `'1.7.x'`), the new
+   needle (the smallest substring that uniquely identifies the new option-source
+   expression), and a `transform` that rewrites it to use `FILTER_BODY`. If
+   upstream adds a prop to filter the dropdown, drop this plugin and configure
+   via `<DocxEditor>` instead.
+5. `npm run build` and confirm the dropdown still shows Normal + H1–H4 in the
+   running backend (and headings still apply).
 
-To allow more styles in the dropdown, widen the regex in
-`STYLE_DROPDOWN_HEADINGS_SOURCE` (e.g. add `Title|Subtitle`); for strictly the four
-headings, drop `Normal|` — but then there is no in-dropdown way back to body text.
+To allow more styles in the dropdown, widen the regex in `FILTER_BODY` (e.g.
+add `Title|Subtitle`). For strictly the four headings, drop `Normal|` — but
+then there is no in-dropdown way back to body text.
+
+### Known shapes
+
+| eigenpal | shape id | dropdown option source |
+| --- | --- | --- |
+| `1.2.x` | `'1.2.x'` | `!o\|\|o.length===0?vo:o.filter(u=>u.type==="paragraph")` |
+| `1.6.x` | `'1.6.x'` | `resolveParagraphStyleOptions(o);return u.length===0?Co:u.map(` |
 
 ## CSS
 

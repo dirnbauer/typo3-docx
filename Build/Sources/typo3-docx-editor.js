@@ -3,6 +3,7 @@ import { notifyDocxEditorStatus } from '@webconsulting/docx-editor/notify.js';
 import { mountDocxEditor } from './docx-editor-mount.jsx';
 import { readAppLabels, readHeadingLabels } from './docx-labels.js';
 import { heartbeatSession, joinSession, leaveSession } from './docx-editor-api.js';
+import { formatIcu } from './docx-icu-format.js';
 
 /**
  * Lit glue for TYPO3: hosts the React-based eigenpal/docx-editor bundle.
@@ -189,13 +190,10 @@ export class Typo3DocxEditorElement extends LitElement {
       target.textContent = '';
       return;
     }
-    if (count === 1 && this.labels.labelCollaboratorsOne) {
-      target.textContent = this.labels.labelCollaboratorsOne;
-      return;
-    }
     const template =
-      this.labels.labelCollaboratorsOther || '{count} editors online';
-    target.textContent = template.replace(/\{count\}/g, String(count));
+      this.labels.labelCollaborators ||
+      '{count, plural, one {1 editor online} other {# editors online}}';
+    target.textContent = formatIcu(template, { count }, this.labels.editorLocale || 'en');
   }
 }
 

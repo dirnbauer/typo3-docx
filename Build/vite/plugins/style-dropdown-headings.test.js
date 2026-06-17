@@ -1,17 +1,15 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 import {
-  EIGENPAL_FALLBACK_STYLES_CHUNK,
   EIGENPAL_REACT_PACKAGE,
-  STYLE_DROPDOWN_HEADINGS_SOURCE,
-  STYLE_DROPDOWN_OPTION_SOURCE,
+  SHAPES,
   patchStyleDropdownHeadings,
 } from './style-dropdown-headings.js';
 
-const chunkPath = join(
+const distRoot = join(
   dirname(fileURLToPath(import.meta.url)),
   '..',
   '..',
@@ -19,27 +17,37 @@ const chunkPath = join(
   'node_modules',
   EIGENPAL_REACT_PACKAGE,
   'dist',
-  `${EIGENPAL_FALLBACK_STYLES_CHUNK}.mjs`,
 );
 
-test('eigenpal style-select still uses the known option-source expression', () => {
-  const source = readFileSync(chunkPath, 'utf8');
+function readAllDistMjs() {
+  return readdirSync(distRoot)
+    .filter((name) => name.endsWith('.mjs'))
+    .map((name) => readFileSync(join(distRoot, name), 'utf8'))
+    .join('\n');
+}
+
+test('at least one known style-dropdown shape still appears in the dist', () => {
+  const source = readAllDistMjs();
+  const matched = SHAPES.filter((shape) => source.includes(shape.needle));
   assert.ok(
-    source.includes(STYLE_DROPDOWN_OPTION_SOURCE),
-    `Expected ${EIGENPAL_FALLBACK_STYLES_CHUNK}.mjs to contain the style-select option source — update STYLE_DROPDOWN_OPTION_SOURCE`,
+    matched.length > 0,
+    `No known dropdown shape matched in any dist/*.mjs chunk. Upstream refactored the style-select — add a new entry to SHAPES in style-dropdown-headings.js. Known shapes tried: ${SHAPES.map((s) => s.id).join(', ')}`,
   );
 });
 
-test('patchStyleDropdownHeadings restricts the dropdown to Normal + H1–H4', () => {
-  const input = `let c=j.useMemo(()=>${STYLE_DROPDOWN_OPTION_SOURCE}.filter(u=>u.qFormat?true:!(u.hidden||u.semiHidden)),[o]);`;
-  const patched = patchStyleDropdownHeadings(input);
-  assert.ok(patched);
-  assert.ok(patched.includes(STYLE_DROPDOWN_HEADINGS_SOURCE));
-  assert.ok(!patched.includes(STYLE_DROPDOWN_OPTION_SOURCE));
+test('each shape transforms its own needle into the curated filter', () => {
+  for (const shape of SHAPES) {
+    const input = `prefix ${shape.needle} suffix`;
+    const out = shape.transform(input);
+    assert.notEqual(out, input, `shape ${shape.id} did not transform`);
+    assert.ok(out.includes('Normal|Heading[1-4]'), `shape ${shape.id} did not inject the curated filter`);
+  }
 });
 
 test('patchStyleDropdownHeadings is idempotent', () => {
-  const input = `${STYLE_DROPDOWN_OPTION_SOURCE}.filter(u=>u.qFormat)`;
+  const shape = SHAPES[0];
+  const input = `prefix ${shape.needle} suffix`;
   const patched = patchStyleDropdownHeadings(input);
+  assert.ok(patched);
   assert.equal(patchStyleDropdownHeadings(patched), null);
 });

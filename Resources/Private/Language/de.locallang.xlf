@@ -66,14 +66,9 @@
         <source>Dokument neu laden</source>
       </segment>
     </unit>
-    <unit id="editor.collaborators.one">
+    <unit id="editor.collaborators">
       <segment>
-        <source>1 Bearbeiter online</source>
-      </segment>
-    </unit>
-    <unit id="editor.collaborators.other">
-      <segment>
-        <source>{count} Bearbeiter online</source>
+        <source>{count, plural, one {1 Bearbeiter online} other {# Bearbeiter online}}</source>
       </segment>
     </unit>
     <unit id="editor.loading">

@@ -2,15 +2,22 @@
  * Patches eigenpal's built-in fallback paragraph styles so Heading 4 appears
  * in the style dropdown when a DOCX has no custom styles.xml entries.
  *
+ * Resilient to chunk renames: matches by content pattern across all chunks in
+ * @eigenpal/docx-editor-react/dist, NOT by a hardcoded chunk filename. When
+ * upstream bumps reshuffle chunks, only the needle string check needs to
+ * survive — and the test:build runner asserts it does.
+ *
  * @see Build/Sources/README.md
  */
 
 /** @type {const} */
 export const EIGENPAL_REACT_PACKAGE = '@eigenpal/docx-editor-react';
 
-/** Chunk filename for docx-editor-react@1.2.1 (verify with npm run test:build). */
-export const EIGENPAL_FALLBACK_STYLES_CHUNK = 'chunk-SW2JOSQG';
-
+/**
+ * Tail of the built-in fallback style array, ending at Heading 3 (eigenpal
+ * stops there — we extend to Heading 4). This shape has been stable across
+ * 1.2.x → 1.6.x; only the chunk filename it lives in has changed.
+ */
 export const HEADING3_FALLBACK_TAIL =
   '{styleId:"Heading3",name:"Heading 3",nameKey:"styles.heading3",type:"paragraph",priority:5,qFormat:true,fontSize:28,bold:true}]';
 
@@ -29,13 +36,14 @@ export function patchHeading4FallbackStyles(code) {
 }
 
 /**
- * Vite plugin: inject Heading4 into eigenpal fallback styles at build time.
+ * Vite plugin: inject Heading4 into the eigenpal fallback styles wherever
+ * the array tail appears in the dist (any chunk).
  */
 export function heading4FallbackPlugin() {
   return {
     name: 'typo3-docx-heading4-fallback',
     transform(code, id) {
-      if (!id.includes(EIGENPAL_REACT_PACKAGE) || !id.includes(EIGENPAL_FALLBACK_STYLES_CHUNK)) {
+      if (!id.includes(EIGENPAL_REACT_PACKAGE) || !id.includes('/dist/')) {
         return null;
       }
       const patched = patchHeading4FallbackStyles(code);

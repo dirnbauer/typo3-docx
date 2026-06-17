@@ -1,34 +1,41 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 import {
-  EIGENPAL_FALLBACK_STYLES_CHUNK,
   EIGENPAL_REACT_PACKAGE,
   HEADING3_FALLBACK_TAIL,
   patchHeading4FallbackStyles,
 } from './heading4-fallback.js';
 
-const packageRoot = join(
+const distRoot = join(
   dirname(fileURLToPath(import.meta.url)),
   '..',
   '..',
   '..',
   'node_modules',
   EIGENPAL_REACT_PACKAGE,
+  'dist',
 );
 
-test('eigenpal fallback styles chunk still contains Heading3 needle', () => {
-  const chunkPath = join(packageRoot, 'dist', `${EIGENPAL_FALLBACK_STYLES_CHUNK}.mjs`);
-  const source = readFileSync(chunkPath, 'utf8');
+/** Concat all .mjs chunks under dist/ so needle scans survive chunk renames. */
+function readAllDistMjs() {
+  return readdirSync(distRoot)
+    .filter((name) => name.endsWith('.mjs'))
+    .map((name) => readFileSync(join(distRoot, name), 'utf8'))
+    .join('\n');
+}
+
+test('eigenpal fallback styles still contain the Heading3 array tail (any chunk)', () => {
+  const source = readAllDistMjs();
   assert.ok(
     source.includes(HEADING3_FALLBACK_TAIL),
-    `Expected ${EIGENPAL_FALLBACK_STYLES_CHUNK}.mjs to contain the Heading3 fallback tail`,
+    'Expected the Heading3 fallback-array tail in some dist/*.mjs chunk — update HEADING3_FALLBACK_TAIL in heading4-fallback.js',
   );
   assert.ok(
     !source.includes('styles.heading4'),
-    'Upstream already ships Heading4 — remove the Vite patch and this test',
+    'Upstream already ships Heading4 natively — remove the Vite patch and this test',
   );
 });
 
