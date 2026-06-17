@@ -11,6 +11,11 @@
         <source>Zurück zu Medien</source>
       </segment>
     </unit>
+    <unit id="editor.download">
+      <segment>
+        <source>Herunterladen</source>
+      </segment>
+    </unit>
     <unit id="editor.save">
       <segment>
         <source>Speichern</source>

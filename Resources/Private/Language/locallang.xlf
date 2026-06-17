@@ -11,6 +11,11 @@
         <source>Back to Media</source>
       </segment>
     </unit>
+    <unit id="editor.download">
+      <segment>
+        <source>Download</source>
+      </segment>
+    </unit>
     <unit id="editor.save">
       <segment>
         <source>Save</source>

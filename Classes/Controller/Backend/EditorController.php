@@ -102,6 +102,7 @@ final class EditorController
     ): void {
         $view->getDocHeaderComponent()->setResourceBreadcrumb($file);
         $this->addBackToMediaButton($view, $parentFolder);
+        $this->addDownloadButton($view, $file);
 
         if (!$canWrite) {
             return;
@@ -201,6 +202,36 @@ final class EditorController
                 ->setShowLabelText(true),
             ButtonBar::BUTTON_POSITION_LEFT,
             10,
+        );
+    }
+
+    private function addDownloadButton(ModuleTemplate $view, File $file): void
+    {
+        $downloadUrl = $file->getPublicUrl();
+        if ($downloadUrl === null || $downloadUrl === '') {
+            return;
+        }
+        if (!preg_match('#^https?://#', $downloadUrl)) {
+            $downloadUrl = '/' . ltrim($downloadUrl, '/');
+        }
+
+        // Render as <a target="_blank" download> so the browser downloads the
+        // file out-of-band instead of navigating the backend content iframe.
+        $view->addButtonToButtonBar(
+            $this->componentFactory->createGenericButton()
+                ->setTag('a')
+                ->setHref($downloadUrl)
+                ->setLabel($this->translateLabel('editor.download'))
+                ->setTitle($this->translateLabel('editor.download'))
+                ->setIcon($this->iconFactory->getIcon('actions-download', IconSize::SMALL))
+                ->setShowLabelText(true)
+                ->setAttributes([
+                    'target' => '_blank',
+                    'rel' => 'noopener',
+                    'download' => $file->getName(),
+                ]),
+            ButtonBar::BUTTON_POSITION_LEFT,
+            30,
         );
     }
 
