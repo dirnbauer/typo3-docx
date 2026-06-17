@@ -34,8 +34,9 @@ typo3-docx-editor .mount {
 }
 
 .docx-editor-module__surface {
-    border: 1px solid var(--typo3-component-border-color);
-    border-radius: var(--typo3-component-border-radius);
+    /* No outer border — eigenpal already wraps the title bar and formatting bar
+       in their own bordered chrome; an extra surface border created a doubled
+       line on the sides with mismatched rounded corners. */
     display: block;
     flex: 1 1 auto;
     min-height: 70vh;
