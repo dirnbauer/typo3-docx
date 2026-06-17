@@ -77,19 +77,126 @@ TYPO3 backend tokens override eigenpal/Tailwind utilities:
 :file:`Editor.css` is registered **after** the Vite stylesheet so TYPO3 tokens
 win in the cascade. CSS-only changes do not require ``npm run build``.
 
-Heading 4 Vite patch
-====================
+Upstream editor (``@eigenpal/docx-editor-react``)
+=================================================
 
-``@eigenpal/docx-editor-react@1.2.1`` omits Heading 4 from its built-in
-fallback style list. The plugin in
-:file:`Build/vite/plugins/heading4-fallback.js` patches chunk
-``chunk-SW2JOSQG`` at build time.
+The WYSIWYG core is the npm package ``@eigenpal/docx-editor-react`` (plus
+``-core`` and ``-i18n``), bundled by Vite into
+:file:`Resources/Public/Vite/docx-editor.js`. Two build-time text patches adjust
+its minified output (see *Vite patches* below). Everything is pinned in
+:file:`package.json` and locked in :file:`package-lock.json`; the built bundle is
+committed, so end users never run Node.
 
-After upgrading the npm package:
+Updating to the latest upstream version
+---------------------------------------
 
-#. Run ``npm run test:build`` — fails if the chunk name or needle changed.
-#. Update the plugin constants if needed.
-#. Remove the plugin when upstream ships Heading 4 natively.
+..  code-block:: bash
+    :caption: Bump the upstream editor
+
+    cd <ext>/                      # vendor/webconsulting/docx-editor
+    # 1. raise the three eigenpal entries in package.json to the new version
+    #    (@eigenpal/docx-editor-core, -i18n, -react)
+    rm -f package-lock.json
+    npm install --no-audit --no-fund
+
+    # 2. confirm the patches still find their anchors in the new build
+    npm run test:build
+
+    # 3. rebuild the committed bundle
+    npm run build
+
+    # 4. flush caches and verify in the backend (see checklist)
+    ddev exec vendor/bin/typo3 cache:flush
+
+Then commit the changed :file:`package.json`, :file:`package-lock.json`,
+:file:`Resources/Public/Vite/docx-editor.js` and
+:file:`Resources/Public/Vite/manifest.json`.
+
+..  tip::
+
+    Find the latest version with ``npm view @eigenpal/docx-editor-react version``.
+
+If ``npm run test:build`` fails, a patch lost its anchor in the new build — see
+the next section for how to re-anchor it. If it passes, the patches still apply
+and you only need to re-verify in the browser.
+
+Post-upgrade verification checklist
+------------------------------------
+
+#. Open a ``.docx`` from the Media file list (**Edit DOCX**) — the editor mounts.
+#. The block-style dropdown lists exactly **Normal, H1, H2, H3, H4**.
+#. Clicking **H2** (and the H1–H4 quick buttons) applies the heading.
+#. **Save** writes back to FAL and the toast shows ``Saved to <path>``.
+#. No console errors; toolbar borders render cleanly.
+
+Vite patches
+============
+
+Both plugins live in :file:`Build/vite/plugins/` and are **chunk-agnostic**: they
+scan every ``dist/*.mjs`` file by content pattern, so an upstream chunk rename
+alone does not break them. ``npm run test:build`` asserts each anchor still
+matches.
+
+..  list-table::
+    :header-rows: 1
+
+    * - Plugin
+      - Purpose
+    * - :file:`heading4-fallback.js`
+      - Appends ``Heading4`` to eigenpal's built-in fallback style array
+        (upstream stops at Heading 3).
+    * - :file:`style-dropdown-headings.js`
+      - Forces the style dropdown to ignore the document's own styles and offer
+        exactly **Normal + Heading 1–4**. Without it a Word file surfaces
+        arbitrary names like "List Paragraph".
+
+Re-anchoring after a failed ``test:build``
+-------------------------------------------
+
+**heading4-fallback** — the fallback-array tail changed. Diff
+``node_modules/@eigenpal/docx-editor-react/dist/chunk-*.mjs`` against
+``HEADING3_FALLBACK_TAIL`` and update that constant. If the build already
+contains ``styles.heading4``, upstream ships Heading 4 natively: delete the
+plugin and its test.
+
+**style-dropdown-headings** — upstream refactored the dropdown's option source.
+**Do not edit existing ``SHAPES`` entries** (older fallback paths stay useful).
+**Add a new entry** with a unique ``id`` (e.g. ``'1.7.x'``), a ``needle`` (the
+smallest substring uniquely identifying the new option-source expression) and a
+``transform`` that rewrites it to use ``FILTER_BODY``. If upstream adds a prop to
+filter the dropdown, drop the plugin and configure ``<DocxEditor>`` instead.
+
+..  list-table:: Known dropdown shapes
+    :header-rows: 1
+
+    * - eigenpal
+      - shape id
+      - option-source anchor
+    * - ``1.2.x``
+      - ``'1.2.x'``
+      - ``!o||o.length===0?vo:o.filter(u=>u.type==="paragraph")``
+    * - ``1.6.x``
+      - ``'1.6.x'``
+      - ``resolveParagraphStyleOptions(o);return u.length===0?Co:u.map(``
+
+To widen the dropdown, edit ``FILTER_BODY`` in
+:file:`style-dropdown-headings.js` (e.g. add ``Title|Subtitle``); dropping
+``Normal|`` leaves no in-dropdown route back to body text.
+
+ICU labels
+==========
+
+Backend labels that need pluralization use **XLIFF 2 + ICU MessageFormat**, e.g.
+``editor.collaborators``::
+
+    {count, plural, one {1 editor online} other {# editors online}}
+
+Server-side ``f:translate`` cannot resolve the count (presence is updated live in
+JS), so the raw ICU string is passed to the client and resolved by
+:file:`Build/Sources/docx-icu-format.js` (``formatIcu()``), a minimal resolver
+using ``Intl.PluralRules`` for locale-aware plurals. It supports
+``{var, plural, …}``, ``{var}`` and ``#``; add cases there if a new label needs
+``select`` or offsets. Unit tests: :file:`Build/Sources/docx-icu-format.test.js`.
 
 Quality gates
 =============

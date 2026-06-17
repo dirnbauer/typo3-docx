@@ -55,6 +55,22 @@ Save feedback uses the TYPO3 backend Notification API. The formatting toolbar wr
 
 Frontend sources and rebuild details: [Build/Sources/README.md](Build/Sources/README.md).
 
+## Updating the editor engine
+
+The WYSIWYG core is the npm package [`@eigenpal/docx-editor-react`](https://www.npmjs.com/package/@eigenpal/docx-editor-react) (bundled by Vite; the built `docx-editor.js` is committed, so a normal install needs no Node). To pull the latest upstream version:
+
+```bash
+cd vendor/webconsulting/docx-editor           # the extension directory
+npm view @eigenpal/docx-editor-react version  # latest available
+# raise the three @eigenpal/* entries in package.json to that version, then:
+rm -f package-lock.json && npm install
+npm run test:build   # checks the two Vite patches still anchor in the new build
+npm run build        # rebuild the committed bundle
+ddev exec vendor/bin/typo3 cache:flush
+```
+
+Commit `package.json`, `package-lock.json`, `Resources/Public/Vite/docx-editor.js` and `manifest.json`. If `test:build` fails, a patch lost its anchor in the new build — the **step-by-step re-anchoring guide, the post-upgrade verification checklist, and the table of known patch "shapes"** are in [Build/Sources/README.md](Build/Sources/README.md) and [Documentation/Developer/Index.rst](Documentation/Developer/Index.rst).
+
 ## Documentation
 
 - [Full TYPO3 manual](Documentation/Index.rst) (Introduction, installation, usage, security)
