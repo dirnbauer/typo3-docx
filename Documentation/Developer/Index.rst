@@ -149,6 +149,11 @@ matches.
       - Forces the style dropdown to ignore the document's own styles and offer
         exactly **Normal + Heading 1–4**. Without it a Word file surfaces
         arbitrary names like "List Paragraph".
+    * - :file:`popover-align.js`
+      - Makes the editing-mode picker open **rightward** from its trigger
+        (upstream right-aligns it, clipping off-screen in a narrow editor). The
+        runtime clamp in :file:`docx-editor-toolbar.js` keeps it on-screen if
+        rightward overflows.
 
 Re-anchoring after a failed ``test:build``
 -------------------------------------------

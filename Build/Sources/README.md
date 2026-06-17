@@ -41,6 +41,7 @@ straight upstream bump usually just works. `npm run test:build` is the gate.
 | --- | --- |
 | `heading4-fallback.js` | Appends `Heading4` to eigenpal's built-in fallback style array (upstream stops at Heading 3). |
 | `style-dropdown-headings.js` | Forces the dropdown to ignore the document's own styles and show exactly **Normal + Heading 1–4** (filtered from the fallback array). Without it, a Word file surfaces arbitrary names like "List Paragraph". |
+| `popover-align.js` | Makes the editing-mode picker (Editing/Suggesting/Viewing) open **to the right** of its trigger instead of left (upstream right-aligns it, which clips off-screen in a narrow editor). The runtime clamp in `docx-editor-toolbar.js` keeps it on-screen if rightward overflows. |
 
 ### Upgrading `@eigenpal/docx-editor-react`
 
