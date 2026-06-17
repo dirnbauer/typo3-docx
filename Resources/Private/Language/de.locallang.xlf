@@ -48,7 +48,7 @@
     </unit>
     <unit id="editor.savedDetail">
       <segment>
-        <source>Gespeichert unter {0}</source>
+        <source>Gespeichert unter %s</source>
       </segment>
     </unit>
     <unit id="editor.saveFailed">
