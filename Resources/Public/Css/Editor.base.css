@@ -22,12 +22,6 @@ typo3-docx-editor .mount {
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-.docx-editor-module__breadcrumb {
-    flex: 0 0 auto;
-    min-width: 0;
-    width: 100%;
-}
-
 .docx-editor-module__meta {
     display: flex;
     justify-content: flex-end;

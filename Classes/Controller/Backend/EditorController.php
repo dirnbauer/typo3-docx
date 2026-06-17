@@ -7,8 +7,6 @@ namespace Webconsulting\DocxEditor\Controller\Backend;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
-use TYPO3\CMS\Backend\Breadcrumb\BreadcrumbContext;
-use TYPO3\CMS\Backend\Template\Components\Breadcrumb;
 use TYPO3\CMS\Backend\Template\Components\ButtonBar;
 use TYPO3\CMS\Backend\Template\Components\ComponentFactory;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
@@ -35,7 +33,6 @@ final class EditorController
         private readonly PageRenderer $pageRenderer,
         private readonly ComponentFactory $componentFactory,
         private readonly IconFactory $iconFactory,
-        private readonly Breadcrumb $breadcrumb,
     ) {}
 
     public function editAction(ServerRequestInterface $request): ResponseInterface
@@ -78,7 +75,6 @@ final class EditorController
             'editorModuleUrl' => (string)$this->uriBuilder->buildUriFromRoute('docx_editor'),
             'editorLocale' => $this->resolveEditorLocale($request),
             'headingLabelsJson' => $this->buildHeadingLabelsJson(),
-            'breadcrumbJson' => $this->buildBreadcrumbJson($file, $request),
             'filePath' => $this->buildFilePathLabel($file),
         ]);
 
@@ -205,19 +201,6 @@ final class EditorController
                 ->setShowLabelText(true),
             ButtonBar::BUTTON_POSITION_LEFT,
             10,
-        );
-    }
-
-    private function buildBreadcrumbJson(File $file, ServerRequestInterface $request): string
-    {
-        $nodes = $this->breadcrumb->getBreadcrumb(
-            $request,
-            new BreadcrumbContext($file, []),
-        );
-
-        return json_encode(
-            $nodes,
-            JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT,
         );
     }
 
