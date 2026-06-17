@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'node:path';
 import { heading4FallbackPlugin } from './Build/vite/plugins/heading4-fallback.js';
+import { styleDropdownHeadingsPlugin } from './Build/vite/plugins/style-dropdown-headings.js';
 
 /**
  * Self-contained bundle: Lit (TYPO3 glue) + React + docx-editor.
@@ -13,7 +14,7 @@ export default defineConfig({
   base: '',
   publicDir: false,
   clearScreen: false,
-  plugins: [heading4FallbackPlugin(), react()],
+  plugins: [heading4FallbackPlugin(), styleDropdownHeadingsPlugin(), react()],
   define: {
     'process.env.NODE_ENV': JSON.stringify('production'),
   },

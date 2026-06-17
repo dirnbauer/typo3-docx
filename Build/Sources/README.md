@@ -29,15 +29,29 @@ TYPO3 ES modules (not in the Vite bundle):
 | `Resources/Public/JavaScript/docx-editor-toolbar.js` | Docheader save/save-as, keyboard shortcut |
 | `Resources/Public/JavaScript/docx-editor-notify.js` | Notification API for save feedback |
 
-## Vite patch: Heading 4 fallback styles
+## Vite patches: paragraph-style dropdown
 
-`@eigenpal/docx-editor-react@1.2.1` ships a hard-coded fallback style list without Heading 4. The plugin in `Build/vite/plugins/heading4-fallback.js` patches chunk `chunk-SW2JOSQG` at build time.
+Two build-time text patches tune the eigenpal `Co` style-select. Both target the
+same chunk (`chunk-SW2JOSQG` in `@eigenpal/docx-editor-react@1.2.1`) and are
+guarded by `npm run test:build`, which fails if the chunk name or a needle drifts.
+
+| Plugin | What it does |
+| --- | --- |
+| `heading4-fallback.js` | Appends `Heading4` to eigenpal's built-in `vo` style list (upstream stops at Heading 3). |
+| `style-dropdown-headings.js` | Forces the dropdown to ignore the document's own styles and show exactly **Normal + Heading 1–4** (from `vo`). Without it, a Word file surfaces arbitrary names like "List Paragraph". |
 
 After upgrading `@eigenpal/docx-editor-react`:
 
-1. Run `npm run test:build` — it fails if the chunk name or needle changed.
-2. Update `EIGENPAL_FALLBACK_STYLES_CHUNK` and/or `HEADING3_FALLBACK_TAIL` in the plugin.
-3. If upstream adds Heading 4 natively, remove the plugin and delete the test.
+1. Run `npm run test:build` — it fails if the chunk name or a needle changed.
+2. Update `EIGENPAL_FALLBACK_STYLES_CHUNK` / `HEADING3_FALLBACK_TAIL` (heading4) or
+   `STYLE_DROPDOWN_OPTION_SOURCE` (dropdown) to match the new build.
+3. If upstream adds Heading 4 natively, drop `heading4-fallback`. If upstream adds
+   a prop to filter the style dropdown, drop `style-dropdown-headings` and configure
+   it via `<DocxEditor>` instead. Delete the matching test(s) too.
+
+To allow more styles in the dropdown, widen the regex in
+`STYLE_DROPDOWN_HEADINGS_SOURCE` (e.g. add `Title|Subtitle`); for strictly the four
+headings, drop `Normal|` — but then there is no in-dropdown way back to body text.
 
 ## CSS
 

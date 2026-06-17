@@ -1,5 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <path fill="var(--icon-color-accent, #ff8700)" d="M38 12H20c-1.1 0-2 .9-2 2v28c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V14c0-1.1-.9-2-2-2Z"/>
-  <path fill="currentColor" d="M46 18H22c-1.1 0-2 .9-2 2v32c0 1.1.9 2 2 2h24c1.1 0 2-.9 2-2V20c0-1.1-.9-2-2-2Zm-2 4v22.5l-3.5-2.75-5.5 2.75-7-5.5-5 4V22h21Z"/>
-  <path fill="currentColor" d="M38 40l8 5-8 5V40Z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+  <g fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 2.2h5L12 5.2v7.6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V3.2a1 1 0 0 1 1-1Z"/>
+    <path d="M9 2.4V5.2h2.7"/>
+    <line x1="5.1" y1="7" x2="9.6" y2="7"/>
+    <line x1="5.1" y1="8.8" x2="8.4" y2="8.8"/>
+  </g>
+  <path d="M5.3 10.4 6.2 12.7 7.5 11 8.8 12.7 9.7 10.4" fill="none" stroke="#2b579a" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
