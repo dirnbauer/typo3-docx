@@ -137,9 +137,14 @@ final class EditorController
         if ($css !== null) {
             $this->pageRenderer->addCssFile($css);
         }
-        // After eigenpal/Tailwind bundle so TYPO3 token overrides win in cascade.
-        $this->pageRenderer->addCssFile('EXT:docx_editor/Resources/Public/Css/Editor.css');
-        $this->pageRenderer->loadJavaScriptModule('@typo3/backend/element/breadcrumb.js');
+        // After the eigenpal/Tailwind bundle so TYPO3 token overrides win in the
+        // cascade. Each partial is registered individually (not via @import in a
+        // wrapper) so TYPO3 appends its own mtime cache-buster — a CSS change in a
+        // partial is otherwise never re-fetched, because @import URLs are not
+        // versioned. Order = tokens → base → toolbar.
+        foreach (['Editor.tokens.css', 'Editor.base.css', 'Editor.toolbar.css'] as $partial) {
+            $this->pageRenderer->addCssFile('EXT:docx_editor/Resources/Public/Css/' . $partial);
+        }
         if ($this->viteAssetResolver->hasBuild()) {
             $this->pageRenderer->loadJavaScriptModule('@webconsulting/docx-editor/docx-editor.js');
             $this->pageRenderer->loadJavaScriptModule('@webconsulting/docx-editor/toolbar.js');

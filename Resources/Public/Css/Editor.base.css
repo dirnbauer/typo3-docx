@@ -28,9 +28,31 @@ typo3-docx-editor .mount {
     min-height: 1.25rem;
 }
 
+/* Presence indicator styled as a TYPO3 styleguide badge (pill + online dot). */
 .docx-editor-module__presence {
+    align-items: center;
+    background-color: var(--typo3-component-bg);
+    border: var(--typo3-component-border-width) solid var(--typo3-component-border-color);
+    border-radius: 999px;
     color: var(--typo3-text-color-variant);
+    display: inline-flex;
     font-size: var(--typo3-font-size-small);
+    gap: 0.375rem;
+    line-height: 1;
+    padding: 0.25rem 0.625rem;
+}
+
+.docx-editor-module__presence:empty {
+    display: none;
+}
+
+.docx-editor-module__presence::before {
+    background-color: var(--typo3-state-success-color, #6fa84b);
+    border-radius: 50%;
+    content: "";
+    flex: 0 0 auto;
+    height: 0.5rem;
+    width: 0.5rem;
 }
 
 .docx-editor-module__surface {
