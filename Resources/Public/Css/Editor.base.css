@@ -47,7 +47,10 @@ typo3-docx-editor .mount {
 }
 
 .docx-editor-module__presence::before {
-    background-color: var(--typo3-state-success-color, #6fa84b);
+    /* Vivid "online" green — the TYPO3 success *token* is the near-white
+       text-on-success color, which had no contrast on the badge. light-dark()
+       keeps it legible in both themes. */
+    background-color: light-dark(#1f9d57, #41d182);
     border-radius: 50%;
     content: "";
     flex: 0 0 auto;
