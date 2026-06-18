@@ -163,11 +163,22 @@ typo3-docx-editor .mount {
     margin-bottom: 0.5rem;
 }
 
-/* Small, muted document icon beside the title (override eigenpal's inline size). */
+/* Small document icon beside the title. eigenpal hard-codes a light slate fill
+   (#cbd5e1) with almost no contrast on the header — recolor the doc body to
+   currentColor and cut the text lines out in the surface colour, so it stays
+   legible in both light and dark themes. */
 .docx-editor-module__surface .ep-root [data-testid="title-bar"] svg {
     height: 0.75rem !important;
-    opacity: 0.55;
+    opacity: 0.75;
     width: 0.75rem !important;
+}
+
+.docx-editor-module__surface .ep-root [data-testid="title-bar"] svg path {
+    fill: currentColor !important;
+}
+
+.docx-editor-module__surface .ep-root [data-testid="title-bar"] svg rect {
+    fill: var(--typo3-component-bg) !important;
 }
 
 .docx-editor-module__surface .ep-root [data-testid="editor-toolbar"] input,
