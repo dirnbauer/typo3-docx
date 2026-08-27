@@ -12,7 +12,7 @@ final class RevisionServiceTest extends TestCase
 {
     public function testComputeContentHashIsStable(): void
     {
-        $service = new RevisionService($this->createMock(ConnectionPool::class));
+        $service = new RevisionService($this->createStub(ConnectionPool::class));
         $hash = $service->computeContentHash('sample-docx-binary');
         self::assertSame(64, strlen($hash));
         self::assertSame($hash, $service->computeContentHash('sample-docx-binary'));
