@@ -18,14 +18,14 @@ use Webconsulting\DocxEditor\Service\DocxFileService;
     identifier: 'docx-editor/add-docx-edit-action',
     event: ProcessFileListActionsEvent::class,
 )]
-final class AddDocxEditFileActionListener
+final readonly class AddDocxEditFileActionListener
 {
     private const WORD_ICON = 'mimetypes-word';
 
     public function __construct(
-        private readonly DocxFileService $docxFileService,
-        private readonly UriBuilder $uriBuilder,
-        private readonly IconFactory $iconFactory,
+        private DocxFileService $docxFileService,
+        private UriBuilder $uriBuilder,
+        private IconFactory $iconFactory,
     ) {}
 
     public function __invoke(ProcessFileListActionsEvent $event): void

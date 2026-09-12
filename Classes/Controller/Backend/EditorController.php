@@ -11,7 +11,6 @@ use TYPO3\CMS\Backend\Template\Components\ButtonBar;
 use TYPO3\CMS\Backend\Template\Components\ComponentFactory;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
-use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Imaging\IconSize;
 use TYPO3\CMS\Core\Page\PageRenderer;
@@ -19,25 +18,31 @@ use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\Folder;
 use Webconsulting\DocxEditor\Exception\DocxEditorException;
 use Webconsulting\DocxEditor\Service\DocxFileService;
+use Webconsulting\DocxEditor\Service\EditorRequestResolver;
 use Webconsulting\DocxEditor\Service\RevisionService;
 use Webconsulting\DocxEditor\Service\ViteAssetResolver;
 
-final class EditorController
+/**
+ * Renders the full-page editor for one .docx file. Reached through the
+ * `docx_editor` backend route (file list "Edit DOCX" action), not a module.
+ */
+final readonly class EditorController
 {
     public function __construct(
-        private readonly ModuleTemplateFactory $moduleTemplateFactory,
-        private readonly DocxFileService $docxFileService,
-        private readonly RevisionService $revisionService,
-        private readonly ViteAssetResolver $viteAssetResolver,
-        private readonly UriBuilder $uriBuilder,
-        private readonly PageRenderer $pageRenderer,
-        private readonly ComponentFactory $componentFactory,
-        private readonly IconFactory $iconFactory,
+        private ModuleTemplateFactory $moduleTemplateFactory,
+        private DocxFileService $docxFileService,
+        private RevisionService $revisionService,
+        private ViteAssetResolver $viteAssetResolver,
+        private EditorRequestResolver $editorRequestResolver,
+        private UriBuilder $uriBuilder,
+        private PageRenderer $pageRenderer,
+        private ComponentFactory $componentFactory,
+        private IconFactory $iconFactory,
     ) {}
 
     public function editAction(ServerRequestInterface $request): ResponseInterface
     {
-        $fileIdentifier = $this->resolveFileIdentifier($request);
+        $fileIdentifier = $this->editorRequestResolver->resolveFileIdentifier($request);
         if ($fileIdentifier === '') {
             return $this->renderError($request, 'docx_editor.mod:error.missingFile');
         }
@@ -73,25 +78,12 @@ final class EditorController
             'elementBrowserUrl' => (string)$this->uriBuilder->buildUriFromRoute('wizard_element_browser'),
             'defaultFolderIdentifier' => $parentFolder->getCombinedIdentifier(),
             'editorModuleUrl' => (string)$this->uriBuilder->buildUriFromRoute('docx_editor'),
-            'editorLocale' => $this->resolveEditorLocale($request),
+            'editorLocale' => $this->editorRequestResolver->resolveEditorLocale($request),
             'headingLabelsJson' => $this->buildHeadingLabelsJson(),
-            'filePath' => $this->buildFilePathLabel($file),
+            'filePath' => $this->docxFileService->buildFilePathLabel($file),
         ]);
 
         return $view->renderResponse('Backend/Editor/Edit');
-    }
-
-    private function resolveEditorLocale(ServerRequestInterface $request): string
-    {
-        $backendUser = $request->getAttribute('backend.user');
-        if ($backendUser instanceof BackendUserAuthentication) {
-            $lang = (string)($backendUser->user['lang'] ?? '');
-            if ($lang !== '' && $lang !== 'default' && str_starts_with(strtolower($lang), 'de')) {
-                return 'de';
-            }
-        }
-
-        return 'en';
     }
 
     private function configureDocHeader(
@@ -151,7 +143,7 @@ final class EditorController
         }
     }
 
-    private function canWrite(\TYPO3\CMS\Core\Resource\File $file): bool
+    private function canWrite(File $file): bool
     {
         try {
             $this->docxFileService->assertCanWrite($file);
@@ -159,21 +151,6 @@ final class EditorController
         } catch (DocxEditorException) {
             return false;
         }
-    }
-
-    private function resolveFileIdentifier(ServerRequestInterface $request): string
-    {
-        $query = $request->getQueryParams();
-        $body = $request->getParsedBody();
-        $moduleData = $request->getAttribute('moduleData');
-        if ($moduleData !== null) {
-            $fromModule = trim((string)$moduleData->get('file', ''));
-            if ($fromModule !== '') {
-                return $fromModule;
-            }
-        }
-        $fromRequest = $query['file'] ?? $body['file'] ?? $query['target'] ?? $body['target'] ?? '';
-        return is_string($fromRequest) ? trim($fromRequest) : '';
     }
 
     private function renderError(ServerRequestInterface $request, string $message): ResponseInterface
@@ -238,14 +215,6 @@ final class EditorController
             ButtonBar::BUTTON_POSITION_LEFT,
             30,
         );
-    }
-
-    private function buildFilePathLabel(File $file): string
-    {
-        $storageName = $file->getStorage()->getName();
-        $identifier = ltrim($file->getIdentifier(), '/');
-
-        return $storageName !== '' ? $storageName . ' / ' . $identifier : $identifier;
     }
 
     private function buildHeadingLabelsJson(): string

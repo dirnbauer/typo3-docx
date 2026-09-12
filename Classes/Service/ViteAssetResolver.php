@@ -9,7 +9,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Resolves the Vite build entry from Resources/Public/Vite/manifest.json.
  */
-final class ViteAssetResolver
+final readonly class ViteAssetResolver
 {
     private const MANIFEST_PATH = 'EXT:docx_editor/Resources/Public/Vite/manifest.json';
     private const VITE_PUBLIC = 'EXT:docx_editor/Resources/Public/Vite/';

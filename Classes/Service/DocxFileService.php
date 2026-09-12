@@ -16,12 +16,12 @@ use Webconsulting\DocxEditor\Exception\DocxEditorException;
 /**
  * Resolves FAL files and enforces backend user read/write permissions.
  */
-final class DocxFileService
+final readonly class DocxFileService
 {
-    private const DOCX_EXTENSION = 'docx';
+    public const DOCX_EXTENSION = 'docx';
 
     public function __construct(
-        private readonly ResourceFactory $resourceFactory,
+        private ResourceFactory $resourceFactory,
     ) {}
 
     public function isDocxFile(File $file): bool
@@ -164,7 +164,23 @@ final class DocxFileService
         return hash('sha256', $file->getCombinedIdentifier());
     }
 
-    private function normalizeDocxFileName(string $fileName): string
+    /**
+     * Human-readable location shown in the docheader and the save notification,
+     * e.g. "fileadmin / user_upload/report.docx".
+     */
+    public function buildFilePathLabel(File $file): string
+    {
+        $storageName = trim($file->getStorage()->getName());
+        $identifier = ltrim($file->getIdentifier(), '/');
+
+        return $storageName !== '' ? $storageName . ' / ' . $identifier : $identifier;
+    }
+
+    /**
+     * Strips directories from a user-supplied "save as" name and enforces the
+     * .docx extension.
+     */
+    public function normalizeDocxFileName(string $fileName): string
     {
         $fileName = trim($fileName);
         if ($fileName === '') {

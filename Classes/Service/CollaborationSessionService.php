@@ -10,13 +10,13 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 /**
  * Tracks active backend users editing the same .docx file (presence).
  */
-final class CollaborationSessionService
+final readonly class CollaborationSessionService
 {
     private const TABLE = 'tx_docx_editor_session';
     private const HEARTBEAT_TTL = 45;
 
     public function __construct(
-        private readonly ConnectionPool $connectionPool,
+        private ConnectionPool $connectionPool,
     ) {}
 
     public function join(string $fileHash, string $fileIdentifier): string
@@ -30,7 +30,7 @@ final class CollaborationSessionService
             self::TABLE,
             [
                 'file_hash' => $fileHash,
-                'backend_user' => $user->user['uid'],
+                'backend_user' => $user->getUserId() ?? 0,
                 'deleted' => 0,
             ],
         )->fetchOne();
@@ -57,7 +57,7 @@ final class CollaborationSessionService
                 'deleted' => 0,
                 'file_hash' => $fileHash,
                 'file_identifier' => $fileIdentifier,
-                'backend_user' => (int)$user->user['uid'],
+                'backend_user' => $user->getUserId() ?? 0,
                 'user_name' => $this->resolveDisplayName($user),
                 'last_heartbeat' => $now,
             ],
@@ -77,7 +77,7 @@ final class CollaborationSessionService
                 [
                     'uid' => $sessionUid,
                     'file_hash' => $fileHash,
-                    'backend_user' => (int)$user->user['uid'],
+                    'backend_user' => $user->getUserId() ?? 0,
                     'deleted' => 0,
                 ],
             );
@@ -94,7 +94,7 @@ final class CollaborationSessionService
                 [
                     'uid' => $sessionUid,
                     'file_hash' => $fileHash,
-                    'backend_user' => (int)$user->user['uid'],
+                    'backend_user' => $user->getUserId() ?? 0,
                 ],
             );
     }

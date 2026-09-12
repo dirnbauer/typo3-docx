@@ -7,10 +7,9 @@ namespace Webconsulting\DocxEditor\Controller\Backend;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Http\JsonResponse;
-use TYPO3\CMS\Core\Http\Response;
 use Webconsulting\DocxEditor\Exception\DocxEditorException;
 
-abstract class AbstractDocxApiController
+abstract readonly class AbstractDocxApiController
 {
     /**
      * @param array<string, mixed> $payload

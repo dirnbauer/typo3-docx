@@ -11,12 +11,12 @@ use Webconsulting\DocxEditor\Service\CollaborationSessionService;
 use Webconsulting\DocxEditor\Service\DocxFileService;
 use Webconsulting\DocxEditor\Service\RevisionService;
 
-final class CollaborationApiController extends AbstractDocxApiController
+final readonly class CollaborationApiController extends AbstractDocxApiController
 {
     public function __construct(
-        private readonly DocxFileService $docxFileService,
-        private readonly CollaborationSessionService $collaborationSessionService,
-        private readonly RevisionService $revisionService,
+        private DocxFileService $docxFileService,
+        private CollaborationSessionService $collaborationSessionService,
+        private RevisionService $revisionService,
     ) {}
 
     public function joinAction(ServerRequestInterface $request): ResponseInterface

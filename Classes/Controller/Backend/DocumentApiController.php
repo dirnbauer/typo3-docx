@@ -12,11 +12,11 @@ use Webconsulting\DocxEditor\Exception\DocxEditorException;
 use Webconsulting\DocxEditor\Service\DocxFileService;
 use Webconsulting\DocxEditor\Service\RevisionService;
 
-final class DocumentApiController extends AbstractDocxApiController
+final readonly class DocumentApiController extends AbstractDocxApiController
 {
     public function __construct(
-        private readonly DocxFileService $docxFileService,
-        private readonly RevisionService $revisionService,
+        private DocxFileService $docxFileService,
+        private RevisionService $revisionService,
     ) {}
 
     public function loadAction(ServerRequestInterface $request): ResponseInterface
@@ -69,7 +69,7 @@ final class DocumentApiController extends AbstractDocxApiController
 
             $this->docxFileService->writeBinary($file, $binary);
             $contentHash = $this->revisionService->computeContentHash($binary);
-            $userId = (int)$this->getBackendUser()->user['uid'];
+            $userId = $this->getBackendUser()->getUserId() ?? 0;
             $revision = $this->revisionService->registerSave(
                 $file->getCombinedIdentifier(),
                 $contentHash,
@@ -109,7 +109,7 @@ final class DocumentApiController extends AbstractDocxApiController
             );
 
             $contentHash = $this->revisionService->computeContentHash($binary);
-            $userId = (int)$this->getBackendUser()->user['uid'];
+            $userId = $this->getBackendUser()->getUserId() ?? 0;
             $revision = $this->revisionService->registerSave(
                 $file->getCombinedIdentifier(),
                 $contentHash,

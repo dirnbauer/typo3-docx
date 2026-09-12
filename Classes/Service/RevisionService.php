@@ -5,17 +5,16 @@ declare(strict_types=1);
 namespace Webconsulting\DocxEditor\Service;
 
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Tracks document revisions for collaborative save detection.
  */
-final class RevisionService
+final readonly class RevisionService
 {
     private const TABLE = 'tx_docx_editor_revision';
 
     public function __construct(
-        private readonly ConnectionPool $connectionPool,
+        private ConnectionPool $connectionPool,
     ) {}
 
     /**
