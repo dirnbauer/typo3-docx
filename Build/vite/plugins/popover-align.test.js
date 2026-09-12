@@ -6,6 +6,7 @@ import test from 'node:test';
 import {
   EIGENPAL_REACT_PACKAGE,
   SHAPES,
+  shapeMatches,
   patchPopoverAlign,
 } from './popover-align.js';
 
@@ -28,7 +29,7 @@ function readAllDistMjs() {
 
 test('at least one known popover-align shape still appears in the dist', () => {
   const source = readAllDistMjs();
-  const matched = SHAPES.filter((shape) => source.includes(shape.needle));
+  const matched = SHAPES.filter((shape) => shapeMatches(shape, source));
   assert.ok(
     matched.length > 0,
     `No known popover-align shape matched in any dist/*.mjs chunk. Upstream reshaped the popover positioning — add a new entry to SHAPES in popover-align.js. Known shapes tried: ${SHAPES.map((s) => s.id).join(', ')}`,
@@ -37,16 +38,16 @@ test('at least one known popover-align shape still appears in the dist', () => {
 
 test('each shape rewrites the right-align expression to left-align', () => {
   for (const shape of SHAPES) {
-    const input = `prefix ${shape.needle} suffix`;
+    const input = `prefix ${shape.sample} suffix`;
     const out = shape.transform(input);
     assert.notEqual(out, input, `shape ${shape.id} did not transform`);
     assert.ok(/left:[a-z]\.left/.test(out), `shape ${shape.id} did not left-align`);
-    assert.ok(!out.includes(shape.needle), `shape ${shape.id} left the right-align needle behind`);
+    assert.ok(!out.includes(shape.sample), `shape ${shape.id} left the right-align needle behind`);
   }
 });
 
 test('patchPopoverAlign is idempotent', () => {
-  const input = `prefix ${SHAPES[0].needle} suffix`;
+  const input = `prefix ${SHAPES[0].sample} suffix`;
   const patched = patchPopoverAlign(input);
   assert.ok(patched);
   assert.equal(patchPopoverAlign(patched), null);

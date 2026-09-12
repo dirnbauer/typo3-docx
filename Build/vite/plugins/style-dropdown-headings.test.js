@@ -6,6 +6,7 @@ import test from 'node:test';
 import {
   EIGENPAL_REACT_PACKAGE,
   SHAPES,
+  shapeMatches,
   patchStyleDropdownHeadings,
 } from './style-dropdown-headings.js';
 
@@ -28,7 +29,7 @@ function readAllDistMjs() {
 
 test('at least one known style-dropdown shape still appears in the dist', () => {
   const source = readAllDistMjs();
-  const matched = SHAPES.filter((shape) => source.includes(shape.needle));
+  const matched = SHAPES.filter((shape) => shapeMatches(shape, source));
   assert.ok(
     matched.length > 0,
     `No known dropdown shape matched in any dist/*.mjs chunk. Upstream refactored the style-select — add a new entry to SHAPES in style-dropdown-headings.js. Known shapes tried: ${SHAPES.map((s) => s.id).join(', ')}`,
@@ -37,7 +38,7 @@ test('at least one known style-dropdown shape still appears in the dist', () => 
 
 test('each shape transforms its own needle into the curated filter', () => {
   for (const shape of SHAPES) {
-    const input = `prefix ${shape.needle} suffix`;
+    const input = `prefix ${shape.sample} suffix`;
     const out = shape.transform(input);
     assert.notEqual(out, input, `shape ${shape.id} did not transform`);
     assert.ok(out.includes('Normal|Heading[1-4]'), `shape ${shape.id} did not inject the curated filter`);
@@ -46,7 +47,7 @@ test('each shape transforms its own needle into the curated filter', () => {
 
 test('patchStyleDropdownHeadings is idempotent', () => {
   const shape = SHAPES[0];
-  const input = `prefix ${shape.needle} suffix`;
+  const input = `prefix ${shape.sample} suffix`;
   const patched = patchStyleDropdownHeadings(input);
   assert.ok(patched);
   assert.equal(patchStyleDropdownHeadings(patched), null);

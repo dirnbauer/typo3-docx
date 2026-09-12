@@ -17,26 +17,33 @@
  *
  * @see Build/Sources/README.md
  */
-import { EIGENPAL_REACT_PACKAGE } from './heading4-fallback.js';
+import { EIGENPAL_REACT_PACKAGE, shapeMatches } from './heading4-fallback.js';
 
-export { EIGENPAL_REACT_PACKAGE };
+export { EIGENPAL_REACT_PACKAGE, shapeMatches };
 
 /**
  * Known shapes of the popover's right-align expression and how to rewrite each
  * to left-align (open rightward). Do NOT remove old entries — they stay
  * harmless and keep older builds working.
  *
- * @typedef {{ id: string, needle: string, transform: (code: string) => string }} Shape
+ * @typedef {{ id: string, needle: string | RegExp, sample: string, transform: (code: string) => string }} Shape
  * @type {ReadonlyArray<Shape>}
  */
 export const SHAPES = [
-  // 1.6.x: the editing-mode picker positions itself with
-  // `a({top:f.bottom+2,left:f.right-220})` — `f` is the trigger rect, 220 the
-  // hard-coded menu width → right-aligned. Rewrite to `left:f.left` so it opens
-  // rightward from the trigger.
+  // 1.6.x–1.9.x: the editing-mode picker positions itself with
+  // `a({top:g.bottom+2,left:g.right-220})` — `g` is the trigger rect (minified
+  // name, `f` in 1.6.x), 220 the hard-coded menu width → right-aligned. Rewrite
+  // to `left:g.left` so it opens rightward from the trigger.
+  {
+    id: '1.9.x-mode',
+    needle: /left:(\w+)\.right-220/,
+    sample: 'left:g.right-220',
+    transform: (code) => code.replace(/left:(\w+)\.right-220/, 'left:$1.left'),
+  },
   {
     id: '1.6.x-mode',
     needle: 'left:f.right-220',
+    sample: 'left:f.right-220',
     transform: (code) => code.replace('left:f.right-220', 'left:f.left'),
   },
 ];
@@ -47,7 +54,7 @@ export const SHAPES = [
  */
 export function patchPopoverAlign(code) {
   for (const shape of SHAPES) {
-    if (code.includes(shape.needle)) {
+    if (shapeMatches(shape, code)) {
       return shape.transform(code);
     }
   }

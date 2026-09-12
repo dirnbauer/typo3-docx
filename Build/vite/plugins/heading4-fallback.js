@@ -14,6 +14,18 @@
 export const EIGENPAL_REACT_PACKAGE = '@eigenpal/docx-editor-react';
 
 /**
+ * Shared shape matcher for the sibling plugins: a needle is either a literal
+ * substring or a RegExp (identifier-agnostic, survives minifier renames).
+ *
+ * @param {{ needle: string | RegExp }} shape
+ * @param {string} code
+ * @returns {boolean}
+ */
+export function shapeMatches(shape, code) {
+  return typeof shape.needle === 'string' ? code.includes(shape.needle) : shape.needle.test(code);
+}
+
+/**
  * Tail of the built-in fallback style array, ending at Heading 3 (eigenpal
  * stops there — we extend to Heading 4). This shape has been stable across
  * 1.2.x → 1.6.x; only the chunk filename it lives in has changed.
