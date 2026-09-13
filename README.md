@@ -2,96 +2,95 @@
 
 [![CI](https://github.com/dirnbauer/typo3-docx/actions/workflows/ci.yml/badge.svg)](https://github.com/dirnbauer/typo3-docx/actions/workflows/ci.yml)
 
-WYSIWYG `.docx` editing in the TYPO3 **14.3+** Media module, powered by [eigenpal/docx-editor](https://github.com/eigenpal/docx-editor).
+## What it is
 
-Editors open Word files from the media file list, edit in the backend, and save back to FAL. Multiple users see who is online; saves detect conflicts when someone else stored a newer revision.
+WYSIWYG `.docx` editing inside the TYPO3 backend, powered by
+[eigenpal/docx-editor](https://github.com/eigenpal/docx-editor).
 
-> ## ⚠️ Google Fonts (external requests)
->
-> The bundled [eigenpal/docx-editor](https://github.com/eigenpal/docx-editor) **tries to load web fonts from Google** (`fonts.googleapis.com`, `fonts.gstatic.com`) for Office-style typefaces (Calibri, Arial, Tahoma, etc.).
->
-> **This extension blocks those requests** in the TYPO3 backend (Content-Security-Policy) via `typo3-disable-external-fonts.js` and falls back to system fonts plus fonts embedded in the DOCX.
->
-> Implications:
->
-> - **Privacy / GDPR:** No Google Fonts are loaded while the guard is active, but the upstream editor still *attempts* the connection until it is blocked.
-> - **Typography:** On-screen preview may differ from Microsoft Word when a font is not embedded in the file.
-> - **Strict CSP:** You should not need to whitelist Google for the editor; if you remove or bypass the guard, font requests will hit Google again.
->
-> See [Security](Documentation/Security/Index.rst) for details.
+Editors open a Word file from the **File list**, edit it in a full-page backend
+view and save straight back to FAL. The editor is a *route* on the file list
+(`Edit DOCX` action), not a module in the module menu. Several people editing
+the same file see each other's presence, and a save is rejected with HTTP 409
+when someone else stored a newer revision.
+
+> **Google Fonts:** the bundled upstream editor *attempts* to load web fonts
+> from `fonts.googleapis.com` / `fonts.gstatic.com`. This extension blocks those
+> requests in the backend (`typo3-disable-external-fonts.js`) and falls back to
+> system fonts plus fonts embedded in the DOCX, so the backend CSP needs no
+> Google hosts. See [Security](Documentation/Security/Index.rst).
 
 ## Requirements
 
 | | |
 | --- | --- |
-| TYPO3 | 14.3 LTS (`^14.3`) |
-| PHP | 8.2 – 8.4 (CI tests 8.3 and 8.4) |
-| Node.js | 20+ only when rebuilding frontend assets |
+| TYPO3 | 14.3 LTS (`^14.3.7`) |
+| PHP | 8.4 (CI also runs 8.5 as an allowed failure) |
+| Node.js | 22+ — only to rebuild frontend assets |
 
-## Quick start
+## Install
 
 ```bash
 composer require webconsulting/docx-editor
 vendor/bin/typo3 extension:setup
 ```
 
-Pre-built JavaScript is included — no Node.js step is required for a normal install.
+`extension:setup` creates the `tx_docx_editor_session` and
+`tx_docx_editor_revision` tables. Pre-built JavaScript is committed, so a normal
+install needs no Node.js step.
 
-1. Open **Media** in the backend.
-2. Choose a `.docx` file → **Edit DOCX**.
-3. Edit and save from the **docheader** (back, save, save as) or use **Ctrl/Cmd+S**.
+## Configure
 
-Save feedback uses the TYPO3 backend Notification API. The formatting toolbar wraps to multiple lines and follows TYPO3 light/dark tokens.
+Nothing to configure — no TypoScript, no TSconfig. Access follows FAL: a user
+needs read permission on the storage and file to open a document and write
+permission to save (otherwise the editor opens read-only). Routes live in
+`Configuration/Backend/Routes.php` (the editor) and
+`Configuration/Backend/AjaxRoutes.php` (load, save, save-as, presence,
+revision).
 
-## Architecture
+## Use
 
-| Layer | Location | Role |
-| --- | --- | --- |
-| PHP | `Classes/` | FAL I/O, permissions, revision/collaboration APIs, backend module |
-| Fluid | `Resources/Private/Templates/` | Module shell, labels, remote-revision banner |
-| TYPO3 ES modules | `Resources/Public/JavaScript/` | Docheader toolbar, Notification helper |
-| Vite bundle | `Resources/Public/Vite/docx-editor.js` | Lit glue + React + eigenpal editor |
-| Theme CSS | `Resources/Public/Css/Editor*.css` | TYPO3 token overrides (no Vite rebuild needed) |
+1. Open **File** › **Filelist** in the backend.
+2. Pick a `.docx` file and choose **Edit DOCX**.
+3. Edit, then save from the docheader (back, save, save as, download) or with
+   **Ctrl/Cmd+S**.
 
-Frontend sources and rebuild details: [Build/Sources/README.md](Build/Sources/README.md).
+Save feedback uses the backend Notification API and names the target path
+(`Saved to fileadmin / user_upload/report.docx`). The style dropdown is curated
+to **Normal + H1–H4**; the same headings are available as toolbar shortcuts.
 
-## Updating the editor engine
-
-The WYSIWYG core is the npm package [`@eigenpal/docx-editor-react`](https://www.npmjs.com/package/@eigenpal/docx-editor-react) (bundled by Vite; the built `docx-editor.js` is committed, so a normal install needs no Node). To pull the latest upstream version:
-
-```bash
-cd vendor/webconsulting/docx-editor           # the extension directory
-npm view @eigenpal/docx-editor-react version  # latest available
-# raise the three @eigenpal/* entries in package.json to that version, then:
-rm -f package-lock.json && npm install
-npm run test:build   # checks the two Vite patches still anchor in the new build
-npm run build        # rebuild the committed bundle
-ddev exec vendor/bin/typo3 cache:flush
-```
-
-Commit `package.json`, `package-lock.json`, `Resources/Public/Vite/docx-editor.js` and `manifest.json`. If `test:build` fails, a patch lost its anchor in the new build — the **step-by-step re-anchoring guide, the post-upgrade verification checklist, and the table of known patch "shapes"** are in [Build/Sources/README.md](Build/Sources/README.md) and [Documentation/Developer/Index.rst](Documentation/Developer/Index.rst).
-
-## Documentation
-
-- [Full TYPO3 manual](Documentation/Index.rst) (Introduction, installation, usage, security)
-- [Developer guide](Documentation/Developer/Index.rst) (architecture, quality gates, extension boundaries)
-- [Changelog](CHANGELOG.md)
-
-## Development
+## Develop
 
 ```bash
 composer install
-npm ci && npm run test:build && npm run build   # after changing Build/Sources/
-Build/Scripts/runTests.sh -s ci
+npm ci
+Build/Scripts/runTests.sh -s ci   # composer, lint, cgl, phpstan, unit, functional, assets
 ```
 
-- Change `Build/Sources/` → run `npm run build` and commit `Resources/Public/Vite/docx-editor.js`
-- Change `Resources/Public/Css/Editor*.css` → no Node.js step; flush TYPO3 caches and hard-refresh
-- Upgrade `@eigenpal/docx-editor-react` → run `npm run test:build` (pins the Heading 4 Vite patch)
+Individual suites: `lint`, `cgl`, `phpstan`, `unit`, `functional`, `composer`,
+`assets`.
 
-## Collaboration
+Frontend changes under `Build/Sources/` need `npm run build`; commit the
+regenerated `Resources/Public/Vite/` output (CI fails if it drifts). CSS-only
+changes in `Resources/Public/Css/Editor*.css` need no Node step — flush caches
+and hard-refresh.
 
-**Presence** and **revision-aware saves** are included. Full real-time OT/CRDT (Yjs, etc.) is supported by the upstream editor but not wired in yet; see [Developer](Documentation/Developer/Index.rst) for extension points.
+**Chunk patches.** Three Vite plugins in `Build/vite/plugins/` rewrite the
+minified upstream bundle: `heading4-fallback` (adds Heading 4 to the built-in
+style array), `style-dropdown-headings` (curates the dropdown to Normal + H1–H4)
+and `popover-align` (opens the mode picker rightward). They match by content
+pattern across all `dist/*.mjs` chunks — newer entries use identifier-agnostic
+regular expressions, so a minifier rename alone no longer breaks them.
+`npm run test:build` is the gate: it asserts every patch still finds its anchor.
+When it fails after an upstream bump, **add** a new shape entry rather than
+editing the old ones — the re-anchoring guide is in
+[Build/Sources/README.md](Build/Sources/README.md) and
+[Documentation/Developer/Index.rst](Documentation/Developer/Index.rst).
+
+## Docs
+
+- [Manual](Documentation/Index.rst) — introduction, installation, usage, security
+- [Developer guide](Documentation/Developer/Index.rst) — architecture, patches, quality gates
+- [Changelog](CHANGELOG.md)
 
 ## License
 

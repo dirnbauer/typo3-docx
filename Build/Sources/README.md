@@ -37,6 +37,10 @@ chunks under `node_modules/@eigenpal/docx-editor-react/dist/` by content
 pattern — they no longer care which chunk filename holds the needle, so a
 straight upstream bump usually just works. `npm run test:build` is the gate.
 
+All three are gated by `npm run test:build`. Newer shape entries match with
+identifier-agnostic **regular expressions**, so a minifier rename in an upstream
+release (as in 1.9.0) no longer drops a patch silently.
+
 | Plugin | What it does |
 | --- | --- |
 | `heading4-fallback.js` | Appends `Heading4` to eigenpal's built-in fallback style array (upstream stops at Heading 3). |
@@ -54,9 +58,10 @@ straight upstream bump usually just works. `npm run test:build` is the gate.
    plugin and its test entirely.
 4. If `style-dropdown-headings` fails: upstream refactored the dropdown logic
    again. **Don't change existing entries in `SHAPES`** (old fallback paths stay
-   useful). **Add a new entry** with a unique `id` (e.g. `'1.7.x'`), the new
-   needle (the smallest substring that uniquely identifies the new option-source
-   expression), and a `transform` that rewrites it to use `FILTER_BODY`. If
+   useful). **Add a new entry** with a unique `id` (e.g. `'2.0.x'`), a `needle`
+   (a string or — preferred — a RegExp that uniquely identifies the new
+   option-source expression), a `sample` literal the needle matches (the tests
+   use it), and a `transform` that rewrites it to use `FILTER_BODY`. If
    upstream adds a prop to filter the dropdown, drop this plugin and configure
    via `<DocxEditor>` instead.
 5. `npm run build` and confirm the dropdown still shows Normal + H1–H4 in the
@@ -72,6 +77,7 @@ then there is no in-dropdown way back to body text.
 | --- | --- | --- |
 | `1.2.x` | `'1.2.x'` | `!o\|\|o.length===0?vo:o.filter(u=>u.type==="paragraph")` |
 | `1.6.x` | `'1.6.x'` | `resolveParagraphStyleOptions(o);return u.length===0?Co:u.map(` |
+| `1.9.x` | `'1.9.x'` | same expression, matched by RegExp so minified identifier names no longer matter |
 
 ## CSS
 

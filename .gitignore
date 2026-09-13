@@ -1,8 +1,25 @@
+# Composer / TYPO3 install artifacts
 /vendor/
 /public/
-/node_modules/
 /var/
+
+# Frontend toolchain
+/node_modules/
+
+# Tool caches
 .phpunit.cache/
+.phpunit.result.cache
 .phpstan.cache/
+.php-cs-fixer.cache
+
+# Editors and OS cruft
 .DS_Store
 .idea/
+.vscode/
+*.swp
+
+# Never commit source maps or video assets
+*.map
+*.mp4
+*.webm
+*.mov

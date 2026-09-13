@@ -2,13 +2,51 @@
 
 All notable changes to this project are documented in this file.
 
-## [Unreleased]
+## [1.3.0] - 2026-09-13
+
+### Added
+
+- Unit tests for the editor helpers: save-path handling and allowed file types
+  (`DocxFileService`), request/locale resolution (`EditorRequestResolver`) and
+  the JSON API envelope (`AbstractDocxApiController`).
+- Functional tests that request the `docx_editor` route for a fixture `.docx` in
+  a test storage and assert the rendered editor, plus revision and presence
+  coverage: `Build/phpunit/FunctionalTests.xml` (sqlite locally, MariaDB in CI).
+- `EditorRequestResolver` service: file identifier (`file` / `target` /
+  module data) and editor locale, extracted from `EditorController`.
+
+### Changed
+
+- Requires PHP 8.4 and TYPO3 `^14.3.7`.
+- Upstream editor updated to `@eigenpal/docx-editor-*` 1.9.0 (React 19.3,
+  Lit 3.3.3); the committed Vite bundle was rebuilt.
+- The `style-dropdown-headings` and `popover-align` chunk patches lost their
+  anchors in the 1.9.0 dist because the minifier renamed identifiers. Both gained
+  identifier-agnostic regular-expression shapes, so future renames no longer
+  break them; the older literal shapes are kept.
+- PHPStan raised from level 6 to **level 8** (no baseline), now also analysing
+  `Configuration/` and `Tests/`; coding standards enforced with the
+  `typo3/coding-standards` ruleset.
+- Services, controllers and the event listener are `readonly` classes; backend
+  user ids are read via `getUserId()` instead of `user['uid']` offsets.
+- A single `.github/workflows/ci.yml` runs lint, CGL, PHPStan, unit (PHP 8.4,
+  plus 8.5 as an allowed failure), functional (MariaDB 10.11) and the asset
+  build, which fails if the committed bundle drifts from a fresh `npm run build`.
 
 ### Fixed
 
+- The "no file selected" error page rendered the raw label key
+  `docx_editor.mod:error.missingFile` instead of the translated message.
+- The file list **Edit DOCX** action resolved its title through a nonexistent
+  `docx_editor:` translation domain and fell back to the raw key.
 - FAL breadcrumb trail rendered above the editor surface (Media-style path in the content pane).
 - Toolbar and Radix dropdown panels no longer clip or misalign (`overflow: visible`, body-level overlay styles).
 - Save notification now confirms the fileadmin path (`Saved to {storage / path}`).
+
+### Security
+
+- `npm audit fix` cleared the `browserslist` and `baseline-browser-mapping`
+  advisories; `npm audit --audit-level=high` and `composer audit` are CI gates.
 
 ## [1.2.0] - 2026-06-04
 

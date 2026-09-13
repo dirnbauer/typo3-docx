@@ -137,6 +137,10 @@ scan every ``dist/*.mjs`` file by content pattern, so an upstream chunk rename
 alone does not break them. ``npm run test:build`` asserts each anchor still
 matches.
 
+All three plugins are verified by ``npm run test:build``. Newer shape entries
+use identifier-agnostic **regular expressions**, so a minifier rename in an
+upstream release (as happened in 1.9.0) no longer drops a patch silently.
+
 ..  list-table::
     :header-rows: 1
 
@@ -166,9 +170,10 @@ plugin and its test.
 
 **style-dropdown-headings** — upstream refactored the dropdown's option source.
 **Do not edit existing ``SHAPES`` entries** (older fallback paths stay useful).
-**Add a new entry** with a unique ``id`` (e.g. ``'1.7.x'``), a ``needle`` (the
-smallest substring uniquely identifying the new option-source expression) and a
-``transform`` that rewrites it to use ``FILTER_BODY``. If upstream adds a prop to
+**Add a new entry** with a unique ``id`` (e.g. ``'2.0.x'``), a ``needle`` (a
+string or — preferred — a regular expression uniquely identifying the new
+option-source expression), a ``sample`` literal that the needle matches (used by
+the tests) and a ``transform`` that rewrites it to use ``FILTER_BODY``. If upstream adds a prop to
 filter the dropdown, drop the plugin and configure ``<DocxEditor>`` instead.
 
 ..  list-table:: Known dropdown shapes
@@ -183,6 +188,10 @@ filter the dropdown, drop the plugin and configure ``<DocxEditor>`` instead.
     * - ``1.6.x``
       - ``'1.6.x'``
       - ``resolveParagraphStyleOptions(o);return u.length===0?Co:u.map(``
+    * - ``1.9.x``
+      - ``'1.9.x'``
+      - same expression, matched by regular expression so minified identifier
+        names no longer matter
 
 To widen the dropdown, edit ``FILTER_BODY`` in
 :file:`style-dropdown-headings.js` (e.g. add ``Title|Subtitle``); dropping
@@ -210,20 +219,51 @@ Quality gates
     :caption: Run the full CI suite locally
 
     composer install
-    npm ci && npm run test:build && npm run build
+    npm ci
     Build/Scripts/runTests.sh -s ci
 
-Suites: ``unit``, ``phpstan``, ``composer``, ``assets``, ``ci``.
+Suites: ``lint``, ``cgl``, ``phpstan``, ``unit``, ``functional``, ``composer``,
+``assets``, ``ci``.
 
 After changing :file:`Build/Sources/`, run ``npm run build`` and commit
-:file:`Resources/Public/Vite/docx-editor.js``.
+:file:`Resources/Public/Vite/docx-editor.js`` — the CI assets job rebuilds the
+bundle and fails on any drift (``git diff --exit-code``).
+
+Tests
+=====
+
+..  code-block:: bash
+    :caption: Unit and functional suites
+
+    composer test:unit
+    composer test:functional
+
+Unit tests cover the editor helpers (save-path handling, allowed file types,
+request and locale resolution, the JSON API envelope). Functional tests request
+the ``docx_editor`` route for a fixture :file:`.docx` provided into a test
+storage and assert the rendered editor, the German locale, and the error pages
+for non-DOCX and missing files.
+
+:file:`Build/phpunit/FunctionalTests.xml` defaults to sqlite; the CI functional
+job overrides the ``typo3Database*`` environment variables with a MariaDB 10.11
+service.
 
 PHPStan
 =======
 
+Level **8**, configured in the root :file:`phpstan.neon` with the
+``phpstan-typo3`` and ``phpstan-phpunit`` extensions and no baseline.
+
 ..  code-block:: bash
 
-    vendor/bin/phpstan analyse
+    composer phpstan
+
+Coding standards follow ``typo3/coding-standards``:
+
+..  code-block:: bash
+
+    composer cgl        # dry-run (CI gate)
+    composer cgl:fix    # apply
 
 Extension boundaries
 ====================

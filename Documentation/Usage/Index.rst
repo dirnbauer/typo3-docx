@@ -10,12 +10,12 @@ Open a document
 ===============
 
 #. Sign in to the TYPO3 backend.
-#. Open :guilabel:`Media`.
+#. Open :guilabel:`File` > :guilabel:`Filelist`.
 #. Browse to a folder that contains a `.docx` file.
 #. Click the primary action :guilabel:`Edit DOCX`.
 
-The editor opens in the Media submodule. The TYPO3 **docheader** shows FAL
-breadcrumbs and action buttons (back to the media folder, save, save as).
+The editor opens as a full-page backend view. The TYPO3 **docheader** shows FAL
+breadcrumbs and action buttons (back to the folder, save, save as, download).
 
 Saving
 ======
@@ -28,7 +28,10 @@ Saving
 
 The eigenpal formatting toolbar uses TYPO3 design tokens and wraps to multiple
 lines on narrow backend widths (no horizontal scrollbar). H1–H4 quick-style
-buttons appear at the start of the formatting bar when you have write access.
+buttons appear at the start of the formatting bar when you have write access,
+and the block-style dropdown is curated to :guilabel:`Normal` plus
+:guilabel:`Heading 1`–:guilabel:`Heading 4` regardless of the styles the Word
+file itself defines.
 
 Permissions
 ===========

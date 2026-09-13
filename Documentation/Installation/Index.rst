@@ -44,8 +44,10 @@ packages:
     npm run test:build
     npm run build
 
-``test:build`` verifies the Heading 4 Vite patch still matches the installed
-``@eigenpal/docx-editor-react`` version.
+``test:build`` verifies that all three Vite chunk patches still find their
+anchors in the installed ``@eigenpal/docx-editor-react`` version. CI rebuilds
+the bundle and fails when the committed output differs, so always commit the
+regenerated files.
 
 Commit the generated files in :file:`Resources/Public/Vite/` before tagging a
 release.

@@ -17,8 +17,9 @@ backend.
 Key features
 ============
 
-- Primary **Edit DOCX** action in the Media file list
-- Full-page backend editor with TYPO3 docheader (save, save as, FAL breadcrumbs)
+- Primary **Edit DOCX** action in the backend file list
+- Full-page backend editor with TYPO3 docheader (save, save as, download,
+  FAL breadcrumbs)
 - Compact formatting toolbar with H1–H4 shortcuts and TYPO3 light/dark tokens
 - Active editor presence (who is online)
 - Revision tracking and conflict-safe saves
@@ -27,8 +28,8 @@ Key features
 Requirements
 ============
 
-- TYPO3 14.3 LTS or newer
-- PHP 8.2 or newer
+- TYPO3 14.3 LTS (``typo3/cms-core`` ``^14.3.7``)
+- PHP 8.4
 - Composer installation (classic mode)
 
 Collaboration model
