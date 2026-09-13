@@ -4,25 +4,131 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
-  quality:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        php: ['8.3', '8.4']
+  lint:
+    name: Lint + CGL + PHPStan
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: intl, mbstring
+          tools: composer:v2
+          coverage: none
+
+      - name: Validate composer.json
+        run: composer validate --strict
+
+      - name: Install dependencies
+        run: composer install --no-progress --no-interaction
+
+      - name: Audit dependencies
+        run: composer audit --locked
+
+      - name: Lint PHP
+        run: composer lint
+
+      - name: Coding standards (dry-run)
+        run: composer cgl
+
+      - name: PHPStan
+        run: composer phpstan -- --no-progress
+
+  unit:
+    name: Unit tests (PHP ${{ matrix.php }})
+    runs-on: ubuntu-24.04
+    continue-on-error: ${{ matrix.experimental }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - php: '8.4'
+            experimental: false
+          - php: '8.5'
+            experimental: true
+    steps:
+      - uses: actions/checkout@v5
+
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
+          extensions: intl, mbstring
+          tools: composer:v2
           coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-progress --no-interaction
+
+      - name: Unit tests
+        run: composer test:unit
+
+  functional:
+    name: Functional tests (MariaDB 10.11)
+    runs-on: ubuntu-24.04
+    services:
+      mariadb:
+        image: mariadb:10.11
+        env:
+          MYSQL_ROOT_PASSWORD: funcp
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    env:
+      typo3DatabaseDriver: mysqli
+      typo3DatabaseHost: 127.0.0.1
+      typo3DatabasePort: 3306
+      typo3DatabaseUsername: root
+      typo3DatabasePassword: funcp
+      typo3DatabaseName: func_test
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: intl, mbstring, mysqli
+          tools: composer:v2
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-progress --no-interaction
+
+      - name: Functional tests
+        run: composer test:functional
+
+  assets:
+    name: Frontend bundle
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: npm
-      - name: Install Composer dependencies
-        run: composer install --prefer-dist --no-progress
-      - name: Run CI suite
-        run: Build/Scripts/runTests.sh -s ci -p ${{ matrix.php }}
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Audit npm dependencies
+        run: npm audit --audit-level=high
+
+      - name: Verify the eigenpal chunk patches still anchor
+        run: npm run test:build
+
+      - name: Build
+        run: npm run build
+
+      - name: The committed bundle must match the build
+        run: git diff --exit-code -- Resources/Public/Vite

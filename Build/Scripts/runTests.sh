@@ -5,7 +5,7 @@
 # Usage:
 #   Build/Scripts/runTests.sh -s <suite> [-p <php>]
 #
-#   Suites: unit | phpstan | composer | assets | ci
+#   Suites: lint | cgl | phpstan | unit | functional | composer | assets | ci
 
 set -euo pipefail
 
@@ -23,11 +23,14 @@ usage() {
 Usage: Build/Scripts/runTests.sh -s <suite> [-p <php>]
 
 Suites:
+  lint       php -l over all PHP sources.
+  cgl        Coding standards (php-cs-fixer, dry-run).
+  phpstan    Static analysis (level 8).
   unit       PHPUnit unit tests.
-  phpstan    Static analysis.
+  functional PHPUnit functional tests (sqlite by default).
   composer   composer validate + composer audit.
-  assets     npm ci + production frontend build.
-  ci         composer + phpstan + unit + assets (no DB functional tests).
+  assets     npm ci + patch check + production frontend build.
+  ci         composer + lint + cgl + phpstan + unit + functional + assets.
 
 Options:
   -p <php>   Informational PHP version label.
@@ -53,8 +56,21 @@ if [[ -n "${PHP_VERSION}" ]]; then
     echo "# Target PHP version: ${PHP_VERSION} (informational)"
 fi
 
+run_lint() {
+    find Classes Configuration Tests ext_localconf.php -name '*.php' -print0 \
+        | xargs -0 -n1 -P4 php -l > /dev/null
+}
+
+run_cgl() {
+    vendor/bin/php-cs-fixer check --diff
+}
+
 run_unit() {
     php -d memory_limit="${PHP_MEMORY_LIMIT}" vendor/bin/phpunit -c Build/phpunit/UnitTests.xml
+}
+
+run_functional() {
+    php -d memory_limit="${PHP_MEMORY_LIMIT}" vendor/bin/phpunit -c Build/phpunit/FunctionalTests.xml
 }
 
 run_phpstan() {
@@ -83,14 +99,20 @@ run_assets() {
 }
 
 case "${SUITE}" in
+    lint) run_lint ;;
+    cgl) run_cgl ;;
     unit) run_unit ;;
+    functional) run_functional ;;
     phpstan) run_phpstan ;;
     composer) run_composer ;;
     assets) run_assets ;;
     ci)
         run_composer
+        run_lint
+        run_cgl
         run_phpstan
         run_unit
+        run_functional
         run_assets
         ;;
     *)
