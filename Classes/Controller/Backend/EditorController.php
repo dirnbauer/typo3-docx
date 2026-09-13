@@ -44,7 +44,7 @@ final readonly class EditorController
     {
         $fileIdentifier = $this->editorRequestResolver->resolveFileIdentifier($request);
         if ($fileIdentifier === '') {
-            return $this->renderError($request, 'docx_editor.mod:error.missingFile');
+            return $this->renderError($request, $this->translate('docx_editor.mod:error.missingFile'));
         }
 
         try {

@@ -78,7 +78,9 @@ final readonly class AddDocxEditFileActionListener
 
     private function translate(string $key): string
     {
-        $label = $GLOBALS['LANG']->sL('docx_editor:' . $key);
+        $label = $GLOBALS['LANG']->sL(
+            'LLL:EXT:docx_editor/Resources/Private/Language/locallang.xlf:' . $key,
+        );
         return $label !== '' ? $label : $key;
     }
 }
