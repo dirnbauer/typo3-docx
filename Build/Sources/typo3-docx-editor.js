@@ -1,199 +1,132 @@
-import { LitElement, css, html } from 'lit';
-import { notifyDocxEditorStatus } from '@webconsulting/docx-editor/notify.js';
+import { notifySaved, notifySaveFailed } from '@webconsulting/docx-editor/notify.js';
 import { mountDocxEditor } from './docx-editor-mount.jsx';
-import { readAppLabels, readHeadingLabels } from './docx-labels.js';
 import { heartbeatSession, joinSession, leaveSession } from './docx-editor-api.js';
 import { formatIcu } from './docx-icu-format.js';
 
-/**
- * Lit glue for TYPO3: hosts the React-based eigenpal/docx-editor bundle.
- */
-export class Typo3DocxEditorElement extends LitElement {
-  /**
-   * Light DOM so eigenpal/docx-editor global styles (.ep-root, toolbar, icons) apply.
-   * Shadow DOM would block the Vite CSS bundle loaded by the TYPO3 backend.
-   */
-  createRenderRoot() {
-    return this;
-  }
+const HEARTBEAT_INTERVAL = 15000;
 
-  static properties = {
-    fileIdentifier: { type: String, attribute: 'file-identifier' },
-    fileName: { type: String, attribute: 'file-name' },
-    fileHash: { type: String, attribute: 'file-hash' },
-    revision: { type: Number },
-    canWrite: {
-      type: Boolean,
-      attribute: 'can-write',
-      converter: {
-        fromAttribute: (value) => value === '1' || value === true,
-        toAttribute: (value) => (value ? '1' : '0'),
-      },
-    },
+/**
+ * <typo3-docx-editor>: hosts the React editor in light DOM (so the bundled
+ * eigenpal styles apply), exposes save()/saveAs() to the docheader toolbar
+ * and keeps the presence session alive.
+ *
+ * Attributes: file-identifier, file-name, revision, can-write ("1"/"0"),
+ * editor-locale. Labels come from #docx-editor-app[data-labels].
+ */
+export class Typo3DocxEditorElement extends HTMLElement {
+  #api = null;
+
+  #unmount = null;
+
+  #sessionUid = 0;
+
+  #heartbeatTimer = 0;
+
+  #labels = {};
+
+  #teardownCollab = () => {
+    window.removeEventListener('beforeunload', this.#teardownCollab);
+    window.clearInterval(this.#heartbeatTimer);
+    if (this.#sessionUid) {
+      leaveSession(this.fileIdentifier, this.#sessionUid).catch(() => {});
+      this.#sessionUid = 0;
+    }
   };
 
-  static styles = css`
-    :host {
-      display: block;
-      min-height: 70vh;
-      width: 100%;
-    }
-    .mount {
-      min-height: 70vh;
-      width: 100%;
-    }
-  `;
+  get fileIdentifier() {
+    return this.getAttribute('file-identifier') ?? '';
+  }
 
-  constructor() {
-    super();
-    this.unmountEditor = null;
-    this.sessionUid = 0;
-    this.heartbeatTimer = null;
-    this.app = null;
-    this.labels = {};
-    this.headingLabels = {};
-    this.docxEditorApi = null;
-    this.remoteReloadBound = false;
+  get fileName() {
+    return this.getAttribute('file-name') ?? 'document.docx';
+  }
+
+  get canWrite() {
+    return this.getAttribute('can-write') === '1';
   }
 
   async save() {
-    if (!this.docxEditorApi?.save) {
+    if (!this.#api) {
       throw new Error('Editor is not ready yet.');
     }
-    await this.docxEditorApi.save();
+    await this.#api.save();
   }
 
   async saveAsToFolder(folderIdentifier, fileName) {
-    return this.docxEditorApi?.saveAs?.(folderIdentifier, fileName);
-  }
-
-  getDocumentFileName() {
-    return this.docxEditorApi?.getFileName?.() ?? '';
+    return this.#api?.saveAs(folderIdentifier, fileName);
   }
 
   connectedCallback() {
-    super.connectedCallback();
-    this.app = document.getElementById('docx-editor-app');
-    this.labels = readAppLabels(this.app);
-    this.headingLabels = readHeadingLabels(this.app);
+    const app = document.getElementById('docx-editor-app');
+    this.#labels = JSON.parse(app?.dataset.labels ?? '{}');
+    const mount = document.createElement('div');
+    mount.className = 'mount';
+    this.replaceChildren(mount);
+
+    this.#unmount = mountDocxEditor(mount, {
+      fileIdentifier: this.fileIdentifier,
+      fileName: this.fileName,
+      canWrite: this.canWrite,
+      initialRevision: Number(this.getAttribute('revision') ?? 0),
+      editorLocale: this.getAttribute('editor-locale') ?? 'en',
+      loadingLabel: this.#labels.loading ?? 'Loading document…',
+      headingLabels: this.#labels.headings ?? {},
+      onApi: (api) => {
+        this.#api = api;
+      },
+      onSaved: () => notifySaved(this.#labels),
+      onError: (message) => notifySaveFailed(this.#labels, message),
+      onConflict: () => this.#showConflictBanner(),
+    });
+    this.#startCollab();
   }
 
   disconnectedCallback() {
-    super.disconnectedCallback();
-    this.teardownCollab();
-    this.unmountEditor?.();
-    this.unmountEditor = null;
+    this.#teardownCollab();
+    this.#unmount?.();
+    this.#unmount = null;
+    this.#api = null;
   }
 
-  render() {
-    return html`<div class="mount" data-docx-mount></div>`;
-  }
-
-  firstUpdated() {
-    const host = this.renderRoot.querySelector('[data-docx-mount]');
-    this.unmountEditor = mountDocxEditor(
-      host,
-      {
-        fileIdentifier: this.fileIdentifier,
-        fileName: this.fileName,
-        canWrite: this.canWrite,
-        initialRevision: this.revision,
-        loadingLabel: this.labels.labelLoading || 'Loading document…',
-        editorLocale: this.labels.editorLocale || 'en',
-        headingLabels: this.headingLabels,
-        onStatus: (state, detail) => this.handleStatus(state, detail),
-        onRemoteRevision: (revision, _hash, conflict) =>
-          this.handleRemoteRevision(revision, conflict),
-      },
-      this,
-    );
-    this.startCollab();
-  }
-
-  async startCollab() {
+  async #startCollab() {
+    window.addEventListener('beforeunload', this.#teardownCollab);
     try {
       const joined = await joinSession(this.fileIdentifier);
-      if (joined?.ok) {
-        this.sessionUid = joined.sessionUid;
-        this.renderPresence(joined.participants);
-      }
+      this.#sessionUid = joined.sessionUid;
+      this.#renderPresence(joined.participants);
     } catch {
-      // presence is optional
+      return; // presence is optional
     }
-    this.heartbeatTimer = window.setInterval(async () => {
-      if (!this.sessionUid) {
-        return;
-      }
+    this.#heartbeatTimer = window.setInterval(async () => {
       try {
-        const beat = await heartbeatSession(this.fileIdentifier, this.sessionUid);
-        if (beat?.ok) {
-          this.renderPresence(beat.participants);
-        }
+        const beat = await heartbeatSession(this.fileIdentifier, this.#sessionUid);
+        this.#renderPresence(beat.participants);
       } catch {
         // ignore heartbeat errors
       }
-    }, 15000);
-    window.addEventListener('beforeunload', this.teardownCollabBound);
+    }, HEARTBEAT_INTERVAL);
   }
 
-  teardownCollabBound = () => {
-    this.teardownCollab();
-  };
-
-  teardownCollab() {
-    window.removeEventListener('beforeunload', this.teardownCollabBound);
-    if (this.heartbeatTimer) {
-      window.clearInterval(this.heartbeatTimer);
-      this.heartbeatTimer = null;
-    }
-    if (this.sessionUid) {
-      leaveSession(this.fileIdentifier, this.sessionUid);
-      this.sessionUid = 0;
-    }
-  }
-
-  handleStatus(state, detail) {
-    if (state === 'ready' || state === 'saving') {
-      return;
-    }
-    notifyDocxEditorStatus(
-      this.app,
-      state,
-      typeof detail === 'string' ? detail : '',
-    );
-  }
-
-  handleRemoteRevision(revision, conflict) {
-    if (!conflict) {
-      this.revision = revision;
-      return;
-    }
+  #showConflictBanner() {
     const banner = document.querySelector('[data-docx-remote-banner]');
-    if (!banner) {
+    if (!banner || !banner.classList.contains('d-none')) {
       return;
     }
     banner.classList.remove('d-none');
-    const reloadButton = banner.querySelector('[data-docx-remote-reload]');
-    if (reloadButton && !this.remoteReloadBound) {
-      this.remoteReloadBound = true;
-      reloadButton.addEventListener('click', () => window.location.reload());
-    }
+    banner
+      .querySelector('[data-docx-remote-reload]')
+      ?.addEventListener('click', () => window.location.reload(), { once: true });
   }
 
-  renderPresence(participants = []) {
+  #renderPresence(participants = []) {
     const target = document.querySelector('[data-docx-presence]');
     if (!target) {
       return;
     }
     const count = participants.length;
-    if (count === 0) {
-      target.textContent = '';
-      return;
-    }
     const template =
-      this.labels.labelCollaborators ||
-      '{count, plural, one {1 editor online} other {# editors online}}';
-    target.textContent = formatIcu(template, { count }, this.labels.editorLocale || 'en');
+      this.#labels.collaborators || '{count, plural, one {1 editor online} other {# editors online}}';
+    target.textContent = count === 0 ? '' : formatIcu(template, { count }, this.getAttribute('editor-locale') ?? 'en');
   }
 }
 

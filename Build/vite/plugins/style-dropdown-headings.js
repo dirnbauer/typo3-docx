@@ -15,7 +15,7 @@
  * When upstream bumps change the shape again, add a new SHAPES entry and the
  * test:build runner asserts at least one shape still matches.
  *
- * @see Build/Sources/README.md
+ * @see Documentation/Developer/Index.rst
  */
 import { EIGENPAL_REACT_PACKAGE, shapeMatches } from './heading4-fallback.js';
 

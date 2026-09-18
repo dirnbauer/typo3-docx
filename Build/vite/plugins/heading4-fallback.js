@@ -7,7 +7,7 @@
  * upstream bumps reshuffle chunks, only the needle string check needs to
  * survive — and the test:build runner asserts it does.
  *
- * @see Build/Sources/README.md
+ * @see Documentation/Developer/Index.rst
  */
 
 /** @type {const} */

@@ -1,5 +1,5 @@
 import { createRoot } from 'react-dom/client';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DocxEditor } from '@eigenpal/docx-editor-react';
 import {
   decodeBase64ToArrayBuffer,
@@ -8,127 +8,112 @@ import {
   saveDocument,
   saveDocumentAs,
 } from './docx-editor-api.js';
-import { useTypo3DocxEditorOptions } from './use-typo3-docx-editor-options.jsx';
+import { buildDocxEditorI18n } from './docx-editor-i18n.js';
+import { DocxHeadingToolbar } from './docx-heading-toolbar.jsx';
+
+const REVISION_POLL_INTERVAL = 5000;
 
 /**
- * React adapter for eigenpal/docx-editor. Mounted by the Lit glue element only.
+ * React adapter for eigenpal/docx-editor. Mounted by <typo3-docx-editor> only.
+ *
+ * Callbacks: onApi({save, saveAs}) once the document is loaded, onSaved(),
+ * onError(message), onConflict() when another editor stored a newer revision.
  */
 function DocxEditorHost({
   fileIdentifier,
   fileName,
   canWrite,
   initialRevision,
-  loadingLabel = 'Loading document…',
-  editorLocale = 'en',
-  headingLabels = {},
-  onStatus,
-  onRemoteRevision,
-  editorApi,
+  editorLocale,
+  loadingLabel,
+  headingLabels,
+  onApi,
+  onSaved,
+  onError,
+  onConflict,
 }) {
   const [buffer, setBuffer] = useState(null);
   const [revision, setRevision] = useState(initialRevision);
-  const [loading, setLoading] = useState(true);
+  const [activeStyleId, setActiveStyleId] = useState(null);
+  const editorRef = useRef(null);
   const savingRef = useRef(false);
 
-  const reload = useCallback(async () => {
-    setLoading(true);
-    const payload = await loadDocument(fileIdentifier);
-    setBuffer(decodeBase64ToArrayBuffer(payload.data));
-    setRevision(payload.revision);
-    setLoading(false);
-    onStatus?.('ready');
-  }, [fileIdentifier, onStatus]);
+  useEffect(() => {
+    loadDocument(fileIdentifier)
+      .then((payload) => {
+        setBuffer(decodeBase64ToArrayBuffer(payload.data));
+        setRevision(payload.revision);
+      })
+      .catch((error) => onError(error.message));
+  }, [fileIdentifier, onError]);
 
   useEffect(() => {
-    reload().catch((error) => {
-      setLoading(false);
-      onStatus?.('error', error.message);
-    });
-  }, [reload, onStatus]);
+    const timer = window.setInterval(async () => {
+      try {
+        const state = await fetchRevision(fileIdentifier);
+        if (state.revision > revision) {
+          onConflict();
+        }
+      } catch {
+        // ignore polling errors
+      }
+    }, REVISION_POLL_INTERVAL);
+    return () => window.clearInterval(timer);
+  }, [fileIdentifier, onConflict, revision]);
 
-  const persistBuffer = useCallback(
-    async (arrayBuffer, options = {}) => {
-      if (!canWrite || savingRef.current || !arrayBuffer) {
+  /** Serialises one save at a time and maps the outcome to the callbacks. */
+  const persist = useCallback(
+    async (request) => {
+      if (!canWrite || savingRef.current) {
         return null;
       }
       savingRef.current = true;
-      onStatus?.('saving');
       try {
-        if (options.saveAsFolder) {
-          const result = await saveDocumentAs(
-            options.saveAsFolder,
-            options.saveAsFileName || fileName,
-            arrayBuffer,
-          );
-          onStatus?.('saved');
-          return result;
-        }
-
-        const result = await saveDocument(fileIdentifier, revision, arrayBuffer);
-        setRevision(result.revision);
-        onStatus?.('saved');
-        onRemoteRevision?.(result.revision, result.contentHash);
+        const result = await request();
+        onSaved();
         return result;
       } catch (error) {
-        onStatus?.('error', error.message);
+        onError(error.message);
         if (error.httpStatus === 409) {
-          onRemoteRevision?.(revision, null, true);
+          onConflict();
         }
         throw error;
       } finally {
         savingRef.current = false;
       }
     },
-    [canWrite, fileIdentifier, fileName, onRemoteRevision, onStatus, revision],
+    [canWrite, onConflict, onError, onSaved],
   );
 
-  const handleSave = useCallback(
-    async (arrayBuffer) => {
-      await persistBuffer(arrayBuffer);
-    },
-    [persistBuffer],
+  const currentBuffer = useCallback(
+    async () => (await editorRef.current?.save()) ?? buffer,
+    [buffer],
   );
 
-  const editorRef = useRef(null);
-
-  const exportCurrentBuffer = useCallback(async () => {
-    const fromEditor = await editorRef.current?.save();
-    if (fromEditor) {
-      return fromEditor;
-    }
-    return buffer;
-  }, [buffer]);
-
-  const { editorI18n, headingToolbar, onSelectionChange } = useTypo3DocxEditorOptions({
-    editorApi,
-    editorRef,
-    editorLocale,
-    headingLabels,
-    canWrite,
-    loading,
-    fileName,
-    exportCurrentBuffer,
-    persistBuffer,
-  });
+  const save = useCallback(
+    (arrayBuffer) =>
+      persist(async () => {
+        const result = await saveDocument(fileIdentifier, revision, arrayBuffer);
+        setRevision(result.revision);
+        return result;
+      }),
+    [fileIdentifier, persist, revision],
+  );
 
   useEffect(() => {
-    const interval = window.setInterval(async () => {
-      try {
-        const state = await fetchRevision(fileIdentifier);
-        if (!state?.ok) {
-          return;
-        }
-        if (state.revision > revision) {
-          onRemoteRevision?.(state.revision, state.contentHash, true);
-        }
-      } catch {
-        // ignore polling errors
-      }
-    }, 5000);
-    return () => window.clearInterval(interval);
-  }, [fileIdentifier, onRemoteRevision, revision]);
+    if (!buffer) {
+      return;
+    }
+    onApi({
+      save: async () => save(await currentBuffer()),
+      saveAs: async (folderIdentifier, targetFileName) =>
+        persist(async () => saveDocumentAs(folderIdentifier, targetFileName || fileName, await currentBuffer())),
+    });
+  }, [buffer, currentBuffer, fileName, onApi, persist, save]);
 
-  if (loading || !buffer) {
+  const i18n = useMemo(() => buildDocxEditorI18n(editorLocale, headingLabels), [editorLocale, headingLabels]);
+
+  if (!buffer) {
     return <div className="docx-editor-loading">{loadingLabel}</div>;
   }
 
@@ -139,38 +124,26 @@ function DocxEditorHost({
       documentName={fileName}
       mode={canWrite ? 'editing' : 'viewing'}
       readOnly={!canWrite}
-      i18n={editorI18n}
-      toolbarExtra={headingToolbar}
-      onSave={canWrite ? handleSave : undefined}
-      onSelectionChange={onSelectionChange}
-      onError={(error) => onStatus?.('error', error.message)}
+      i18n={i18n}
+      toolbarExtra={
+        canWrite ? (
+          <DocxHeadingToolbar editorRef={editorRef} activeStyleId={activeStyleId} labels={headingLabels} />
+        ) : null
+      }
+      onSave={canWrite ? save : undefined}
+      onSelectionChange={(state) => setActiveStyleId(state?.styleId ?? null)}
+      onError={(error) => onError(error.message)}
     />
   );
 }
 
-const roots = new WeakMap();
-
 /**
  * @param {HTMLElement} host - React mount node
- * @param {object} options - Editor options
- * @param {HTMLElement} [apiTarget] - Element that exposes docxEditorApi (toolbar / Lit element)
+ * @param {object} options - DocxEditorHost props
+ * @returns {() => void} unmount
  */
-export function mountDocxEditor(host, options, apiTarget = host) {
-  if (!host) {
-    return () => {};
-  }
-  const editorApi = {
-    save: async () => {},
-    saveAs: async () => null,
-    getFileName: () => options.fileName ?? 'document.docx',
-  };
+export function mountDocxEditor(host, options) {
   const root = createRoot(host);
-  roots.set(host, root);
-  root.render(<DocxEditorHost {...options} editorApi={editorApi} />);
-  apiTarget.docxEditorApi = editorApi;
-  return () => {
-    root.unmount();
-    roots.delete(host);
-    delete apiTarget.docxEditorApi;
-  };
+  root.render(<DocxEditorHost {...options} />);
+  return () => root.unmount();
 }

@@ -1,136 +1,98 @@
-function routes() {
-  return globalThis.TYPO3?.settings?.ajaxUrls ?? {};
+/**
+ * Backend AJAX calls. Every function resolves to the decoded JSON envelope
+ * (`{ok, ...}`) and throws when the route is not registered or `ok` is false;
+ * the thrown error carries `httpStatus` (409 = revision conflict).
+ */
+
+function routeUrl(name) {
+  const url = globalThis.TYPO3?.settings?.ajaxUrls?.[name];
+  if (!url) {
+    throw new Error(`${name} route is not registered.`);
+  }
+  return url;
 }
 
-async function requestJson(url, options = {}) {
+async function requestJson(url, init = {}) {
   const response = await fetch(url, {
     credentials: 'same-origin',
+    ...init,
     headers: {
       'X-Requested-With': 'XMLHttpRequest',
       Accept: 'application/json',
-      ...(options.headers ?? {}),
+      ...(init.headers ?? {}),
     },
-    ...options,
   });
-  let data = {};
+  let data;
   try {
     data = await response.json();
   } catch {
     data = { ok: false, error: 'Invalid server response.' };
   }
-  if (!response.ok && data.ok !== false) {
-    data.ok = false;
-    data.error = data.error || response.statusText;
-  }
-  data.httpStatus = response.status;
-  return data;
-}
-
-export async function loadDocument(fileIdentifier) {
-  const url = routes().docx_editor_document_load;
-  if (!url) {
-    throw new Error('docx_editor_document_load route is not registered.');
-  }
-  const requestUrl = new URL(url, window.location.origin);
-  requestUrl.searchParams.set('file', fileIdentifier);
-  const data = await requestJson(requestUrl.toString());
   if (!data.ok) {
-    throw new Error(data.error || 'Load failed.');
-  }
-  return data;
-}
-
-export async function saveDocumentAs(folderIdentifier, fileName, arrayBuffer) {
-  const url = routes().docx_editor_document_save_as;
-  if (!url) {
-    throw new Error('docx_editor_document_save_as route is not registered.');
-  }
-  const bytes = new Uint8Array(arrayBuffer);
-  let binary = '';
-  const chunkSize = 0x8000;
-  for (let i = 0; i < bytes.length; i += chunkSize) {
-    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
-  }
-  const data = await requestJson(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      folder: folderIdentifier,
-      fileName,
-      data: btoa(binary),
-    }),
-  });
-  if (!data.ok) {
-    const error = new Error(data.error || 'Save as failed.');
-    error.httpStatus = data.httpStatus;
+    const error = new Error(data.error || response.statusText || 'Request failed.');
+    error.httpStatus = response.status;
     throw error;
   }
   return data;
 }
 
-export async function saveDocument(fileIdentifier, revision, arrayBuffer) {
-  const url = routes().docx_editor_document_save;
-  if (!url) {
-    throw new Error('docx_editor_document_save route is not registered.');
-  }
+function getJson(route, params) {
+  const url = new URL(routeUrl(route), window.location.origin);
+  Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
+  return requestJson(url);
+}
+
+function postJson(route, body) {
+  return requestJson(routeUrl(route), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
+export function loadDocument(fileIdentifier) {
+  return getJson('docx_editor_document_load', { file: fileIdentifier });
+}
+
+export function saveDocument(fileIdentifier, revision, arrayBuffer) {
+  return postJson('docx_editor_document_save', {
+    file: fileIdentifier,
+    revision,
+    data: encodeArrayBufferToBase64(arrayBuffer),
+  });
+}
+
+export function saveDocumentAs(folderIdentifier, fileName, arrayBuffer) {
+  return postJson('docx_editor_document_save_as', {
+    folder: folderIdentifier,
+    fileName,
+    data: encodeArrayBufferToBase64(arrayBuffer),
+  });
+}
+
+export function fetchRevision(fileIdentifier) {
+  return getJson('docx_editor_collab_revision', { file: fileIdentifier });
+}
+
+export function joinSession(fileIdentifier) {
+  return postJson('docx_editor_collab_join', { file: fileIdentifier });
+}
+
+export function heartbeatSession(fileIdentifier, sessionUid) {
+  return postJson('docx_editor_collab_heartbeat', { file: fileIdentifier, sessionUid });
+}
+
+export function leaveSession(fileIdentifier, sessionUid) {
+  return postJson('docx_editor_collab_leave', { file: fileIdentifier, sessionUid });
+}
+
+export function encodeArrayBufferToBase64(arrayBuffer) {
   const bytes = new Uint8Array(arrayBuffer);
   let binary = '';
-  const chunkSize = 0x8000;
-  for (let i = 0; i < bytes.length; i += chunkSize) {
-    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+  for (let i = 0; i < bytes.length; i += 0x8000) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
   }
-  const data = await requestJson(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      file: fileIdentifier,
-      revision,
-      data: btoa(binary),
-    }),
-  });
-  if (!data.ok) {
-    const error = new Error(data.error || 'Save failed.');
-    error.httpStatus = data.httpStatus;
-    throw error;
-  }
-  return data;
-}
-
-export async function joinSession(fileIdentifier) {
-  const url = routes().docx_editor_collab_join;
-  return requestJson(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ file: fileIdentifier }),
-  });
-}
-
-export async function heartbeatSession(fileIdentifier, sessionUid) {
-  const url = routes().docx_editor_collab_heartbeat;
-  return requestJson(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ file: fileIdentifier, sessionUid }),
-  });
-}
-
-export async function leaveSession(fileIdentifier, sessionUid) {
-  const url = routes().docx_editor_collab_leave;
-  if (!url || !sessionUid) {
-    return { ok: true };
-  }
-  return requestJson(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ file: fileIdentifier, sessionUid }),
-  });
-}
-
-export async function fetchRevision(fileIdentifier) {
-  const url = routes().docx_editor_collab_revision;
-  const requestUrl = new URL(url, window.location.origin);
-  requestUrl.searchParams.set('file', fileIdentifier);
-  return requestJson(requestUrl.toString());
+  return btoa(binary);
 }
 
 export function decodeBase64ToArrayBuffer(base64) {

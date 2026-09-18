@@ -8,14 +8,14 @@
  * that runs off the viewport's left edge. The component already supports the
  * other direction in its else branch (`left = trigger.left`), so we rewrite the
  * right-align branch to left-align — the menu then opens rightward. The runtime
- * clamp in `Resources/Public/JavaScript/docx-editor-toolbar.js` still nudges it
+ * clamp in `Resources/Public/JavaScript/toolbar.js` still nudges it
  * back if opening rightward would overflow the right edge.
  *
  * Resilient to chunk renames AND minor refactors: matches by content pattern
  * across all dist chunks. When an upstream bump reshapes the expression, add a
  * new SHAPES entry; the test:build runner asserts at least one shape matches.
  *
- * @see Build/Sources/README.md
+ * @see Documentation/Developer/Index.rst
  */
 import { EIGENPAL_REACT_PACKAGE, shapeMatches } from './heading4-fallback.js';
 
