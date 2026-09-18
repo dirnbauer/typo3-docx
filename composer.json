@@ -1,6 +1,6 @@
 {
     "name": "webconsulting/docx-editor",
-    "description": "DOCX Editor - WYSIWYG .docx editing in the TYPO3 v14 Media module with eigenpal/docx-editor",
+    "description": "DOCX Editor - WYSIWYG .docx editing from the TYPO3 v14 file list with eigenpal/docx-editor",
     "type": "typo3-cms-extension",
     "license": "GPL-2.0-or-later",
     "keywords": [
@@ -35,8 +35,7 @@
         "friendsofphp/php-cs-fixer": "^3.95",
         "phpstan/phpstan": "^2.1",
         "phpstan/phpstan-phpunit": "^2.0",
-        "phpstan/phpstan-strict-rules": "^2.0",
-        "phpunit/phpunit": "^11.5 || ^12.1 || ^13.0",
+        "phpunit/phpunit": "^12.4 || ^13.0",
         "saschaegerer/phpstan-typo3": "^3.0",
         "typo3/coding-standards": "^0.9",
         "typo3/testing-framework": "^9.5"
@@ -62,7 +61,7 @@
         }
     },
     "scripts": {
-        "lint": "find Classes Configuration Tests ext_localconf.php -name '*.php' -print0 | xargs -0 -n1 -P4 php -l > /dev/null",
+        "lint": "find Classes Configuration Tests -name '*.php' -print0 | xargs -0 -n1 -P4 php -l > /dev/null",
         "cgl": "php-cs-fixer check --diff",
         "cgl:fix": "php-cs-fixer fix",
         "phpstan": "phpstan analyse --memory-limit=1G",
@@ -72,24 +71,24 @@
             "@test:unit",
             "@test:functional"
         ],
-        "build:assets": "npm run build",
         "ci": [
             "composer validate --strict",
             "@lint",
             "@cgl",
             "@phpstan",
-            "@test:unit",
-            "@test:functional",
-            "@build:assets"
+            "@test"
+        ],
+        "assets": [
+            "npm ci",
+            "npm run test:build",
+            "npm run build",
+            "git diff --exit-code -- Resources/Public/Vite"
         ]
     },
     "extra": {
         "typo3/cms": {
             "extension-key": "docx_editor",
-            "version": "1.3.0",
-            "Package": {
-                "providesPackages": {}
-            }
+            "version": "1.4.0"
         }
     }
 }

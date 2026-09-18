@@ -12,9 +12,6 @@ $config->getFinder()
         __DIR__ . '/Configuration',
         __DIR__ . '/Tests',
     ])
-    ->append([
-        __DIR__ . '/ext_localconf.php',
-        __FILE__,
-    ]);
+    ->append([__FILE__]);
 
 return $config;

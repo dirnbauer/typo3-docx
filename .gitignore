@@ -2,18 +2,22 @@
 /vendor/
 /public/
 /var/
+/.Build/
+composer.lock
 
 # Frontend toolchain
 /node_modules/
 
 # Tool caches
+*.cache
+.php-cs-fixer.cache
 .phpunit.cache/
 .phpunit.result.cache
-.phpstan.cache/
-.php-cs-fixer.cache
+Build/Reports/
 
 # Editors and OS cruft
 .DS_Store
+._*
 .idea/
 .vscode/
 *.swp
