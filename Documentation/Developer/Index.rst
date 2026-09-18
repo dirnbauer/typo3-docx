@@ -9,137 +9,61 @@ Developer
 Architecture
 ============
 
-- **PHP**: FAL services, AJAX controllers, ``ProcessFileListActionsEvent`` listener
-- **Fluid 5**: Module templates, partials, translated labels
-- **Lit**: ``typo3-docx-editor`` custom element (Vite bundle glue)
-- **Vite bundle**: React adapter for ``@eigenpal/docx-editor-react``
-- **TYPO3 ES modules**: ``docx-editor-toolbar.js``, ``docx-editor-notify.js``
-
-Frontend sources and rebuild steps: :file:`Build/Sources/README.md`.
-
-Frontend layout
-===============
-
 ..  list-table::
     :header-rows: 1
+    :widths: 45 55
 
-    * - File
-      - Loaded by
+    * - Part
       - Role
-    * - :file:`Build/Sources/docx-editor.js`
-      - Vite entry
-      - Fonts guard, eigenpal CSS, Lit element registration
+    * - :file:`Classes/Controller/Backend/EditorController.php`
+      - Renders the editor page, docheader buttons and the ``data-labels``
+        JSON every JavaScript part reads its translations from.
+    * - :file:`Classes/Controller/Backend/DocumentApiController.php`
+        and :file:`CollaborationApiController.php`
+      - JSON AJAX endpoints (envelope in :file:`AbstractDocxApiController.php`).
+    * - :file:`Classes/Service/DocxFileService.php`
+      - FAL resolution and permission checks; the only place that touches
+        FAL permissions.
+    * - :file:`Classes/Service/RevisionService.php`,
+        :file:`CollaborationSessionService.php`
+      - Revision counter and presence sessions.
+    * - :file:`Classes/EventListener/AddDocxEditFileActionListener.php`
+      - Adds :guilabel:`Edit DOCX` to the file list.
     * - :file:`Build/Sources/typo3-docx-editor.js`
-      - Vite bundle
-      - Lit host; exposes ``save()`` / ``saveAsToFolder()``; collaboration polling
+      - ``<typo3-docx-editor>`` custom element (vanilla, light DOM): mounts
+        React, exposes ``save()`` / ``saveAsToFolder()``, presence heartbeat.
     * - :file:`Build/Sources/docx-editor-mount.jsx`
-      - Vite bundle
-      - React adapter around eigenpal ``DocxEditor``
-    * - :file:`Build/Sources/use-typo3-docx-editor-options.jsx`
-      - Vite bundle
-      - TYPO3 i18n, H1–H4 toolbar, save API wiring
-    * - :file:`Build/Sources/docx-labels.js`
-      - Vite bundle
-      - Reads ``data-heading-labels`` JSON from ``#docx-editor-app``
-    * - :file:`Resources/Public/JavaScript/docx-editor-toolbar.js`
-      - TYPO3 ``PageRenderer``
-      - Docheader save/save-as, keyboard shortcut, element browser
-    * - :file:`Resources/Public/JavaScript/docx-editor-notify.js`
-      - TYPO3 import map (also imported by Vite bundle)
-      - ``Notification.success`` / ``error`` for save feedback
+      - React adapter around ``@eigenpal/docx-editor-react``: load, save,
+        revision polling, H1–H4 toolbar.
+    * - :file:`Resources/Public/JavaScript/toolbar.js`, :file:`notify.js`
+      - TYPO3 ES modules (import map ``@webconsulting/docx-editor/``):
+        docheader buttons, folder browser, notifications.
+    * - :file:`Resources/Public/Css/Editor.*.css`
+      - TYPO3 token mapping and toolbar theming, registered after the bundle
+        CSS so they win the cascade.
 
-Save notifications
-==================
+Labels reach JavaScript as one JSON attribute (``#docx-editor-app[data-labels]``)
+built in ``EditorController::buildLabelsJson()``. The presence badge uses an
+ICU plural string resolved client-side by :file:`docx-icu-format.js`.
 
-The Lit element calls ``notifyDocxEditorStatus()`` from
-:file:`docx-editor-notify.js` directly. The Vite bundle keeps that import
-**external** so TYPO3 resolves it at runtime via
-:file:`Configuration/JavaScriptModules.php`.
-
-Heading labels
+Frontend build
 ==============
 
-Translated H1–H4 labels are passed as a single JSON attribute
-(``data-heading-labels``) from :file:`EditorController.php`. Legacy per-key
-``data-label-heading*`` attributes are still parsed as a fallback in
-:file:`docx-labels.js`.
-
-Theme CSS
-=========
-
-TYPO3 backend tokens override eigenpal/Tailwind utilities:
-
-- :file:`Resources/Public/Css/Editor.tokens.css` — design token mapping
-- :file:`Resources/Public/Css/Editor.base.css` — module layout, menus, heading toolbar
-- :file:`Resources/Public/Css/Editor.toolbar.css` — compact formatting bar (multi-line wrap)
-- :file:`Resources/Public/Css/Editor.css` — imports the three partials
-
-:file:`Editor.css` is registered **after** the Vite stylesheet so TYPO3 tokens
-win in the cascade. CSS-only changes do not require ``npm run build``.
-
-Upstream editor (``@eigenpal/docx-editor-react``)
-=================================================
-
-The WYSIWYG core is the npm package ``@eigenpal/docx-editor-react`` (plus
-``-core`` and ``-i18n``), bundled by Vite into
-:file:`Resources/Public/Vite/docx-editor.js`. Two build-time text patches adjust
-its minified output (see *Vite patches* below). Everything is pinned in
-:file:`package.json` and locked in :file:`package-lock.json`; the built bundle is
-committed, so end users never run Node.
-
-Updating to the latest upstream version
----------------------------------------
-
 ..  code-block:: bash
-    :caption: Bump the upstream editor
 
-    cd <ext>/                      # vendor/webconsulting/docx-editor
-    # 1. raise the three eigenpal entries in package.json to the new version
-    #    (@eigenpal/docx-editor-core, -i18n, -react)
-    rm -f package-lock.json
-    npm install --no-audit --no-fund
+    npm ci
+    npm run test:build   # every chunk patch must still find its anchor
+    npm run build        # -> Resources/Public/Vite/docx-editor.{js,css}
 
-    # 2. confirm the patches still find their anchors in the new build
-    npm run test:build
+The bundle has stable file names, so PHP needs no manifest; TYPO3 adds its own
+cache-busting. Commit :file:`Resources/Public/Vite/` — the CI ``assets`` job
+rebuilds and fails on ``git diff``.
 
-    # 3. rebuild the committed bundle
-    npm run build
+Upstream chunk patches
+----------------------
 
-    # 4. flush caches and verify in the backend (see checklist)
-    ddev exec vendor/bin/typo3 cache:flush
-
-Then commit the changed :file:`package.json`, :file:`package-lock.json`,
-:file:`Resources/Public/Vite/docx-editor.js` and
-:file:`Resources/Public/Vite/manifest.json`.
-
-..  tip::
-
-    Find the latest version with ``npm view @eigenpal/docx-editor-react version``.
-
-If ``npm run test:build`` fails, a patch lost its anchor in the new build — see
-the next section for how to re-anchor it. If it passes, the patches still apply
-and you only need to re-verify in the browser.
-
-Post-upgrade verification checklist
-------------------------------------
-
-#. Open a ``.docx`` from the Media file list (**Edit DOCX**) — the editor mounts.
-#. The block-style dropdown lists exactly **Normal, H1, H2, H3, H4**.
-#. Clicking **H2** (and the H1–H4 quick buttons) applies the heading.
-#. **Save** writes back to FAL and the toast shows ``Saved to <path>``.
-#. No console errors; toolbar borders render cleanly.
-
-Vite patches
-============
-
-Both plugins live in :file:`Build/vite/plugins/` and are **chunk-agnostic**: they
-scan every ``dist/*.mjs`` file by content pattern, so an upstream chunk rename
-alone does not break them. ``npm run test:build`` asserts each anchor still
-matches.
-
-All three plugins are verified by ``npm run test:build``. Newer shape entries
-use identifier-agnostic **regular expressions**, so a minifier rename in an
-upstream release (as happened in 1.9.0) no longer drops a patch silently.
+Three Vite plugins in :file:`Build/vite/plugins/` rewrite the minified
+``@eigenpal/docx-editor-react`` dist by content pattern (any chunk file name):
 
 ..  list-table::
     :header-rows: 1
@@ -147,127 +71,32 @@ upstream release (as happened in 1.9.0) no longer drops a patch silently.
     * - Plugin
       - Purpose
     * - :file:`heading4-fallback.js`
-      - Appends ``Heading4`` to eigenpal's built-in fallback style array
-        (upstream stops at Heading 3).
+      - Appends Heading 4 to the built-in fallback style array (upstream
+        stops at Heading 3).
     * - :file:`style-dropdown-headings.js`
-      - Forces the style dropdown to ignore the document's own styles and offer
-        exactly **Normal + Heading 1–4**. Without it a Word file surfaces
-        arbitrary names like "List Paragraph".
+      - Replaces the dropdown's option source with a filter over the fallback
+        array so every document offers exactly Normal + Heading 1–4.
     * - :file:`popover-align.js`
-      - Makes the editing-mode picker open **rightward** from its trigger
-        (upstream right-aligns it, clipping off-screen in a narrow editor). The
-        runtime clamp in :file:`docx-editor-toolbar.js` keeps it on-screen if
-        rightward overflows.
+      - Opens the editing-mode picker rightward; :file:`toolbar.js` clamps any
+        popover back into the viewport at runtime.
 
-Re-anchoring after a failed ``test:build``
--------------------------------------------
-
-**heading4-fallback** — the fallback-array tail changed. Diff
-``node_modules/@eigenpal/docx-editor-react/dist/chunk-*.mjs`` against
-``HEADING3_FALLBACK_TAIL`` and update that constant. If the build already
-contains ``styles.heading4``, upstream ships Heading 4 natively: delete the
-plugin and its test.
-
-**style-dropdown-headings** — upstream refactored the dropdown's option source.
-**Do not edit existing ``SHAPES`` entries** (older fallback paths stay useful).
-**Add a new entry** with a unique ``id`` (e.g. ``'2.0.x'``), a ``needle`` (a
-string or — preferred — a regular expression uniquely identifying the new
-option-source expression), a ``sample`` literal that the needle matches (used by
-the tests) and a ``transform`` that rewrites it to use ``FILTER_BODY``. If upstream adds a prop to
-filter the dropdown, drop the plugin and configure ``<DocxEditor>`` instead.
-
-..  list-table:: Known dropdown shapes
-    :header-rows: 1
-
-    * - eigenpal
-      - shape id
-      - option-source anchor
-    * - ``1.2.x``
-      - ``'1.2.x'``
-      - ``!o||o.length===0?vo:o.filter(u=>u.type==="paragraph")``
-    * - ``1.6.x``
-      - ``'1.6.x'``
-      - ``resolveParagraphStyleOptions(o);return u.length===0?Co:u.map(``
-    * - ``1.9.x``
-      - ``'1.9.x'``
-      - same expression, matched by regular expression so minified identifier
-        names no longer matter
-
-To widen the dropdown, edit ``FILTER_BODY`` in
-:file:`style-dropdown-headings.js` (e.g. add ``Title|Subtitle``); dropping
-``Normal|`` leaves no in-dropdown route back to body text.
-
-ICU labels
-==========
-
-Backend labels that need pluralization use **XLIFF 2 + ICU MessageFormat**, e.g.
-``editor.collaborators``::
-
-    {count, plural, one {1 editor online} other {# editors online}}
-
-Server-side ``f:translate`` cannot resolve the count (presence is updated live in
-JS), so the raw ICU string is passed to the client and resolved by
-:file:`Build/Sources/docx-icu-format.js` (``formatIcu()``), a minimal resolver
-using ``Intl.PluralRules`` for locale-aware plurals. It supports
-``{var, plural, …}``, ``{var}`` and ``#``; add cases there if a new label needs
-``select`` or offsets. Unit tests: :file:`Build/Sources/docx-icu-format.test.js`.
+Each plugin lists known ``SHAPES`` (``needle`` string or identifier-agnostic
+regular expression, ``sample``, ``transform``). After bumping the upstream
+packages run ``npm run test:build``; if a shape no longer matches, **add** a new
+entry instead of editing old ones, re-run, rebuild, and check in the backend
+that the dropdown shows Normal + H1–H4 and headings apply. If upstream ships
+Heading 4 natively (``styles.heading4`` appears in the dist), delete
+``heading4-fallback`` and its test.
 
 Quality gates
 =============
 
 ..  code-block:: bash
-    :caption: Run the full CI suite locally
 
-    composer install
-    npm ci
-    Build/Scripts/runTests.sh -s ci
+    composer ci        # validate, lint, cgl, phpstan (level 8), unit, functional
+    composer assets    # npm ci, test:build, build, git diff --exit-code
 
-Suites: ``lint``, ``cgl``, ``phpstan``, ``unit``, ``functional``, ``composer``,
-``assets``, ``ci``.
-
-After changing :file:`Build/Sources/`, run ``npm run build`` and commit
-:file:`Resources/Public/Vite/docx-editor.js`` — the CI assets job rebuilds the
-bundle and fails on any drift (``git diff --exit-code``).
-
-Tests
-=====
-
-..  code-block:: bash
-    :caption: Unit and functional suites
-
-    composer test:unit
-    composer test:functional
-
-Unit tests cover the editor helpers (save-path handling, allowed file types,
-request and locale resolution, the JSON API envelope). Functional tests request
-the ``docx_editor`` route for a fixture :file:`.docx` provided into a test
-storage and assert the rendered editor, the German locale, and the error pages
-for non-DOCX and missing files.
-
-:file:`Build/phpunit/FunctionalTests.xml` defaults to sqlite; the CI functional
-job overrides the ``typo3Database*`` environment variables with a MariaDB 10.11
-service.
-
-PHPStan
-=======
-
-Level **8**, configured in the root :file:`phpstan.neon` with the
-``phpstan-typo3`` and ``phpstan-phpunit`` extensions and no baseline.
-
-..  code-block:: bash
-
-    composer phpstan
-
-Coding standards follow ``typo3/coding-standards``:
-
-..  code-block:: bash
-
-    composer cgl        # dry-run (CI gate)
-    composer cgl:fix    # apply
-
-Extension boundaries
-====================
-
-Keep FAL and permission logic in
-:file:`Classes/Service/DocxFileService.php`. Do not embed document binaries in
-collaboration tables — revisions store hashes and counters only.
+Functional tests use sqlite by default (:file:`Build/phpunit/FunctionalTests.xml`);
+CI runs them against MariaDB 10.11. They request the real backend routes with
+a fixture storage and cover the editor page, the document API (load, save,
+409, save-as) and the collaboration API.

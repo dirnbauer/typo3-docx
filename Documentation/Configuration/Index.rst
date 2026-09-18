@@ -6,46 +6,51 @@
 Configuration
 =============
 
-The extension works without TypoScript or TSconfig. The editor route and its
-AJAX endpoints are registered in:
+There is nothing to configure: no TypoScript, no TSconfig, no extension
+settings. Access follows FAL permissions.
 
-- :file:`Configuration/Backend/Routes.php`
-- :file:`Configuration/Backend/AjaxRoutes.php`
+Routes
+======
 
-AJAX routes
-===========
-
-..  list-table:: Backend AJAX identifiers
+..  list-table::
     :header-rows: 1
-    :widths: 32 68
+    :widths: 40 60
 
-    * - Route name
+    * - Route
       - Purpose
-    * - ``docx_editor_document_load``
-      - Load `.docx` binary (base64) and revision metadata
-    * - ``docx_editor_document_save``
-      - Save `.docx` binary with optional revision check
-    * - ``docx_editor_document_save_as``
-      - Store the document as a new file in another FAL folder
-    * - ``docx_editor_collab_join``
-      - Join collaboration session (presence)
-    * - ``docx_editor_collab_heartbeat``
-      - Refresh session heartbeat
-    * - ``docx_editor_collab_leave``
-      - Leave session
-    * - ``docx_editor_collab_presence``
-      - List active editors
-    * - ``docx_editor_collab_revision``
-      - Poll revision state
+    * - ``docx_editor`` (:file:`/docx-editor/edit`)
+      - The editor page. ``file`` (or ``target``, as sent by the file list)
+        carries the combined identifier, e.g. ``1:/user_upload/report.docx``.
+    * - ``docx_editor_document_load`` / ``_save`` / ``_save_as``
+      - Load the binary (base64 JSON), save with revision check, store a copy
+        in another folder.
+    * - ``docx_editor_collab_join`` / ``_heartbeat`` / ``_leave`` /
+        ``_presence`` / ``_revision``
+      - Presence session and revision polling.
 
-Editor route
-============
+All AJAX responses share the envelope ``{"ok": true, …}`` or
+``{"ok": false, "error": "…"}`` with a matching HTTP status (400, 403, 404,
+409, 415).
 
-The editor is a backend **route**, not a module — it is reached through the
-:guilabel:`Edit DOCX` action in the file list and deliberately does not appear
-in the module menu (mirroring the core ``file_edit`` text-file editor).
+..  _security:
 
-The route identifier is ``docx_editor`` (path :file:`/docx-editor/edit`). Open a
-file with the ``file`` query parameter containing the combined FAL identifier,
-for example ``1:/user_upload/example.docx``; ``target`` is accepted as an alias
-because that is what the file list passes.
+Security
+========
+
+-   Every route requires an authenticated backend session; FAL storage and
+    file permissions are checked before reading or writing.
+-   Saves with an outdated revision return HTTP 409 instead of overwriting.
+-   "Save as" content must pass TYPO3's resource consistency check (mime type
+    vs. ``.docx``); other content is rejected with HTTP 415.
+-   The presence table stores backend user id, display name and heartbeat
+    only; the revision table stores counters and SHA-256 hashes.
+
+External fonts
+--------------
+
+The upstream editor attempts to load Office typefaces from
+``fonts.googleapis.com`` / ``fonts.gstatic.com``. The bundle ships
+:file:`typo3-disable-external-fonts.js`, which blocks those stylesheet
+injections, so the backend Content Security Policy needs no Google hosts.
+Fallbacks are system fonts and fonts embedded in the document. Keep the guard
+unless you deliberately allow external font hosts.

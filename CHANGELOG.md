@@ -2,6 +2,63 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.4.0] - 2026-09-18
+
+Behaviour-preserving restructuring of the PHP layer and the JavaScript glue,
+frontend toolchain refresh, and controller test coverage.
+
+### Added
+
+- Functional tests for the document API (load, save, stale-revision 409,
+  save-as with duplicate suffix, payload validation) and the collaboration API
+  (join, heartbeat, presence, leave, revision); shared
+  `Tests/Functional/AbstractBackendRouteTestCase`.
+- Unit tests for `DocxEditorException::getStatusCode()`, the JSON helper
+  methods and `DocxFileService::canWrite()`.
+- `composer assets` script (npm ci, patch anchors, build, drift check) as the
+  local counterpart of the CI `assets` job.
+
+### Changed
+
+- **Labels:** `locallang_mod.xlf` merged into `locallang.xlf`; all PHP lookups
+  use the `docx_editor.messages:` translation domain. JavaScript receives every
+  label through one `data-labels` JSON attribute instead of ten `data-label-*`
+  attributes plus a heading JSON.
+- **Assets:** the Vite bundle has stable file names
+  (`Resources/Public/Vite/docx-editor.{js,css}`); `ViteAssetResolver` and
+  `manifest.json` are gone. Import map: `@webconsulting/docx-editor/editor.js`,
+  `toolbar.js`, `notify.js`.
+- `<typo3-docx-editor>` is a vanilla custom element; the `lit` dependency is
+  removed (bundle -48 kB). The React host owns the save/save-as API instead of
+  mutating a shared stub object; `use-typo3-docx-editor-options.jsx` and
+  `docx-labels.js` are folded in or deleted.
+- Presence sessions are deleted when stale or left instead of soft-deleted
+  (`deleted` column dropped from `tx_docx_editor_session`);
+  `CollaborationSessionService::join()` returns an `int`.
+- `DocxEditorException` carries the HTTP status explicitly
+  (`getStatusCode()`); API controllers share `respond()`, `stringValue()`,
+  `intValue()`.
+- `AddDocxEditFileActionListener` catches only `DocxEditorException`.
+- Vite 6 → 8 (rolldown), `@vitejs/plugin-react` 4 → 6, target `es2022`.
+- `composer.lock` is no longer committed; `phpstan/phpstan-strict-rules`
+  (never configured) removed; `ext_localconf.php`, `Build/Scripts/runTests.sh`,
+  `Build/Sources/README.md` and the unused `Editor.css` wrapper deleted.
+  `composer ci` is the single local entry point.
+- Documentation trimmed to what exists; Security folded into Configuration;
+  Changelog chapter added.
+
+### Fixed
+
+- The "Save failed" notification always showed the English fallback: the
+  attribute was `data-label-saveFailed` (HTML lower-cases it, so the dataset
+  key never matched).
+- Heading labels were emitted with `JSON_HEX_QUOT`, which makes the attribute
+  value invalid JSON; the client silently fell back to `H1`/`Heading 1`.
+- "Save as" with content that fails TYPO3's resource consistency check now
+  answers with a JSON 415 instead of an uncaught `ResultException`.
+- Missing `file` / `sessionUid` keys in JSON bodies no longer trigger
+  "Undefined array key" warnings.
+
 ## [1.3.0] - 2026-09-13
 
 ### Added

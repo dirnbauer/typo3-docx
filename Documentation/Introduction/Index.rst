@@ -6,36 +6,31 @@
 Introduction
 ============
 
-What it does
-============
+|extension_name| embeds the open-source
+`eigenpal/docx-editor <https://github.com/eigenpal/docx-editor>`_ into the
+TYPO3 backend so editors can work on Word documents stored in FAL without
+leaving TYPO3.
 
-|extension_name| integrates the open-source
-`eigenpal/docx-editor <https://github.com/eigenpal/docx-editor>`_ library into
-TYPO3. Editors work on Word documents stored in FAL without leaving the
-backend.
+Features
+========
 
-Key features
-============
-
-- Primary **Edit DOCX** action in the backend file list
-- Full-page backend editor with TYPO3 docheader (save, save as, download,
-  FAL breadcrumbs)
-- Compact formatting toolbar with H1–H4 shortcuts and TYPO3 light/dark tokens
-- Active editor presence (who is online)
-- Revision tracking and conflict-safe saves
-- English and German backend labels (XLIFF 2.0, ICU)
-
-Requirements
-============
-
-- TYPO3 14.3 LTS (``typo3/cms-core`` ``^14.3.7``)
-- PHP 8.4
-- Composer installation (classic mode)
+-   **Edit DOCX** action on `.docx` files in the file list
+-   Full-page editor with TYPO3 docheader: back, download, save, save as,
+    FAL breadcrumbs, :kbd:`Ctrl/Cmd+S`
+-   Style dropdown curated to Normal + Heading 1–4, H1–H4 toolbar shortcuts,
+    TYPO3 light/dark design tokens
+-   Presence (who is online) and revision-safe saves (HTTP 409 on conflict)
+-   English and German labels (XLIFF 2, ICU plural for the presence badge)
 
 Collaboration model
 ===================
 
-The extension ships **presence** and **revision polling**. When another user
-saves, you are prompted to reload. Full real-time CRDT merging (for example
-Yjs) is not bundled; the AJAX API is stable enough to add a dedicated sync
-service later if needed.
+The extension tracks *presence* and a per-file *revision counter*. It does not
+merge concurrent edits: when another user saved first, the next save is
+rejected and the page offers to reload.
+
+Requirements
+============
+
+-   TYPO3 14.3 LTS (``typo3/cms-core ^14.3.7``), Composer mode
+-   PHP 8.4
