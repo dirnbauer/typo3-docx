@@ -7,7 +7,8 @@ namespace Webconsulting\DocxEditor\Service;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 
 /**
- * Tracks document revisions for collaborative save detection.
+ * Per-file save counter used to detect concurrent edits (HTTP 409 on save).
+ * Stores hashes and counters only, never document content.
  */
 final readonly class RevisionService
 {
@@ -30,17 +31,12 @@ final readonly class RevisionService
                 ['file_identifier' => $fileIdentifier],
                 [],
                 ['uid' => 'DESC'],
-                1
+                1,
             )
             ->fetchAssociative();
 
         if ($row === false) {
-            return [
-                'revision' => 0,
-                'contentHash' => '',
-                'savedBy' => 0,
-                'changedAt' => 0,
-            ];
+            return ['revision' => 0, 'contentHash' => '', 'savedBy' => 0, 'changedAt' => 0];
         }
 
         return [
@@ -51,26 +47,23 @@ final readonly class RevisionService
         ];
     }
 
+    /**
+     * Returns the new revision number.
+     */
     public function registerSave(string $fileIdentifier, string $contentHash, int $backendUserId): int
     {
-        $current = $this->getRevisionState($fileIdentifier);
-        $nextRevision = $current['revision'] + 1;
+        $nextRevision = $this->getRevisionState($fileIdentifier)['revision'] + 1;
         $now = time();
 
-        $this->connectionPool
-            ->getConnectionForTable(self::TABLE)
-            ->insert(
-                self::TABLE,
-                [
-                    'pid' => 0,
-                    'tstamp' => $now,
-                    'crdate' => $now,
-                    'file_identifier' => $fileIdentifier,
-                    'revision' => $nextRevision,
-                    'content_hash' => $contentHash,
-                    'saved_by' => $backendUserId,
-                ],
-            );
+        $this->connectionPool->getConnectionForTable(self::TABLE)->insert(self::TABLE, [
+            'pid' => 0,
+            'tstamp' => $now,
+            'crdate' => $now,
+            'file_identifier' => $fileIdentifier,
+            'revision' => $nextRevision,
+            'content_hash' => $contentHash,
+            'saved_by' => $backendUserId,
+        ]);
 
         return $nextRevision;
     }

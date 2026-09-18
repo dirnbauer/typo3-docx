@@ -9,42 +9,29 @@ use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use Webconsulting\DocxEditor\Exception\DocxEditorException;
 
+/**
+ * JSON envelope shared by the AJAX controllers: `{ok: true, ...payload}` on
+ * success, `{ok: false, error}` with the exception's HTTP status on failure.
+ */
 abstract readonly class AbstractDocxApiController
 {
     /**
-     * @param array<string, mixed> $payload
+     * @param callable(): array<string, mixed> $action
      */
-    protected function jsonSuccess(array $payload, int $status = 200): ResponseInterface
-    {
-        return new JsonResponse(['ok' => true] + $payload, $status);
-    }
-
-    protected function jsonError(DocxEditorException $exception): ResponseInterface
-    {
-        $status = $exception->getCode();
-        if ($status < 400 || $status > 599) {
-            $status = 500;
-        }
-        return new JsonResponse(
-            [
-                'ok' => false,
-                'error' => $exception->getMessage(),
-            ],
-            $status,
-        );
-    }
-
-    protected function runJson(callable $callback): ResponseInterface
+    protected function respond(callable $action): ResponseInterface
     {
         try {
-            return $callback();
+            return new JsonResponse(['ok' => true] + $action());
         } catch (DocxEditorException $exception) {
-            return $this->jsonError($exception);
+            return new JsonResponse(
+                ['ok' => false, 'error' => $exception->getMessage()],
+                $exception->getStatusCode(),
+            );
         }
     }
 
     /**
-     * TYPO3 does not populate parsed body for application/json POST requests.
+     * TYPO3 does not populate the parsed body for application/json requests.
      *
      * @return array<string, mixed>
      */
@@ -55,21 +42,40 @@ abstract readonly class AbstractDocxApiController
             return $body;
         }
 
-        $raw = (string)$request->getBody();
-        if ($raw === '') {
-            throw new DocxEditorException('Invalid request body.', 400);
-        }
-
         try {
-            $decoded = json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
+            $decoded = json_decode((string)$request->getBody(), true, 512, JSON_THROW_ON_ERROR);
         } catch (\JsonException) {
             throw new DocxEditorException('Invalid request body.', 400);
         }
-
         if (!is_array($decoded)) {
             throw new DocxEditorException('Invalid request body.', 400);
         }
 
         return $decoded;
+    }
+
+    /**
+     * @param array<string, mixed> $values
+     */
+    protected function stringValue(array $values, string $key): string
+    {
+        $value = $values[$key] ?? '';
+
+        return is_scalar($value) ? trim((string)$value) : '';
+    }
+
+    /**
+     * @param array<string, mixed> $values
+     */
+    protected function intValue(array $values, string $key, int $default = 0): int
+    {
+        $value = $values[$key] ?? null;
+
+        return is_numeric($value) ? (int)$value : $default;
+    }
+
+    protected function fileIdentifierFromQuery(ServerRequestInterface $request): string
+    {
+        return $this->stringValue($request->getQueryParams(), 'file');
     }
 }

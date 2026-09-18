@@ -16,10 +16,18 @@ use Webconsulting\DocxEditor\Tests\Unit\Controller\Backend\Fixtures\TestableDocx
 
 final class AbstractDocxApiControllerTest extends UnitTestCase
 {
-    #[Test]
-    public function jsonSuccessAddsTheOkFlag(): void
+    private TestableDocxApiController $controller;
+
+    protected function setUp(): void
     {
-        $response = $this->createController()->success(['revision' => 3]);
+        parent::setUp();
+        $this->controller = new TestableDocxApiController();
+    }
+
+    #[Test]
+    public function respondWrapsThePayloadInTheOkEnvelope(): void
+    {
+        $response = $this->controller->run(static fn(): array => ['revision' => 3]);
 
         self::assertSame(200, $response->getStatusCode());
         self::assertSame(['ok' => true, 'revision' => 3], self::decode($response));
@@ -27,9 +35,11 @@ final class AbstractDocxApiControllerTest extends UnitTestCase
 
     #[Test]
     #[DataProvider('errorStatusProvider')]
-    public function jsonErrorUsesHttpStatusCodesFromTheExceptionAndFallsBackTo500(int $code, int $expectedStatus): void
+    public function respondMapsDocxEditorExceptionsToErrorResponses(int $code, int $expectedStatus): void
     {
-        $response = $this->createController()->error(new DocxEditorException('Boom', $code));
+        $response = $this->controller->run(static function () use ($code): array {
+            throw new DocxEditorException('Boom', $code);
+        });
 
         self::assertSame($expectedStatus, $response->getStatusCode());
         self::assertSame(['ok' => false, 'error' => 'Boom'], self::decode($response));
@@ -43,19 +53,8 @@ final class AbstractDocxApiControllerTest extends UnitTestCase
         yield 'conflict' => [409, 409];
         yield 'forbidden' => [403, 403];
         yield 'unsupported media type' => [415, 415];
-        yield 'no code' => [0, 500];
-        yield 'not an http status' => [1757600000, 500];
-    }
-
-    #[Test]
-    public function runJsonConvertsDocxEditorExceptionsToErrorResponses(): void
-    {
-        $response = $this->createController()->run(static function (): ResponseInterface {
-            throw new DocxEditorException('Only .docx files can be edited.', 415);
-        });
-
-        self::assertSame(415, $response->getStatusCode());
-        self::assertSame('Only .docx files can be edited.', self::decode($response)['error']);
+        yield 'no http status' => [0, 500];
+        yield 'timestamp code' => [1757600000, 500];
     }
 
     #[Test]
@@ -64,7 +63,7 @@ final class AbstractDocxApiControllerTest extends UnitTestCase
         $request = (new ServerRequest('https://example.com/typo3/ajax', 'POST'))
             ->withParsedBody(['file' => '1:/a.docx']);
 
-        self::assertSame(['file' => '1:/a.docx'], $this->createController()->payload($request));
+        self::assertSame(['file' => '1:/a.docx'], $this->controller->payload($request));
     }
 
     #[Test]
@@ -72,7 +71,7 @@ final class AbstractDocxApiControllerTest extends UnitTestCase
     {
         $request = self::jsonRequest('{"file":"1:/a.docx","revision":2}');
 
-        self::assertSame(['file' => '1:/a.docx', 'revision' => 2], $this->createController()->payload($request));
+        self::assertSame(['file' => '1:/a.docx', 'revision' => 2], $this->controller->payload($request));
     }
 
     #[Test]
@@ -81,7 +80,7 @@ final class AbstractDocxApiControllerTest extends UnitTestCase
     {
         $this->expectException(DocxEditorException::class);
         $this->expectExceptionCode(400);
-        $this->createController()->payload(self::jsonRequest($body));
+        $this->controller->payload(self::jsonRequest($body));
     }
 
     /**
@@ -92,6 +91,28 @@ final class AbstractDocxApiControllerTest extends UnitTestCase
         yield 'empty' => [''];
         yield 'broken json' => ['{"file":'];
         yield 'scalar json' => ['"just a string"'];
+    }
+
+    #[Test]
+    public function scalarHelpersNormalizeLooseJsonInput(): void
+    {
+        $values = ['file' => ' 1:/a.docx ', 'revision' => '7', 'nested' => ['x'], 'flag' => true];
+
+        self::assertSame('1:/a.docx', $this->controller->string($values, 'file'));
+        self::assertSame('', $this->controller->string($values, 'nested'));
+        self::assertSame('', $this->controller->string($values, 'missing'));
+        self::assertSame(7, $this->controller->int($values, 'revision'));
+        self::assertSame(-1, $this->controller->int($values, 'missing', -1));
+        self::assertSame(0, $this->controller->int($values, 'flag'));
+    }
+
+    #[Test]
+    public function fileIdentifierFromQueryReadsTheFileParameter(): void
+    {
+        $request = (new ServerRequest('https://example.com/typo3/ajax'))->withQueryParams(['file' => ' 1:/a.docx ']);
+
+        self::assertSame('1:/a.docx', $this->controller->fileFromQuery($request));
+        self::assertSame('', $this->controller->fileFromQuery(new ServerRequest('https://example.com/typo3/ajax')));
     }
 
     private static function jsonRequest(string $body): ServerRequestInterface
@@ -114,10 +135,5 @@ final class AbstractDocxApiControllerTest extends UnitTestCase
         self::assertIsArray($decoded);
 
         return $decoded;
-    }
-
-    private function createController(): TestableDocxApiController
-    {
-        return new TestableDocxApiController();
     }
 }

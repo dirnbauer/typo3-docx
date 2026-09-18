@@ -6,8 +6,6 @@ services:
 
   Webconsulting\DocxEditor\:
     resource: '../Classes/*'
-    exclude:
-      - '../Classes/Domain/Model/*'
 
   Webconsulting\DocxEditor\Controller\Backend\EditorController:
     public: true
@@ -21,11 +19,9 @@ services:
     public: true
     tags: ['backend.controller']
 
-  Webconsulting\DocxEditor\Service\DocxFileService:
+  # Retrieved from the container by the functional tests.
+  Webconsulting\DocxEditor\Service\CollaborationSessionService:
     public: true
 
   Webconsulting\DocxEditor\Service\RevisionService:
-    public: true
-
-  Webconsulting\DocxEditor\Service\CollaborationSessionService:
     public: true

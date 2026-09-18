@@ -7,11 +7,13 @@ namespace Webconsulting\DocxEditor\Controller\Backend;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
-use TYPO3\CMS\Core\Resource\Enum\DuplicationBehavior;
 use Webconsulting\DocxEditor\Exception\DocxEditorException;
 use Webconsulting\DocxEditor\Service\DocxFileService;
 use Webconsulting\DocxEditor\Service\RevisionService;
 
+/**
+ * Loads and stores the .docx binary (base64 in JSON) with revision checks.
+ */
 final readonly class DocumentApiController extends AbstractDocxApiController
 {
     public function __construct(
@@ -21,112 +23,95 @@ final readonly class DocumentApiController extends AbstractDocxApiController
 
     public function loadAction(ServerRequestInterface $request): ResponseInterface
     {
-        return $this->runJson(function () use ($request): ResponseInterface {
-            $fileIdentifier = (string)($request->getQueryParams()['file'] ?? '');
-            $file = $this->docxFileService->resolveFile($fileIdentifier);
+        return $this->respond(function () use ($request): array {
+            $file = $this->docxFileService->resolveFile($this->fileIdentifierFromQuery($request));
             $this->docxFileService->assertCanRead($file);
-            $binary = $this->docxFileService->readBinary($file);
             $revision = $this->revisionService->getRevisionState($file->getCombinedIdentifier());
 
-            return $this->jsonSuccess([
+            return [
                 'file' => $file->getCombinedIdentifier(),
                 'name' => $file->getName(),
                 'mimeType' => $file->getMimeType(),
-                'data' => base64_encode($binary),
+                'data' => base64_encode($this->docxFileService->readBinary($file)),
                 'revision' => $revision['revision'],
                 'contentHash' => $revision['contentHash'],
-            ]);
+            ];
         });
     }
 
     public function saveAction(ServerRequestInterface $request): ResponseInterface
     {
-        return $this->runJson(function () use ($request): ResponseInterface {
+        return $this->respond(function () use ($request): array {
             $body = $this->parseRequestPayload($request);
+            $binary = $this->decodeDocument($body);
 
-            $fileIdentifier = (string)($body['file'] ?? '');
-            $expectedRevision = (int)($body['revision'] ?? -1);
-            $encoded = (string)($body['data'] ?? '');
-            if ($encoded === '') {
-                throw new DocxEditorException('Missing document payload.', 400);
-            }
-
-            $binary = base64_decode($encoded, true);
-            if ($binary === false) {
-                throw new DocxEditorException('Invalid base64 payload.', 400);
-            }
-
-            $file = $this->docxFileService->resolveFile($fileIdentifier);
+            $file = $this->docxFileService->resolveFile($this->stringValue($body, 'file'));
             $this->docxFileService->assertCanWrite($file);
 
+            $expectedRevision = $this->intValue($body, 'revision', -1);
             $current = $this->revisionService->getRevisionState($file->getCombinedIdentifier());
             if ($expectedRevision >= 0 && $current['revision'] !== $expectedRevision) {
-                throw new DocxEditorException(
-                    'Document was updated by another editor. Reload to continue.',
-                    409,
-                );
+                throw new DocxEditorException('Document was updated by another editor. Reload to continue.', 409);
             }
 
-            $this->docxFileService->writeBinary($file, $binary);
-            $contentHash = $this->revisionService->computeContentHash($binary);
-            $userId = $this->getBackendUser()->getUserId() ?? 0;
-            $revision = $this->revisionService->registerSave(
-                $file->getCombinedIdentifier(),
-                $contentHash,
-                $userId,
-            );
+            $file->setContents($binary);
 
-            return $this->jsonSuccess([
-                'revision' => $revision,
-                'contentHash' => $contentHash,
-            ]);
+            return $this->registerSave($request, $file->getCombinedIdentifier(), $binary);
         });
     }
 
     public function saveAsAction(ServerRequestInterface $request): ResponseInterface
     {
-        return $this->runJson(function () use ($request): ResponseInterface {
+        return $this->respond(function () use ($request): array {
             $body = $this->parseRequestPayload($request);
-
-            $folderIdentifier = (string)($body['folder'] ?? '');
-            $fileName = (string)($body['fileName'] ?? '');
-            $encoded = (string)($body['data'] ?? '');
-            if ($folderIdentifier === '' || $encoded === '') {
-                throw new DocxEditorException('Missing folder or document payload.', 400);
+            $folderIdentifier = $this->stringValue($body, 'folder');
+            if ($folderIdentifier === '') {
+                throw new DocxEditorException('Missing folder identifier.', 400);
             }
+            $binary = $this->decodeDocument($body);
 
-            $binary = base64_decode($encoded, true);
-            if ($binary === false) {
-                throw new DocxEditorException('Invalid base64 payload.', 400);
-            }
-
-            $folder = $this->docxFileService->resolveFolder($folderIdentifier);
             $file = $this->docxFileService->createDocxInFolder(
-                $folder,
-                $fileName,
+                $this->docxFileService->resolveFolder($folderIdentifier),
+                $this->stringValue($body, 'fileName'),
                 $binary,
-                DuplicationBehavior::RENAME,
             );
 
-            $contentHash = $this->revisionService->computeContentHash($binary);
-            $userId = $this->getBackendUser()->getUserId() ?? 0;
-            $revision = $this->revisionService->registerSave(
-                $file->getCombinedIdentifier(),
-                $contentHash,
-                $userId,
-            );
-
-            return $this->jsonSuccess([
+            return [
                 'file' => $file->getCombinedIdentifier(),
                 'name' => $file->getName(),
-                'revision' => $revision,
-                'contentHash' => $contentHash,
-            ]);
+            ] + $this->registerSave($request, $file->getCombinedIdentifier(), $binary);
         });
     }
 
-    private function getBackendUser(): BackendUserAuthentication
+    /**
+     * @param array<string, mixed> $body
+     */
+    private function decodeDocument(array $body): string
     {
-        return $GLOBALS['BE_USER'];
+        $encoded = $this->stringValue($body, 'data');
+        if ($encoded === '') {
+            throw new DocxEditorException('Missing document payload.', 400);
+        }
+        $binary = base64_decode($encoded, true);
+        if ($binary === false) {
+            throw new DocxEditorException('Invalid base64 payload.', 400);
+        }
+
+        return $binary;
+    }
+
+    /**
+     * @return array{revision: int, contentHash: string}
+     */
+    private function registerSave(ServerRequestInterface $request, string $fileIdentifier, string $binary): array
+    {
+        $backendUser = $request->getAttribute('backend.user');
+        $userId = $backendUser instanceof BackendUserAuthentication ? ($backendUser->getUserId() ?? 0) : 0;
+        $contentHash = $this->revisionService->computeContentHash($binary);
+
+        return [
+            'revision' => $this->revisionService->registerSave($fileIdentifier, $contentHash, $userId),
+            'contentHash' => $contentHash,
+        ];
     }
 }

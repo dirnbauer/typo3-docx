@@ -7,29 +7,18 @@ namespace Webconsulting\DocxEditor\Tests\Unit\Controller\Backend\Fixtures;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Webconsulting\DocxEditor\Controller\Backend\AbstractDocxApiController;
-use Webconsulting\DocxEditor\Exception\DocxEditorException;
 
 /**
- * Exposes the protected JSON helpers of the abstract API controller.
+ * Exposes the protected helpers of the abstract API controller.
  */
 final readonly class TestableDocxApiController extends AbstractDocxApiController
 {
     /**
-     * @param array<string, mixed> $payload
+     * @param callable(): array<string, mixed> $action
      */
-    public function success(array $payload): ResponseInterface
+    public function run(callable $action): ResponseInterface
     {
-        return $this->jsonSuccess($payload);
-    }
-
-    public function error(DocxEditorException $exception): ResponseInterface
-    {
-        return $this->jsonError($exception);
-    }
-
-    public function run(callable $callback): ResponseInterface
-    {
-        return $this->runJson($callback);
+        return $this->respond($action);
     }
 
     /**
@@ -38,5 +27,26 @@ final readonly class TestableDocxApiController extends AbstractDocxApiController
     public function payload(ServerRequestInterface $request): array
     {
         return $this->parseRequestPayload($request);
+    }
+
+    /**
+     * @param array<string, mixed> $values
+     */
+    public function string(array $values, string $key): string
+    {
+        return $this->stringValue($values, $key);
+    }
+
+    /**
+     * @param array<string, mixed> $values
+     */
+    public function int(array $values, string $key, int $default = 0): int
+    {
+        return $this->intValue($values, $key, $default);
+    }
+
+    public function fileFromQuery(ServerRequestInterface $request): string
+    {
+        return $this->fileIdentifierFromQuery($request);
     }
 }

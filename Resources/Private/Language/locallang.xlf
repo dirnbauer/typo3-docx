@@ -6,6 +6,11 @@
         <source>Edit DOCX</source>
       </segment>
     </unit>
+    <unit id="editor.title">
+      <segment>
+        <source>DOCX editor</source>
+      </segment>
+    </unit>
     <unit id="editor.backToMedia">
       <segment>
         <source>Back to Media</source>
@@ -34,11 +39,6 @@
     <unit id="editor.saveAsSuccess">
       <segment>
         <source>Document saved to the selected folder.</source>
-      </segment>
-    </unit>
-    <unit id="editor.saving">
-      <segment>
-        <source>Saving…</source>
       </segment>
     </unit>
     <unit id="editor.saved">
@@ -124,6 +124,16 @@
     <unit id="editor.buildMissing">
       <segment>
         <source>Frontend assets are missing. Run <code>npm install</code> and <code>npm run build</code> in the extension directory.</source>
+      </segment>
+    </unit>
+    <unit id="error.title">
+      <segment>
+        <source>Cannot open document</source>
+      </segment>
+    </unit>
+    <unit id="error.missingFile">
+      <segment>
+        <source>No file was selected. Open a .docx file from the file list.</source>
       </segment>
     </unit>
   </file>

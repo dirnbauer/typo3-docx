@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace Webconsulting\DocxEditor\Service;
 
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 
 /**
- * Tracks active backend users editing the same .docx file (presence).
+ * Presence: which backend users currently have the same .docx open. A session
+ * is alive while its heartbeat is younger than HEARTBEAT_TTL; stale rows are
+ * removed whenever participants are listed.
  */
 final readonly class CollaborationSessionService
 {
@@ -19,84 +22,59 @@ final readonly class CollaborationSessionService
         private ConnectionPool $connectionPool,
     ) {}
 
-    public function join(string $fileHash, string $fileIdentifier): string
+    /**
+     * Returns the session uid; a user re-joining a file keeps the same session.
+     */
+    public function join(string $fileHash, string $fileIdentifier): int
     {
         $user = $this->getBackendUser();
         $now = time();
-        $connection = $this->connectionPool->getConnectionForTable(self::TABLE);
-
+        $connection = $this->connection();
         $existing = $connection->select(
             ['uid'],
             self::TABLE,
-            [
-                'file_hash' => $fileHash,
-                'backend_user' => $user->getUserId() ?? 0,
-                'deleted' => 0,
-            ],
+            ['file_hash' => $fileHash, 'backend_user' => $user->getUserId() ?? 0],
         )->fetchOne();
 
         if ($existing !== false) {
             $connection->update(
                 self::TABLE,
-                [
-                    'last_heartbeat' => $now,
-                    'user_name' => $this->resolveDisplayName($user),
-                    'file_identifier' => $fileIdentifier,
-                ],
+                ['last_heartbeat' => $now, 'user_name' => $this->resolveDisplayName($user), 'file_identifier' => $fileIdentifier],
                 ['uid' => (int)$existing],
             );
-            return (string)$existing;
+
+            return (int)$existing;
         }
 
-        $connection->insert(
-            self::TABLE,
-            [
-                'pid' => 0,
-                'tstamp' => $now,
-                'crdate' => $now,
-                'deleted' => 0,
-                'file_hash' => $fileHash,
-                'file_identifier' => $fileIdentifier,
-                'backend_user' => $user->getUserId() ?? 0,
-                'user_name' => $this->resolveDisplayName($user),
-                'last_heartbeat' => $now,
-            ],
-        );
+        $connection->insert(self::TABLE, [
+            'pid' => 0,
+            'tstamp' => $now,
+            'crdate' => $now,
+            'file_hash' => $fileHash,
+            'file_identifier' => $fileIdentifier,
+            'backend_user' => $user->getUserId() ?? 0,
+            'user_name' => $this->resolveDisplayName($user),
+            'last_heartbeat' => $now,
+        ]);
 
-        return (string)$connection->lastInsertId();
+        return (int)$connection->lastInsertId();
     }
 
     public function heartbeat(string $fileHash, int $sessionUid): void
     {
-        $user = $this->getBackendUser();
-        $this->connectionPool
-            ->getConnectionForTable(self::TABLE)
-            ->update(
-                self::TABLE,
-                ['last_heartbeat' => time()],
-                [
-                    'uid' => $sessionUid,
-                    'file_hash' => $fileHash,
-                    'backend_user' => $user->getUserId() ?? 0,
-                    'deleted' => 0,
-                ],
-            );
+        $this->connection()->update(
+            self::TABLE,
+            ['last_heartbeat' => time()],
+            ['uid' => $sessionUid, 'file_hash' => $fileHash, 'backend_user' => $this->getBackendUser()->getUserId() ?? 0],
+        );
     }
 
     public function leave(string $fileHash, int $sessionUid): void
     {
-        $user = $this->getBackendUser();
-        $this->connectionPool
-            ->getConnectionForTable(self::TABLE)
-            ->update(
-                self::TABLE,
-                ['deleted' => 1, 'tstamp' => time()],
-                [
-                    'uid' => $sessionUid,
-                    'file_hash' => $fileHash,
-                    'backend_user' => $user->getUserId() ?? 0,
-                ],
-            );
+        $this->connection()->delete(
+            self::TABLE,
+            ['uid' => $sessionUid, 'file_hash' => $fileHash, 'backend_user' => $this->getBackendUser()->getUserId() ?? 0],
+        );
     }
 
     /**
@@ -104,56 +82,50 @@ final readonly class CollaborationSessionService
      */
     public function getActiveParticipants(string $fileHash): array
     {
-        $this->purgeStaleSessions();
         $threshold = time() - self::HEARTBEAT_TTL;
-        $rows = $this->connectionPool
-            ->getConnectionForTable(self::TABLE)
-            ->select(
-                ['uid', 'backend_user', 'user_name', 'last_heartbeat'],
-                self::TABLE,
-                [
-                    'file_hash' => $fileHash,
-                    'deleted' => 0,
-                ],
+        $this->purgeStaleSessions($threshold);
+
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
+        $rows = $queryBuilder
+            ->select('uid', 'backend_user', 'user_name')
+            ->from(self::TABLE)
+            ->where(
+                $queryBuilder->expr()->eq('file_hash', $queryBuilder->createNamedParameter($fileHash)),
+                $queryBuilder->expr()->gte('last_heartbeat', $queryBuilder->createNamedParameter($threshold, Connection::PARAM_INT)),
             )
+            ->orderBy('uid')
+            ->executeQuery()
             ->fetchAllAssociative();
 
-        $participants = [];
-        foreach ($rows as $row) {
-            if ((int)($row['last_heartbeat'] ?? 0) < $threshold) {
-                continue;
-            }
-            $participants[] = [
+        return array_map(
+            static fn(array $row): array => [
                 'userId' => (int)$row['backend_user'],
                 'userName' => (string)$row['user_name'],
                 'sessionUid' => (int)$row['uid'],
-            ];
-        }
-
-        return $participants;
+            ],
+            $rows,
+        );
     }
 
-    private function purgeStaleSessions(): void
+    private function purgeStaleSessions(int $threshold): void
     {
-        $threshold = time() - self::HEARTBEAT_TTL;
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
         $queryBuilder
-            ->update(self::TABLE)
-            ->set('deleted', 1)
-            ->where(
-                $queryBuilder->expr()->lt('last_heartbeat', $queryBuilder->createNamedParameter($threshold)),
-                $queryBuilder->expr()->eq('deleted', 0),
-            )
+            ->delete(self::TABLE)
+            ->where($queryBuilder->expr()->lt('last_heartbeat', $queryBuilder->createNamedParameter($threshold, Connection::PARAM_INT)))
             ->executeStatement();
     }
 
     private function resolveDisplayName(BackendUserAuthentication $user): string
     {
         $realName = trim((string)($user->user['realName'] ?? ''));
-        if ($realName !== '') {
-            return $realName;
-        }
-        return trim((string)($user->user['username'] ?? 'Editor'));
+
+        return $realName !== '' ? $realName : trim((string)($user->user['username'] ?? 'Editor'));
+    }
+
+    private function connection(): Connection
+    {
+        return $this->connectionPool->getConnectionForTable(self::TABLE);
     }
 
     private function getBackendUser(): BackendUserAuthentication

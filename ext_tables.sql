@@ -3,7 +3,6 @@ CREATE TABLE tx_docx_editor_session (
     pid int(11) DEFAULT 0 NOT NULL,
     tstamp int(11) DEFAULT 0 NOT NULL,
     crdate int(11) DEFAULT 0 NOT NULL,
-    deleted tinyint(4) DEFAULT 0 NOT NULL,
 
     file_hash varchar(64) DEFAULT '' NOT NULL,
     file_identifier varchar(512) DEFAULT '' NOT NULL,

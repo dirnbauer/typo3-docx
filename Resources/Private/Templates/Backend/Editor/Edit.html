@@ -8,38 +8,17 @@
     <f:then>
         <div class="docx-editor-module"
              id="docx-editor-app"
-             data-file-identifier="{fileIdentifier}"
-             data-file-name="{fileName}"
-             data-file-path="{filePath}"
-             data-file-hash="{fileHash}"
-             data-revision="{revision}"
-             data-content-hash="{contentHash}"
              data-can-write="{canWrite}"
              data-element-browser-url="{elementBrowserUrl}"
              data-default-folder-identifier="{defaultFolderIdentifier}"
-             data-editor-module-url="{editorModuleUrl}"
-             data-save-as-field-name="docxEditorSaveAsFolder"
-             data-heading-labels="{headingLabelsJson}"
-             data-label-save="{f:translate(key: 'editor.save', extensionName: 'docx_editor')}"
-             data-label-save-as="{f:translate(key: 'editor.saveAs', extensionName: 'docx_editor')}"
-             data-label-save-as-prompt="{f:translate(key: 'editor.saveAsPrompt', extensionName: 'docx_editor')}"
-             data-label-save-as-success="{f:translate(key: 'editor.saveAsSuccess', extensionName: 'docx_editor')}"
-             data-label-saving="{f:translate(key: 'editor.saving', extensionName: 'docx_editor')}"
-             data-label-saved="{f:translate(key: 'editor.saved', extensionName: 'docx_editor')}"
-             data-label-saved-detail="{f:translate(key: 'editor.savedDetail', extensionName: 'docx_editor', arguments: {0: filePath})}"
-             data-label-saveFailed="{f:translate(key: 'editor.saveFailed', extensionName: 'docx_editor')}"
-             data-label-collaborators="{f:translate(key: 'editor.collaborators', extensionName: 'docx_editor')}"
-             data-label-loading="{f:translate(key: 'editor.loading', extensionName: 'docx_editor')}"
-             data-editor-locale="{editorLocale}">
-            <f:render partial="Backend/Editor/RemoteRevisionBanner" />
-            <f:if condition="{canWrite} == '1'">
-                <input type="hidden" id="docxEditorSaveAsFolder" name="docxEditorSaveAsFolder" value="" />
-                <a href="{elementBrowserUrl}" id="docx-editor-save-as-browse" class="visually-hidden"
-                   data-mode="folder"
-                   data-field-reference="docxEditorSaveAsFolder"
-                   data-use-events="true"
-                   data-identifier="{defaultFolderIdentifier}"></a>
-            </f:if>
+             data-editor-url="{editorUrl}"
+             data-labels="{labelsJson}">
+            <div class="docx-editor-remote-banner d-none" data-docx-remote-banner>
+                <span><f:translate key="editor.remoteUpdate" extensionName="docx_editor" /></span>
+                <button type="button" class="btn btn-sm btn-warning" data-docx-remote-reload>
+                    <f:translate key="editor.reload" extensionName="docx_editor" />
+                </button>
+            </div>
             <div class="docx-editor-module__meta">
                 <span class="docx-editor-module__presence" data-docx-presence></span>
             </div>
@@ -47,9 +26,9 @@
                 class="docx-editor-module__surface"
                 file-identifier="{fileIdentifier}"
                 file-name="{fileName}"
-                file-hash="{fileHash}"
                 revision="{revision}"
-                can-write="{canWrite}"></typo3-docx-editor>
+                can-write="{canWrite}"
+                editor-locale="{editorLocale}"></typo3-docx-editor>
         </div>
     </f:then>
     <f:else>

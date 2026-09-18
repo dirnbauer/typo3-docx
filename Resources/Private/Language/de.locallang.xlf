@@ -1,129 +1,166 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xliff xmlns="urn:oasis:names:tc:xliff:document:2.0" version="2.0" srcLang="en">
+<xliff xmlns="urn:oasis:names:tc:xliff:document:2.0" version="2.0" srcLang="en" trgLang="de">
   <file id="default" original="default">
     <unit id="filelist.action.editDocx">
       <segment>
-        <source>DOCX bearbeiten</source>
+        <source>Edit DOCX</source>
+        <target>DOCX bearbeiten</target>
+      </segment>
+    </unit>
+    <unit id="editor.title">
+      <segment>
+        <source>DOCX editor</source>
+        <target>DOCX-Editor</target>
       </segment>
     </unit>
     <unit id="editor.backToMedia">
       <segment>
-        <source>Zurück zu Medien</source>
+        <source>Back to Media</source>
+        <target>Zurück zu Medien</target>
       </segment>
     </unit>
     <unit id="editor.download">
       <segment>
-        <source>Herunterladen</source>
+        <source>Download</source>
+        <target>Herunterladen</target>
       </segment>
     </unit>
     <unit id="editor.save">
       <segment>
-        <source>Speichern</source>
+        <source>Save</source>
+        <target>Speichern</target>
       </segment>
     </unit>
     <unit id="editor.saveAs">
       <segment>
-        <source>Speichern unter…</source>
+        <source>Save as…</source>
+        <target>Speichern unter…</target>
       </segment>
     </unit>
     <unit id="editor.saveAsPrompt">
       <segment>
-        <source>Speichern unter (Dateiname)</source>
+        <source>Save as (file name)</source>
+        <target>Speichern unter (Dateiname)</target>
       </segment>
     </unit>
     <unit id="editor.saveAsSuccess">
       <segment>
-        <source>Dokument im gewählten Ordner gespeichert.</source>
-      </segment>
-    </unit>
-    <unit id="editor.saving">
-      <segment>
-        <source>Speichern…</source>
+        <source>Document saved to the selected folder.</source>
+        <target>Dokument im gewählten Ordner gespeichert.</target>
       </segment>
     </unit>
     <unit id="editor.saved">
       <segment>
-        <source>Gespeichert</source>
+        <source>Saved</source>
+        <target>Gespeichert</target>
       </segment>
     </unit>
     <unit id="editor.savedDetail">
       <segment>
-        <source>Gespeichert unter %s</source>
+        <source>Saved to %s</source>
+        <target>Gespeichert unter %s</target>
       </segment>
     </unit>
     <unit id="editor.saveFailed">
       <segment>
-        <source>Speichern fehlgeschlagen</source>
+        <source>Save failed</source>
+        <target>Speichern fehlgeschlagen</target>
       </segment>
     </unit>
     <unit id="editor.remoteUpdate">
       <segment>
-        <source>Eine neuere Version wurde von einer anderen Person gespeichert.</source>
+        <source>Another editor saved a newer version.</source>
+        <target>Eine neuere Version wurde von einer anderen Person gespeichert.</target>
       </segment>
     </unit>
     <unit id="editor.reload">
       <segment>
-        <source>Dokument neu laden</source>
+        <source>Reload document</source>
+        <target>Dokument neu laden</target>
       </segment>
     </unit>
     <unit id="editor.collaborators">
       <segment>
-        <source>{count, plural, one {1 Bearbeiter online} other {# Bearbeiter online}}</source>
+        <source>{count, plural, one {1 editor online} other {# editors online}}</source>
+        <target>{count, plural, one {1 Bearbeiter online} other {# Bearbeiter online}}</target>
       </segment>
     </unit>
     <unit id="editor.loading">
       <segment>
-        <source>Dokument wird geladen…</source>
+        <source>Loading document…</source>
+        <target>Dokument wird geladen…</target>
       </segment>
     </unit>
     <unit id="editor.headings.group">
       <segment>
-        <source>Überschriften</source>
+        <source>Headings</source>
+        <target>Überschriften</target>
       </segment>
     </unit>
     <unit id="editor.headings.h1">
       <segment>
         <source>H1</source>
+        <target>H1</target>
       </segment>
     </unit>
     <unit id="editor.headings.h2">
       <segment>
         <source>H2</source>
+        <target>H2</target>
       </segment>
     </unit>
     <unit id="editor.headings.h3">
       <segment>
         <source>H3</source>
+        <target>H3</target>
       </segment>
     </unit>
     <unit id="editor.headings.h4">
       <segment>
         <source>H4</source>
+        <target>H4</target>
       </segment>
     </unit>
     <unit id="editor.headings.h1.title">
       <segment>
-        <source>Überschrift 1</source>
+        <source>Heading 1</source>
+        <target>Überschrift 1</target>
       </segment>
     </unit>
     <unit id="editor.headings.h2.title">
       <segment>
-        <source>Überschrift 2</source>
+        <source>Heading 2</source>
+        <target>Überschrift 2</target>
       </segment>
     </unit>
     <unit id="editor.headings.h3.title">
       <segment>
-        <source>Überschrift 3</source>
+        <source>Heading 3</source>
+        <target>Überschrift 3</target>
       </segment>
     </unit>
     <unit id="editor.headings.h4.title">
       <segment>
-        <source>Überschrift 4</source>
+        <source>Heading 4</source>
+        <target>Überschrift 4</target>
       </segment>
     </unit>
     <unit id="editor.buildMissing">
       <segment>
-        <source>Frontend-Assets fehlen. Führen Sie <code>npm install</code> und <code>npm run build</code> im Extension-Verzeichnis aus.</source>
+        <source>Frontend assets are missing. Run <code>npm install</code> and <code>npm run build</code> in the extension directory.</source>
+        <target>Frontend-Assets fehlen. Führen Sie <code>npm install</code> und <code>npm run build</code> im Extension-Verzeichnis aus.</target>
+      </segment>
+    </unit>
+    <unit id="error.title">
+      <segment>
+        <source>Cannot open document</source>
+        <target>Dokument kann nicht geöffnet werden</target>
+      </segment>
+    </unit>
+    <unit id="error.missingFile">
+      <segment>
+        <source>No file was selected. Open a .docx file from the file list.</source>
+        <target>Keine Datei ausgewählt. Öffnen Sie eine .docx-Datei über die Dateiliste.</target>
       </segment>
     </unit>
   </file>

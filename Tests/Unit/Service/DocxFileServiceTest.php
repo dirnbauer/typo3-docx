@@ -200,6 +200,21 @@ final class DocxFileServiceTest extends UnitTestCase
     }
 
     #[Test]
+    public function canWriteReturnsFalseInsteadOfThrowing(): void
+    {
+        $storage = self::createStub(ResourceStorage::class);
+        $storage->method('getUid')->willReturn(2);
+        $file = self::createStub(File::class);
+        $file->method('getStorage')->willReturn($storage);
+        $backendUser = self::createStub(BackendUserAuthentication::class);
+        $backendUser->method('isAdmin')->willReturn(false);
+        $backendUser->method('check')->willReturn(false);
+        $GLOBALS['BE_USER'] = $backendUser;
+
+        self::assertFalse((new DocxFileService(self::createStub(ResourceFactory::class)))->canWrite($file));
+    }
+
+    #[Test]
     public function assertCanWriteWrapsFalPermissionExceptions(): void
     {
         $storage = self::createStub(ResourceStorage::class);

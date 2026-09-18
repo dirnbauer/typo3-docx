@@ -10,18 +10,19 @@ use TYPO3\CMS\Backend\Template\Components\Buttons\LinkButton;
 use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Imaging\IconSize;
+use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Filelist\Event\ProcessFileListActionsEvent;
+use Webconsulting\DocxEditor\Exception\DocxEditorException;
 use Webconsulting\DocxEditor\Service\DocxFileService;
 
-#[AsEventListener(
-    identifier: 'docx-editor/add-docx-edit-action',
-    event: ProcessFileListActionsEvent::class,
-)]
+/**
+ * Adds "Edit DOCX" to the primary and secondary actions of readable .docx
+ * files in the file list.
+ */
+#[AsEventListener(identifier: 'docx-editor/add-docx-edit-action')]
 final readonly class AddDocxEditFileActionListener
 {
-    private const WORD_ICON = 'mimetypes-word';
-
     public function __construct(
         private DocxFileService $docxFileService,
         private UriBuilder $uriBuilder,
@@ -31,56 +32,33 @@ final readonly class AddDocxEditFileActionListener
     public function __invoke(ProcessFileListActionsEvent $event): void
     {
         $resource = $event->getResource();
-        if (!$resource instanceof File || !$event->isFile()) {
+        if (!$resource instanceof File || !$this->docxFileService->isDocxFile($resource)) {
             return;
         }
-        if (!$this->docxFileService->isDocxFile($resource)) {
-            return;
-        }
-
         try {
             $this->docxFileService->assertCanRead($resource);
-        } catch (\Throwable) {
+        } catch (DocxEditorException) {
             return;
         }
 
-        $event->setAction(
-            $this->createEditButton($resource),
-            'docxEdit',
-            ActionGroup::primary,
-            after: 'download',
-        );
-        $event->setAction(
-            $this->createEditButton($resource),
-            'docxEditMenu',
-            ActionGroup::secondary,
-            after: 'download',
-        );
+        $event->setAction($this->createEditButton($resource), 'docxEdit', ActionGroup::primary, after: 'download');
+        $event->setAction($this->createEditButton($resource), 'docxEditMenu', ActionGroup::secondary, after: 'download');
     }
 
     private function createEditButton(File $file): LinkButton
     {
-        $editUrl = (string)$this->uriBuilder->buildUriFromRoute(
-            'docx_editor',
-            [
-                'file' => $file->getCombinedIdentifier(),
-            ],
-        );
+        $href = (string)$this->uriBuilder->buildUriFromRoute('docx_editor', ['file' => $file->getCombinedIdentifier()]);
+        $label = $this->getLanguageService()->sL('docx_editor.messages:filelist.action.editDocx');
 
-        $button = new LinkButton();
-        $button->setTitle($this->translate('filelist.action.editDocx'));
-        $button->setIcon($this->iconFactory->getIcon(self::WORD_ICON, IconSize::SMALL));
-        $button->setHref($editUrl);
-        $button->setClasses('docx-editor-edit-action');
-
-        return $button;
+        return (new LinkButton())
+            ->setTitle($label !== '' ? $label : 'Edit DOCX')
+            ->setIcon($this->iconFactory->getIcon('mimetypes-word', IconSize::SMALL))
+            ->setHref($href)
+            ->setClasses('docx-editor-edit-action');
     }
 
-    private function translate(string $key): string
+    private function getLanguageService(): LanguageService
     {
-        $label = $GLOBALS['LANG']->sL(
-            'LLL:EXT:docx_editor/Resources/Private/Language/locallang.xlf:' . $key,
-        );
-        return $label !== '' ? $label : $key;
+        return $GLOBALS['LANG'];
     }
 }

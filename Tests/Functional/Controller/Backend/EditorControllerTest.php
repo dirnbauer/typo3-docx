@@ -6,69 +6,68 @@ namespace Webconsulting\DocxEditor\Tests\Functional\Controller\Backend;
 
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use TYPO3\CMS\Backend\Routing\Router;
-use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
-use TYPO3\CMS\Core\Http\NormalizedParams;
-use TYPO3\CMS\Core\Http\ServerRequest;
-use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
-use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 use Webconsulting\DocxEditor\Controller\Backend\EditorController;
+use Webconsulting\DocxEditor\Tests\Functional\AbstractBackendRouteTestCase;
 
 /**
  * Requests the `docx_editor` backend route the way the file list "Edit DOCX"
  * action does and checks the rendered editor page.
  */
-final class EditorControllerTest extends FunctionalTestCase
+final class EditorControllerTest extends AbstractBackendRouteTestCase
 {
-    protected array $coreExtensionsToLoad = ['filelist'];
-
-    protected array $testExtensionsToLoad = ['webconsulting/docx-editor'];
-
-    protected array $pathsToProvideInTestInstance = [
-        'typo3conf/ext/docx_editor/Tests/Functional/Fixtures/Files/example.docx' => 'fileadmin/user_upload/example.docx',
-        'typo3conf/ext/docx_editor/Tests/Functional/Fixtures/Files/notes.txt' => 'fileadmin/user_upload/notes.txt',
-    ];
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->importCSVDataSet(__DIR__ . '/../../Fixtures/be_users.csv');
-        $this->importCSVDataSet(__DIR__ . '/../../Fixtures/sys_file_storage.csv');
-    }
-
     #[Test]
     public function editRouteRendersTheEditorForADocxFile(): void
     {
-        $response = $this->requestEditor(1, ['file' => '1:/user_upload/example.docx']);
+        $response = $this->requestEditor(1, ['file' => self::DOCX]);
         $html = (string)$response->getBody();
 
         self::assertSame(200, $response->getStatusCode());
         self::assertStringContainsString('<typo3-docx-editor', $html);
-        self::assertStringContainsString('data-file-identifier="1:/user_upload/example.docx"', $html);
-        self::assertStringContainsString('data-file-name="example.docx"', $html);
-        self::assertStringContainsString('data-file-path="fileadmin / user_upload/example.docx"', $html);
-        self::assertStringContainsString('data-can-write="1"', $html);
-        self::assertStringContainsString('data-editor-locale="en"', $html);
+        self::assertStringContainsString('file-identifier="1:/user_upload/example.docx"', $html);
+        self::assertStringContainsString('file-name="example.docx"', $html);
+        self::assertStringContainsString('can-write="1"', $html);
+        self::assertStringContainsString('editor-locale="en"', $html);
+        self::assertStringContainsString('revision="0"', $html);
         self::assertStringContainsString('data-identifier="docx-editor-save"', $html);
-        self::assertStringContainsString('docx-editor.js', $html);
+        self::assertStringContainsString('data-identifier="docx-editor-save-as"', $html);
+        self::assertStringContainsString('@webconsulting/docx-editor/editor.js', $html);
+        self::assertStringContainsString('@webconsulting/docx-editor/toolbar.js', $html);
+        self::assertStringContainsString('Resources/Public/Vite/docx-editor.css', $html);
+    }
+
+    #[Test]
+    public function editRouteEmbedsAllJavaScriptLabelsAsOneJsonAttribute(): void
+    {
+        $html = (string)$this->requestEditor(1, ['file' => self::DOCX])->getBody();
+
+        self::assertSame(1, preg_match('/ data-labels="([^"]+)"/', $html, $matches));
+        $labels = json_decode(html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5), true, 512, JSON_THROW_ON_ERROR);
+
+        self::assertIsArray($labels);
+        self::assertSame('Saved', $labels['saved']);
+        self::assertSame('Saved to fileadmin / user_upload/example.docx', $labels['savedDetail']);
+        self::assertSame('Save failed', $labels['saveFailed']);
+        self::assertSame('Loading document…', $labels['loading']);
+        self::assertStringContainsString('{count, plural,', $labels['collaborators']);
+        self::assertSame('Heading 4', $labels['headings']['heading4Title']);
+        self::assertSame('H1', $labels['headings']['heading1']);
     }
 
     #[Test]
     public function editRouteAcceptsTheFileListTargetParameterAndUsesTheUserLanguage(): void
     {
-        $response = $this->requestEditor(2, ['target' => '1:/user_upload/example.docx']);
-        $html = (string)$response->getBody();
+        $html = (string)$this->requestEditor(2, ['target' => self::DOCX])->getBody();
 
-        self::assertSame(200, $response->getStatusCode());
         self::assertStringContainsString('<typo3-docx-editor', $html);
-        self::assertStringContainsString('data-editor-locale="de"', $html);
+        self::assertStringContainsString('editor-locale="de"', $html);
+        self::assertStringContainsString('Gespeichert unter fileadmin / user_upload/example.docx', html_entity_decode($html, ENT_QUOTES | ENT_HTML5));
+        self::assertStringContainsString('Zurück zu Medien', $html);
     }
 
     #[Test]
     public function editRouteRefusesFilesThatAreNotDocx(): void
     {
-        $response = $this->requestEditor(1, ['file' => '1:/user_upload/notes.txt']);
+        $response = $this->requestEditor(1, ['file' => self::TXT]);
         $html = (string)$response->getBody();
 
         self::assertSame(200, $response->getStatusCode());
@@ -79,12 +78,11 @@ final class EditorControllerTest extends FunctionalTestCase
     #[Test]
     public function editRouteExplainsAMissingFileParameter(): void
     {
-        $response = $this->requestEditor(1, []);
-        $html = (string)$response->getBody();
+        $html = (string)$this->requestEditor(1, [])->getBody();
 
-        self::assertSame(200, $response->getStatusCode());
         self::assertStringNotContainsString('<typo3-docx-editor', $html);
         self::assertStringContainsString('No file was selected.', $html);
+        self::assertStringContainsString('Back to Media', $html);
     }
 
     /**
@@ -92,36 +90,8 @@ final class EditorControllerTest extends FunctionalTestCase
      */
     private function requestEditor(int $backendUserUid, array $queryParams): ResponseInterface
     {
-        $backendUser = $this->setUpBackendUser($backendUserUid);
-        $GLOBALS['LANG'] = $this->get(LanguageServiceFactory::class)->createFromUserPreferences($backendUser);
-        $request = $this->createBackendRequest($queryParams)->withAttribute('backend.user', $backendUser);
-        $GLOBALS['TYPO3_REQUEST'] = $request;
-
-        return $this->get(EditorController::class)->editAction($request);
-    }
-
-    /**
-     * @param array<string, string> $queryParams
-     */
-    private function createBackendRequest(array $queryParams): ServerRequestInterface
-    {
-        $request = (new ServerRequest(
-            'https://example.com/typo3/docx-editor/edit',
-            'GET',
-            null,
-            [],
-            [
-                'HTTP_HOST' => 'example.com',
-                'HTTPS' => 'on',
-                'REQUEST_URI' => '/typo3/docx-editor/edit',
-                'SCRIPT_NAME' => '/index.php',
-                'REMOTE_ADDR' => '127.0.0.1',
-            ],
-        ))
-            ->withQueryParams($queryParams)
-            ->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_BE)
-            ->withAttribute('route', $this->get(Router::class)->getRoute('docx_editor'));
-
-        return $request->withAttribute('normalizedParams', NormalizedParams::createFromRequest($request));
+        return $this->get(EditorController::class)->editAction(
+            $this->backendRequest($backendUserUid, 'docx_editor', $queryParams),
+        );
     }
 }
