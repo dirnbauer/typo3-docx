@@ -16,4 +16,5 @@ parameters:
     typo3:
         requestGetAttributeMapping:
             backend.user: TYPO3\CMS\Core\Authentication\BackendUserAuthentication
+            route: TYPO3\CMS\Backend\Routing\Route|null
             moduleData: TYPO3\CMS\Backend\Module\ModuleData
