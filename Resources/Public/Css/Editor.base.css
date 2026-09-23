@@ -22,40 +22,21 @@ typo3-docx-editor .mount {
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-.docx-editor-module__meta {
+/* Page heading with the presence badge (core badge + status indicator). */
+.docx-editor-module__header {
+    align-items: baseline;
     display: flex;
-    justify-content: flex-end;
-    min-height: 1.25rem;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    justify-content: space-between;
 }
 
-/* Presence indicator styled as a TYPO3 styleguide badge (pill + online dot). */
-.docx-editor-module__presence {
+.docx-editor-module__loading {
     align-items: center;
-    background-color: var(--typo3-component-bg);
-    border: var(--typo3-component-border-width) solid var(--typo3-component-border-color);
-    border-radius: 999px;
     color: var(--typo3-text-color-variant);
-    display: inline-flex;
-    font-size: var(--typo3-font-size-small);
-    gap: 0.375rem;
-    line-height: 1;
-    padding: 0.25rem 0.625rem;
-}
-
-.docx-editor-module__presence:empty {
-    display: none;
-}
-
-.docx-editor-module__presence::before {
-    /* Vivid "online" green — the TYPO3 success *token* is the near-white
-       text-on-success color, which had no contrast on the badge. light-dark()
-       keeps it legible in both themes. */
-    background-color: light-dark(#1f9d57, #41d182);
-    border-radius: 50%;
-    content: "";
-    flex: 0 0 auto;
-    height: 0.5rem;
-    width: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+    padding: var(--typo3-spacing);
 }
 
 .docx-editor-module__surface {
@@ -71,20 +52,6 @@ typo3-docx-editor .mount {
 
 .docx-editor-module__surface .ep-root {
     overflow: visible;
-}
-
-.docx-editor-remote-banner {
-    align-items: center;
-    background: var(--typo3-state-warning-bg);
-    border-radius: var(--typo3-component-border-radius);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    padding: 0.5rem 0.75rem;
-}
-
-.docx-editor-remote-banner.d-none {
-    display: none;
 }
 
 /* H1–H4 quick styles in the eigenpal formatting toolbar (toolbarExtra) */
@@ -250,14 +217,14 @@ typo3-docx-editor .mount {
     font-size: var(--typo3-font-size-small) !important;
 }
 
-/* Menus & dropdown panels (in-editor and Radix portals on <body>) */
+/* Menus & dropdown panels (in the editor, and Radix portals: an .ep-root on <body>) */
 .docx-editor-module__surface .ep-root [data-testid="editor-toolbar"] [role="menu"],
 .docx-editor-module__surface .ep-root .docx-text-context-menu,
 .docx-editor-module__surface .ep-root [data-radix-select-content],
 .docx-editor-module__surface .ep-root [data-radix-popper-content-wrapper] > div,
-body > div > .ep-root [data-radix-select-content],
-body > div > .ep-root [data-radix-popper-content-wrapper] > div,
-body > div > .ep-root [role="menu"] {
+body > .ep-root [data-radix-select-content],
+body > .ep-root [data-radix-popper-content-wrapper] > div,
+body > .ep-root [role="menu"] {
     background: var(--typo3-component-bg) !important;
     border: var(--typo3-component-border-width) solid var(--typo3-component-border-color) !important;
     border-radius: var(--typo3-component-border-radius) !important;

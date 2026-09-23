@@ -1,29 +1,37 @@
 /*
- * eigenpal/docx-editor design tokens remapped to TYPO3 backend variables.
- * Scoped under .docx-editor-module__surface .ep-root only.
+ * eigenpal/docx-editor design tokens mapped to TYPO3 backend tokens, for the
+ * editor and for the popovers Radix portals into an .ep-root on <body>.
+ *
+ * eigenpal's Tailwind reads the shadcn tokens as HSL channels
+ * (hsl(var(--background) / <alpha>)). "from <color> h s l" turns each TYPO3
+ * token into exactly that — relative color syntax, which the TYPO3 backend
+ * tokens use themselves — so both colour schemes follow the backend.
  */
-.docx-editor-module__surface .ep-root {
-    --background: light-dark(0 0% 100%, 0 0% 12%);
-    --foreground: light-dark(222 84% 5%, 210 40% 98%);
-    --card: var(--typo3-component-bg);
-    --card-foreground: var(--typo3-component-color);
-    --popover: var(--typo3-component-bg);
-    --popover-foreground: var(--typo3-component-color);
-    --primary: light-dark(221 83% 53%, 210 40% 70%);
-    --primary-foreground: var(--typo3-state-primary-color);
-    --secondary: light-dark(210 40% 96%, 217 33% 17%);
-    --secondary-foreground: var(--typo3-component-color);
-    --muted: light-dark(210 40% 96%, 217 33% 17%);
-    --muted-foreground: var(--typo3-text-color-variant);
-    --accent: var(--typo3-state-default-hover-bg);
-    --accent-foreground: var(--typo3-state-default-hover-color);
-    --destructive: light-dark(0 84% 60%, 0 63% 45%);
-    --destructive-foreground: var(--typo3-state-danger-color);
-    --border: var(--typo3-component-border-color);
-    --input: var(--typo3-component-border-color);
-    --ring: var(--typo3-state-default-focus-border-color);
+.docx-editor-module__surface .ep-root,
+body > .ep-root {
+    --background: from var(--typo3-component-bg) h s l;
+    --foreground: from var(--typo3-component-color) h s l;
+    --card: from var(--typo3-component-bg) h s l;
+    --card-foreground: from var(--typo3-component-color) h s l;
+    --popover: from var(--typo3-component-bg) h s l;
+    --popover-foreground: from var(--typo3-component-color) h s l;
+    --primary: from var(--typo3-state-primary-bg) h s l;
+    --primary-foreground: from var(--typo3-state-primary-color) h s l;
+    --secondary: from var(--typo3-state-default-bg) h s l;
+    --secondary-foreground: from var(--typo3-state-default-color) h s l;
+    --muted: from var(--typo3-state-default-hover-bg) h s l;
+    --muted-foreground: from var(--typo3-text-color-variant) h s l;
+    --accent: from var(--typo3-state-default-hover-bg) h s l;
+    --accent-foreground: from var(--typo3-state-default-hover-color) h s l;
+    --destructive: from var(--typo3-state-danger-bg) h s l;
+    --destructive-foreground: from var(--typo3-state-danger-color) h s l;
+    --border: from var(--typo3-component-border-color) h s l;
+    --input: from var(--typo3-component-border-color) h s l;
+    --ring: from var(--typo3-state-default-focus-border-color) h s l;
     --radius: var(--typo3-input-border-radius);
 
+    --doc-surface: var(--typo3-component-bg);
+    --doc-card: var(--typo3-component-bg);
     --doc-bg: var(--typo3-scaffold-bg);
     --doc-primary: var(--typo3-text-color-primary);
     --doc-primary-hover: light-dark(
@@ -31,6 +39,12 @@
         var(--token-color-primary-40)
     );
     --doc-primary-light: var(--typo3-state-primary-bg);
+    --doc-on-primary: var(--typo3-state-primary-color);
+    --doc-accent: var(--typo3-text-color-primary);
+    --doc-accent-bg: var(--typo3-state-primary-bg);
+    --doc-toggle-active-bg: var(--typo3-state-primary-bg);
+    --doc-toggle-active-fg: var(--typo3-state-primary-color);
+    --doc-focus-ring: color-mix(in srgb, var(--typo3-state-default-focus-border-color), transparent 60%);
     --doc-text: var(--typo3-text-color-base);
     --doc-text-muted: var(--typo3-text-color-variant);
     --doc-text-subtle: var(--typo3-text-color-variant);
@@ -49,6 +63,7 @@
     --doc-success-bg: var(--typo3-state-success-bg);
     --doc-warning: var(--typo3-state-warning-color);
     --doc-warning-bg: var(--typo3-state-warning-bg);
+    --doc-warning-text: var(--typo3-state-warning-color);
     --doc-link: var(--typo3-text-color-primary);
 
     --docx-toolbar-btn-size: 1.375rem;
