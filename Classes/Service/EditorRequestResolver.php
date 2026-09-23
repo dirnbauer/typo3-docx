@@ -37,8 +37,10 @@ final readonly class EditorRequestResolver
     }
 
     /**
-     * eigenpal/docx-editor ships English and German; everything else falls
-     * back to English. "default" is TYPO3's English marker.
+     * The editor chrome is translated to English and German (the upstream
+     * German catalogue completed by Build/Sources/editor/i18n/de.json);
+     * everything else falls back to English. "default" is TYPO3's English
+     * marker.
      */
     public function resolveEditorLocale(ServerRequestInterface $request): string
     {

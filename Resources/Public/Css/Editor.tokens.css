@@ -1,14 +1,18 @@
 /*
- * eigenpal/docx-editor design tokens mapped to TYPO3 backend tokens, for the
- * editor and for the popovers Radix portals into an .ep-root on <body>.
+ * docx-editor.dev design tokens mapped to TYPO3 backend tokens, for the
+ * editor and for the dialogs it teleports to <body> (each one a .docx-editor
+ * of its own), so both colour schemes follow the backend.
  *
- * eigenpal's Tailwind reads the shadcn tokens as HSL channels
+ * The chrome reads the shadcn tokens as HSL channels
  * (hsl(var(--background) / <alpha>)). "from <color> h s l" turns each TYPO3
  * token into exactly that — relative color syntax, which the TYPO3 backend
- * tokens use themselves — so both colour schemes follow the backend.
+ * tokens use themselves.
+ *
+ * The page tokens (--doc-page-*, --doc-caret) are left alone: the document
+ * stays as Word prints it, white paper in the dark scheme too. The editor's
+ * own dark mode would invert the page, so it is not used.
  */
-.docx-editor-module__surface .ep-root,
-body > .ep-root {
+html .docx-editor {
     --background: from var(--typo3-component-bg) h s l;
     --foreground: from var(--typo3-component-color) h s l;
     --card: from var(--typo3-component-bg) h s l;
@@ -31,20 +35,21 @@ body > .ep-root {
     --radius: var(--typo3-input-border-radius);
 
     --doc-surface: var(--typo3-component-bg);
+    --doc-popover-bg: var(--typo3-component-bg);
+    --doc-popover-fg: var(--typo3-component-color);
     --doc-card: var(--typo3-component-bg);
     --doc-bg: var(--typo3-scaffold-bg);
+    --doc-bg-subtle: var(--typo3-component-bg);
+    --doc-bg-hover: var(--typo3-state-default-hover-bg);
+    --doc-bg-input: var(--typo3-component-bg);
     --doc-primary: var(--typo3-text-color-primary);
-    --doc-primary-hover: light-dark(
-        var(--token-color-primary-70),
-        var(--token-color-primary-40)
-    );
-    --doc-primary-light: var(--typo3-state-primary-bg);
+    --doc-primary-hover: light-dark(var(--token-color-primary-70), var(--token-color-primary-40));
+    --doc-primary-light: var(--typo3-surface-container-primary);
     --doc-on-primary: var(--typo3-state-primary-color);
     --doc-accent: var(--typo3-text-color-primary);
-    --doc-accent-bg: var(--typo3-state-primary-bg);
-    --doc-toggle-active-bg: var(--typo3-state-primary-bg);
-    --doc-toggle-active-fg: var(--typo3-state-primary-color);
-    --doc-focus-ring: color-mix(in srgb, var(--typo3-state-default-focus-border-color), transparent 60%);
+    --doc-accent-bg: var(--typo3-surface-container-primary);
+    --doc-toggle-active-bg: var(--typo3-surface-container-primary);
+    --doc-toggle-active-fg: var(--typo3-surface-container-primary-text);
     --doc-text: var(--typo3-text-color-base);
     --doc-text-muted: var(--typo3-text-color-variant);
     --doc-text-subtle: var(--typo3-text-color-variant);
@@ -53,25 +58,14 @@ body > .ep-root {
     --doc-border-light: var(--typo3-component-border-color);
     --doc-border-dark: var(--typo3-component-border-color);
     --doc-border-input: var(--typo3-component-border-color);
-    --doc-bg-subtle: var(--typo3-component-bg);
-    --doc-bg-hover: var(--typo3-state-default-hover-bg);
-    --doc-bg-input: var(--typo3-component-bg);
-    --doc-hover: var(--typo3-state-default-hover-bg);
     --doc-error: var(--typo3-state-danger-color);
-    --doc-error-bg: var(--typo3-state-danger-bg);
+    --doc-error-bg: var(--typo3-surface-container-danger);
     --doc-success: var(--typo3-state-success-color);
-    --doc-success-bg: var(--typo3-state-success-bg);
+    --doc-success-bg: var(--typo3-surface-container-success);
     --doc-warning: var(--typo3-state-warning-color);
-    --doc-warning-bg: var(--typo3-state-warning-bg);
-    --doc-warning-text: var(--typo3-state-warning-color);
+    --doc-warning-bg: var(--typo3-surface-container-warning);
+    --doc-warning-text: var(--typo3-surface-container-warning-text);
     --doc-link: var(--typo3-text-color-primary);
-
-    --docx-toolbar-btn-size: 1.375rem;
-    --docx-toolbar-icon-size: 0.875rem;
-    --docx-toolbar-gap: 0.125rem 0.25rem;
-    --docx-toolbar-padding: 0.125rem 0.375rem;
-
-    color: var(--typo3-text-color-base);
-    font-family: var(--typo3-font-family);
-    font-size: var(--typo3-font-size);
+    --doc-focus-ring: color-mix(in srgb, var(--typo3-state-default-focus-border-color), transparent 60%);
+    --doc-shadow-lg: var(--typo3-component-box-shadow);
 }

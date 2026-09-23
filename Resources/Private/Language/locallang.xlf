@@ -91,11 +91,6 @@
         <source>{count, plural, one {# editor online} other {# editors online}}</source>
       </segment>
     </unit>
-    <unit id="editor.loading">
-      <segment>
-        <source>Loading document…</source>
-      </segment>
-    </unit>
     <unit id="editor.headings.group">
       <segment>
         <source>Headings</source>
@@ -139,6 +134,11 @@
     <unit id="editor.headings.h4.title">
       <segment>
         <source>Heading 4</source>
+      </segment>
+    </unit>
+    <unit id="editor.styles.normal">
+      <segment>
+        <source>Normal</source>
       </segment>
     </unit>
     <unit id="editor.buildMissing.title">

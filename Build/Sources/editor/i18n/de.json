@@ -1,0 +1,242 @@
+{
+  "collaboration": {
+    "moreParticipants": "{count, plural, one {# weitere Person} other {# weitere Personen}}",
+    "participants": "Personen in diesem Dokument"
+  },
+  "comments": {
+    "reopen": "Erneut öffnen",
+    "resolve": "Auflösen"
+  },
+  "contentControl": {
+    "calendar": {
+      "month": "Monat",
+      "nextMonth": "Nächster Monat",
+      "previousMonth": "Vorheriger Monat",
+      "today": "Heute",
+      "year": "Jahr"
+    },
+    "gallery": {
+      "empty": "Dieses Dokument enthält keine Bausteine für diesen Katalog."
+    },
+    "types": {
+      "buildingBlockGallery": "Bausteinkatalog"
+    }
+  },
+  "contextMenu": {
+    "copyFormatting": "Formatierung kopieren",
+    "copyFormattingShortcut": "Strg+Alt+C",
+    "pasteFormatting": "Formatierung einfügen",
+    "pasteFormattingShortcut": "Strg+Alt+V",
+    "pasteWithoutFormatting": "Ohne Formatierung einfügen",
+    "pasteWithoutFormattingShortcut": "Strg+Umschalt+V"
+  },
+  "dialogs": {
+    "paragraph": {
+      "afterText": "Nach Text",
+      "alignCenter": "Zentriert",
+      "alignJustify": "Blocksatz",
+      "alignLeft": "Links",
+      "alignRight": "Rechts",
+      "alignment": "Ausrichtung",
+      "at": "Maß",
+      "beforeText": "Vor Text",
+      "by": "Um",
+      "cancel": "Abbrechen",
+      "contextualSpacing": "Keinen Abstand zwischen Absätzen gleicher Formatierung einfügen",
+      "general": "Allgemein",
+      "indentation": "Einzug",
+      "keepLines": "Diesen Absatz zusammenhalten",
+      "keepNext": "Nicht vom nächsten Absatz trennen",
+      "lineSpacing": "Zeilenabstand",
+      "mixed": "Gemischt",
+      "notShown": "Hier nicht angezeigt",
+      "ok": "OK",
+      "pageBreakBefore": "Seitenumbruch oberhalb",
+      "pagination": "Paginierung",
+      "refused": "Diese Werte können hier nicht angewendet werden.",
+      "ruleAtLeast": "Mindestens",
+      "ruleExactly": "Genau",
+      "ruleMultiple": "Mehrfach",
+      "spaceAfter": "Nach",
+      "spaceBefore": "Vor",
+      "spacing": "Abstand",
+      "special": "Sondereinzug",
+      "specialFirstLine": "Erste Zeile",
+      "specialHanging": "Hängend",
+      "specialNone": "(ohne)",
+      "tabAdd": "Festlegen",
+      "tabAlignBar": "Vertikale Linie",
+      "tabAlignCenter": "Zentriert",
+      "tabAlignDecimal": "Dezimal",
+      "tabAlignLeft": "Links",
+      "tabAlignRight": "Rechts",
+      "tabAlignment": "Ausrichtung",
+      "tabClearAll": "Alle löschen",
+      "tabEmpty": "Keine Tabstopps festgelegt.",
+      "tabLeader": "Füllzeichen",
+      "tabLeaderDot": "Gepunktet",
+      "tabLeaderHyphen": "Gestrichelt",
+      "tabLeaderUnderscore": "Unterstrichen",
+      "tabMixed": "Die markierten Absätze haben unterschiedliche Tabstopps.",
+      "tabNone": "Ohne",
+      "tabPosition": "Position",
+      "tabPositionLabel": "{position} Zoll",
+      "tabRemove": "Löschen",
+      "tabRemoveAt": "Tabstopp bei {position} Zoll löschen",
+      "tabStops": "Tabstopps",
+      "title": "Absatz",
+      "unitInches": "Zoll",
+      "unitPoints": "pt",
+      "widowControl": "Absatzkontrolle"
+    }
+  },
+  "disabledReason": {
+    "bodyOnlyNote": "Fuß- und Endnoten werden im Dokumenttext eingefügt.",
+    "bodyOnlySectionBreak": "Abschnittsumbrüche gehören in den Dokumenttext.",
+    "bodyOnlyToc": "Ein Inhaltsverzeichnis gehört in den Dokumenttext.",
+    "commentSelection": "Markieren Sie einen Bereich, bevor Sie einen Kommentar hinzufügen",
+    "drawingLocked": "Dieses Bild ist gesperrt",
+    "editorNotReady": "Der Editor ist noch nicht bereit",
+    "furnitureOnlyPageField": "Öffnen Sie eine Kopf- oder Fußzeile, um eine Seitenzahl einzufügen.",
+    "imageSuggesting": "Bildänderungen sind im Vorschlagsmodus nicht verfügbar",
+    "invalidValue": "Dieser Wert ist für den Befehl nicht gültig",
+    "lockedContentBreak": "Ein Inhaltssteuerelement sperrt diesen Text, daher können Sie hier keinen Abschnitt umbrechen.",
+    "lockedSectionBreak": "Ein gesperrtes oder verknüpftes Inhaltssteuerelement enthält den nächsten Abschnitt, daher kann dieser Umbruch ihn nicht ändern.",
+    "mergeUnsupported": "Zellen können nicht verbunden werden",
+    "noContentControl": "Kein Inhaltssteuerelement ausgewählt",
+    "noCopiedFormatting": "Kopieren Sie zuerst eine Formatierung",
+    "noDocument": "Es ist kein Dokument geladen",
+    "noDrawing": "Kein Bild ausgewählt",
+    "noReviewAuthors": "Dieses Dokument hat keine Überarbeitungsautoren",
+    "notWired": "Dieses Steuerelement ist mit keinem Editor-Befehl verbunden",
+    "nothingToCopyFormatting": "Markieren Sie Text, um seine Formatierung zu kopieren",
+    "nothingToPaint": "Markieren Sie Text, um die Formatierung zu übertragen",
+    "splitUnsupported": "Zellen können nicht geteilt werden",
+    "suggestingNeedsAuthor": "Für Vorschläge wird ein Autor benötigt. Legen Sie den Autor in der Editor-Konfiguration fest.",
+    "suggestingSectionBreak": "Schalten Sie den Vorschlagsmodus aus, um diesen Abschnittsumbruch einzufügen. Er ändert, wo der nächste Abschnitt beginnt, und das lässt sich nicht vorschlagen.",
+    "tableCellSectionBreak": "Abschnittsumbrüche gehören außerhalb einer Tabelle.",
+    "trackedOnly": "In diesem Dokument sind Änderungen nur als nachverfolgte Änderungen erlaubt",
+    "unavailable": "Dieser Befehl ist nicht verfügbar",
+    "viewing": "Dieses Dokument ist nur zum Lesen geöffnet"
+  },
+  "equationPopup": {
+    "apply": "Übernehmen",
+    "delete": "Löschen",
+    "inputLabel": "Lineare Formel",
+    "placeholder": "Formel eingeben",
+    "refused": "Diese Formel konnte nicht übernommen werden. Prüfen Sie die Schreibweise und versuchen Sie es erneut.",
+    "title": "Formel bearbeiten"
+  },
+  "formattingBar": {
+    "formatPainter": "Format übertragen",
+    "formatPainterShortcut": "Format übertragen (Strg+Alt+C, Strg+Alt+V)",
+    "groups": {
+      "format": "Format"
+    },
+    "paragraphMarks": "Absatzmarken anzeigen"
+  },
+  "lineSpacing": {
+    "options": "Zeilenabstandsoptionen …"
+  },
+  "review": {
+    "acceptAllChanges": "Alle angezeigten Änderungen annehmen",
+    "allMarkup": "Markup: alle",
+    "displayForReview": "Zur Überprüfung anzeigen",
+    "nextChange": "Nächste Änderung",
+    "noMarkup": "Kein Markup",
+    "original": "Original",
+    "previousChange": "Vorherige Änderung",
+    "protectDocument": "Dokument für Formulare schützen",
+    "rejectAllChanges": "Alle angezeigten Änderungen ablehnen",
+    "resolved": "Aufgelöst",
+    "showResolvedComment": "Gelösten Kommentar anzeigen",
+    "simpleMarkup": "Einfaches Markup"
+  },
+  "reviewers": {
+    "markupOptions": "Markupoptionen"
+  },
+  "revisions": {
+    "formattingDetails": {
+      "alignment": "Ausrichtung",
+      "auto": "Automatisch",
+      "bold": "Fett",
+      "both": "Blocksatz",
+      "center": "Zentriert",
+      "color": "Schriftfarbe",
+      "default": "Standard",
+      "double": "Doppelt",
+      "end": "Ende",
+      "firstLineIndent": "Erstzeileneinzug",
+      "fontFamily": "Schriftart",
+      "fontSize": "Schriftgrad",
+      "hangingIndent": "Hängender Einzug",
+      "italic": "Kursiv",
+      "left": "Links",
+      "leftIndent": "Linker Einzug",
+      "none": "Ohne",
+      "notBold": "Nicht fett",
+      "notItalic": "Nicht kursiv",
+      "notStrike": "Nicht durchgestrichen",
+      "points": "pt",
+      "right": "Rechts",
+      "rightIndent": "Rechter Einzug",
+      "single": "Einfach",
+      "spaceAfter": "Abstand nach",
+      "spaceBefore": "Abstand vor",
+      "start": "Anfang",
+      "strike": "Durchgestrichen",
+      "underline": "Unterstrichen"
+    },
+    "paragraphMarkDeleted": "Gelöschte Absatzmarke",
+    "paragraphMarkMovedFrom": "Absatzmarke wegverschoben",
+    "paragraphMarkMovedTo": "Absatzmarke hierher verschoben",
+    "paragraphMarksDeleted": "Gelöschte Absatzmarken",
+    "paragraphMarksInserted": "Eingefügte Absatzmarken",
+    "paragraphMarksMovedFrom": "Absatzmarken wegverschoben",
+    "paragraphMarksMovedTo": "Absatzmarken hierher verschoben",
+    "structuralDetails": {
+      "cellDelete": "Tabellenzelle gelöscht",
+      "cellInsert": "Tabellenzelle eingefügt",
+      "cellMerge": "Zellverbindung geändert",
+      "numberingInsert": "Nummerierungsverweis eingefügt",
+      "rowDelete": "Tabellenzeile gelöscht",
+      "rowInsert": "Tabellenzeile eingefügt"
+    }
+  },
+  "textFormField": {
+    "apply": "OK",
+    "cancel": "Abbrechen",
+    "date": "Datum",
+    "defaultText": "Standardtext",
+    "edit": "Feld bearbeiten …",
+    "editing": "Einfügemarke in einem Textformularfeld.",
+    "enabled": "Ausfüllen aktiviert",
+    "firstCapital": "Erster Buchstabe groß",
+    "format": "Format",
+    "invalidDate": "Ein gültiges Datum ist erforderlich. Das Feld wird geleert.",
+    "invalidNumber": "Eine gültige Zahl ist erforderlich. Das Feld wird geleert.",
+    "invalidOptions": "Prüfen Sie Standardwert, Typ, Format und maximale Länge.",
+    "invalidTitle": "Ungültiger Feldwert",
+    "invalidValue": "Geben Sie einen gültigen Feldwert ein, bevor Sie das Feld verlassen.",
+    "lowercase": "Kleinbuchstaben",
+    "maxLength": "Maximale Länge (0 = unbegrenzt)",
+    "noFormat": "Kein Format",
+    "number": "Zahl",
+    "preservedType": "Beibehaltener Feldtyp",
+    "regular": "Normaler Text",
+    "selected": "Ganzes Feld markiert. Eingaben ersetzen das Feld, wenn das Formular nicht geschützt ist.",
+    "title": "Optionen für Textformularfelder",
+    "titleCase": "Erster Buchstabe jedes Wortes groß",
+    "type": "Typ",
+    "unavailable": "Dieses Feld kann nicht geändert werden.",
+    "uppercase": "Großbuchstaben"
+  },
+  "toolbar": {
+    "insertTable": "Tabelle einfügen",
+    "review": "Überprüfen"
+  },
+  "zoom": {
+    "automatic": "Automatisch",
+    "fitWidth": "Seitenbreite"
+  }
+}

@@ -11,8 +11,8 @@ import test from 'node:test';
  */
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const sources = [
-  ...readdirSync(join(root, 'Build/Sources'))
-    .filter((name) => /\.jsx?$/.test(name) && !name.endsWith('.test.js'))
+  ...readdirSync(join(root, 'Build/Sources'), { recursive: true })
+    .filter((name) => /\.(js|vue)$/.test(name))
     .map((name) => join(root, 'Build/Sources', name)),
   ...readdirSync(join(root, 'Resources/Public/JavaScript'))
     .filter((name) => name.endsWith('.js'))

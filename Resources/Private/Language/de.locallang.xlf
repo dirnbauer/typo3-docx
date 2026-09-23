@@ -109,12 +109,6 @@
         <target>{count, plural, one {# Person online} other {# Personen online}}</target>
       </segment>
     </unit>
-    <unit id="editor.loading">
-      <segment>
-        <source>Loading document…</source>
-        <target>Dokument wird geladen…</target>
-      </segment>
-    </unit>
     <unit id="editor.headings.group">
       <segment>
         <source>Headings</source>
@@ -167,6 +161,12 @@
       <segment>
         <source>Heading 4</source>
         <target>Überschrift 4</target>
+      </segment>
+    </unit>
+    <unit id="editor.styles.normal">
+      <segment>
+        <source>Normal</source>
+        <target>Standard</target>
       </segment>
     </unit>
     <unit id="editor.buildMissing.title">

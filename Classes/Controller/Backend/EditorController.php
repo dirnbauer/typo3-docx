@@ -35,17 +35,15 @@ final readonly class EditorController
     private const string BUNDLE_STYLESHEET = 'EXT:docx_editor/Resources/Public/Vite/docx-editor.css';
 
     /**
-     * The TYPO3 theme on top of the eigenpal styles, each registered on its
+     * The TYPO3 theme on top of the editor styles, each registered on its
      * own (no CSS @import) so TYPO3 appends its cache-busting suffix to all.
      */
     private const array STYLESHEETS = [
         'EXT:docx_editor/Resources/Public/Css/Editor.tokens.css',
         'EXT:docx_editor/Resources/Public/Css/Editor.base.css',
-        'EXT:docx_editor/Resources/Public/Css/Editor.toolbar.css',
     ];
 
     private const array JAVASCRIPT_MODULES = [
-        '@typo3/backend/element/spinner-element.js',
         '@typo3/backend/element/status-indicator-element.js',
         '@webconsulting/docx-editor/editor.js',
         '@webconsulting/docx-editor/toolbar.js',

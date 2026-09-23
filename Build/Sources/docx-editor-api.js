@@ -38,14 +38,26 @@ async function requestJson(url, init = {}) {
   return data;
 }
 
-function getJson(route, params) {
-  const url = new URL(routeUrl(route), window.location.origin);
-  Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
+/**
+ * @param {string} route AJAX route name
+ * @param {string | null} [override] URL that replaces the route (load-url / save-url)
+ */
+function endpoint(route, override = null) {
+  return new URL(override || routeUrl(route), window.location.origin);
+}
+
+function getJson(route, params, override = null) {
+  const url = endpoint(route, override);
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== '') {
+      url.searchParams.set(key, value);
+    }
+  });
   return requestJson(url);
 }
 
-function postJson(route, body, init = {}) {
-  return requestJson(routeUrl(route), {
+function postJson(route, body, init = {}, override = null) {
+  return requestJson(endpoint(route, override), {
     ...init,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -53,23 +65,30 @@ function postJson(route, body, init = {}) {
   });
 }
 
-export function loadDocument(fileIdentifier) {
-  return getJson('docx_editor_document_load', { file: fileIdentifier });
+/** Resolves to {ok, data (base64 DOCX), revision}. */
+export function loadDocument(fileIdentifier, url = null) {
+  return getJson('docx_editor_document_load', { file: fileIdentifier }, url);
 }
 
-export function saveDocument(fileIdentifier, revision, arrayBuffer) {
-  return postJson('docx_editor_document_save', {
-    file: fileIdentifier,
-    revision,
-    data: encodeArrayBufferToBase64(arrayBuffer),
-  });
+/** Posts {file, revision, data (base64 DOCX)}; resolves to {ok, revision}. */
+export function saveDocument(fileIdentifier, revision, bytes, url = null) {
+  return postJson(
+    'docx_editor_document_save',
+    {
+      file: fileIdentifier,
+      revision,
+      data: encodeArrayBufferToBase64(bytes),
+    },
+    {},
+    url,
+  );
 }
 
-export function saveDocumentAs(folderIdentifier, fileName, arrayBuffer) {
+export function saveDocumentAs(folderIdentifier, fileName, bytes) {
   return postJson('docx_editor_document_save_as', {
     folder: folderIdentifier,
     fileName,
-    data: encodeArrayBufferToBase64(arrayBuffer),
+    data: encodeArrayBufferToBase64(bytes),
   });
 }
 
@@ -90,8 +109,8 @@ export function leaveSession(fileIdentifier, sessionUid) {
   return postJson('docx_editor_collab_leave', { file: fileIdentifier, sessionUid }, { keepalive: true });
 }
 
-export function encodeArrayBufferToBase64(arrayBuffer) {
-  const bytes = new Uint8Array(arrayBuffer);
+export function encodeArrayBufferToBase64(buffer) {
+  const bytes = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
   let binary = '';
   for (let i = 0; i < bytes.length; i += 0x8000) {
     binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));

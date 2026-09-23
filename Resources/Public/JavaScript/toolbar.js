@@ -9,8 +9,9 @@ import { notifySaveFailed } from '@webconsulting/docx-editor/notify.js';
 /**
  * DocHeader glue for <typo3-docx-editor>: the core Save split button (Save,
  * Save and close, Save as…), Close with the core "unsaved changes" dialog,
- * Ctrl/Cmd+S, the folder browser and file name dialog for "Save as…", and a
- * viewport clamp for eigenpal's fixed-position toolbar popovers.
+ * Ctrl/Cmd+S outside the editor (inside it, the editor's own shortcut asks
+ * the element to save) and the folder browser and file name dialog for
+ * "Save as…".
  */
 
 const SAVE_AS_FIELD = 'docxEditorSaveAsFolder';
@@ -172,7 +173,7 @@ function onFolderPicked(data) {
 }
 
 function onKeydown(event) {
-  if (!(event.ctrlKey || event.metaKey) || event.shiftKey || event.key.toLowerCase() !== 's') {
+  if (event.defaultPrevented || !(event.ctrlKey || event.metaKey) || event.shiftKey || event.key.toLowerCase() !== 's') {
     return;
   }
   if (app.dataset.canWrite !== '1') {
@@ -180,36 +181,6 @@ function onKeydown(event) {
   }
   event.preventDefault();
   save();
-}
-
-/**
- * eigenpal positions its popovers (mode picker, line spacing, …) with
- * `position: fixed` and a JS-computed `left`; in a narrow editor they can run
- * off the viewport. Nudge any overflowing popover back on-screen.
- */
-function clampPopoversIntoView() {
-  const margin = 8;
-  document.querySelectorAll('[style*="position: fixed"], [style*="position:fixed"]').forEach((el) => {
-    const style = window.getComputedStyle(el);
-    if (style.position !== 'fixed' || (parseInt(style.zIndex, 10) || 0) < 1000) {
-      return;
-    }
-    const rect = el.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0) {
-      return;
-    }
-    const maxLeft = Math.max(margin, window.innerWidth - rect.width - margin);
-    const left = Math.min(Math.max(rect.left, margin), maxLeft);
-    if (Math.abs(left - rect.left) > 1) {
-      el.style.left = `${Math.round(left)}px`;
-    }
-  });
-}
-
-/** Popovers are inserted first and positioned a frame later. */
-function scheduleClamp() {
-  window.requestAnimationFrame(clampPopoversIntoView);
-  window.setTimeout(clampPopoversIntoView, 120);
 }
 
 const ACTIONS = {
@@ -251,7 +222,4 @@ if (app) {
       event.preventDefault();
     }
   });
-  document.addEventListener('click', scheduleClamp, true);
-  document.addEventListener('keyup', scheduleClamp, true);
-  window.addEventListener('resize', clampPopoversIntoView);
 }

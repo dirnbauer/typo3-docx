@@ -1,36 +1,58 @@
 import labels from '~labels/docx_editor.messages';
 import { notifySaved, notifySaveFailed } from '@webconsulting/docx-editor/notify.js';
-import { mountDocxEditor } from './docx-editor-mount.jsx';
-import { heartbeatSession, joinSession, leaveSession } from './docx-editor-api.js';
+import {
+  decodeBase64ToArrayBuffer,
+  fetchRevision,
+  heartbeatSession,
+  joinSession,
+  leaveSession,
+  loadDocument,
+  saveDocument,
+  saveDocumentAs,
+} from './docx-editor-api.js';
+import './webcon-docx-editor.js';
 
 const HEARTBEAT_INTERVAL = 15000;
+const REVISION_POLL_INTERVAL = 5000;
 
 /**
- * <typo3-docx-editor>: hosts the React editor in light DOM (so the bundled
- * eigenpal styles apply), exposes save()/saveAsToFolder() and the `dirty`
- * state to the DocHeader glue (toolbar.js) and keeps the presence session
- * alive.
+ * <typo3-docx-editor>: the backend module's editor. Wraps <webcon-docx-editor>
+ * and adds what TYPO3 needs around it: loading and saving through the FAL
+ * AJAX routes, "Save as…" into a folder, the presence badge and the
+ * newer-version warning. The DocHeader glue (toolbar.js) drives it through
+ * save(), saveAsToFolder() and `dirty`.
  *
- * Attributes: file-identifier, file-name, revision, can-write ("1"/"0"),
- * editor-locale. Page context comes from #docx-editor-app[data-*], labels
- * from the docx_editor.messages domain.
+ * Attributes
+ *   file-identifier, file-name, revision   the FAL file and its revision
+ *   can-write                              "1" to allow saving
+ *   editor-locale                          backend language ("de", "en")
+ *   content-controls                       "show" (see <webcon-docx-editor>)
+ *   load-url                               GET endpoint instead of the FAL load
+ *                                          route; answers {ok, data (base64), revision}
+ *   save-url                               POST endpoint instead of the FAL save
+ *                                          route; receives {file, revision, data (base64)},
+ *                                          answers {ok, revision}
  *
- * Events (bubbling): `docx-editor:change` whenever `dirty` flips.
+ * Events (bubbling): `docx-editor:change` {dirty} from the inner editor,
+ * `docx-editor:saved` {revision} after a successful save.
  */
 export class Typo3DocxEditorElement extends HTMLElement {
-  #api = null;
+  #editor = null;
 
-  #unmount = null;
+  #revision = 0;
+
+  #saving = null;
 
   #sessionUid = 0;
 
   #heartbeatTimer = 0;
 
-  #dirty = false;
+  #pollTimer = 0;
 
   #teardownCollab = () => {
     window.removeEventListener('pagehide', this.#teardownCollab);
     window.clearInterval(this.#heartbeatTimer);
+    window.clearInterval(this.#pollTimer);
     if (this.#sessionUid) {
       leaveSession(this.fileIdentifier, this.#sessionUid).catch(() => {});
       this.#sessionUid = 0;
@@ -51,66 +73,130 @@ export class Typo3DocxEditorElement extends HTMLElement {
 
   /** Whether the document has changes that are not saved yet. */
   get dirty() {
-    return this.#dirty;
+    return this.#editor?.dirty === true;
   }
 
-  async save() {
-    if (!this.#api) {
-      throw new Error(labels.get('editor.notReady'));
-    }
-    await this.#api.save();
-  }
-
-  async saveAsToFolder(folderIdentifier, fileName) {
-    if (!this.#api) {
-      throw new Error(labels.get('editor.notReady'));
-    }
-    return this.#api.saveAs(folderIdentifier, fileName);
+  /** The inner <webcon-docx-editor> (load(), serialize(), editor, …). */
+  get editorElement() {
+    return this.#editor;
   }
 
   connectedCallback() {
-    const app = document.getElementById('docx-editor-app');
-    const mount = document.createElement('div');
-    mount.className = 'mount';
-    this.replaceChildren(mount);
-
-    this.#unmount = mountDocxEditor(mount, {
-      fileIdentifier: this.fileIdentifier,
-      fileName: this.fileName,
-      canWrite: this.canWrite,
-      initialRevision: Number(this.getAttribute('revision') ?? 0),
-      editorLocale: this.getAttribute('editor-locale') ?? 'en',
-      onApi: (api) => {
-        this.#api = api;
-      },
-      onChange: () => this.#setDirty(true),
-      onSaved: () => {
-        this.#setDirty(false);
-        notifySaved(app?.dataset.filePath ?? this.fileName);
-      },
-      onError: (message) => notifySaveFailed(message),
-      onConflict: () => this.#showConflict(),
+    if (this.#editor !== null) {
+      return;
+    }
+    this.#revision = Number(this.getAttribute('revision') ?? 0);
+    const editor = document.createElement('webcon-docx-editor');
+    editor.className = 'docx-editor-module__editor';
+    editor.setAttribute('locale', this.getAttribute('editor-locale') || 'en');
+    if (!this.canWrite) {
+      editor.setAttribute('readonly', '');
+    }
+    if (this.getAttribute('content-controls') === 'show') {
+      editor.setAttribute('content-controls', 'show');
+    }
+    editor.labels = {
+      normal: labels.get('editor.styles.normal'),
+      heading1: labels.get('editor.headings.h1.title'),
+      heading2: labels.get('editor.headings.h2.title'),
+      heading3: labels.get('editor.headings.h3.title'),
+      heading4: labels.get('editor.headings.h4.title'),
+      heading1Short: labels.get('editor.headings.h1'),
+      heading2Short: labels.get('editor.headings.h2'),
+      heading3Short: labels.get('editor.headings.h3'),
+      heading4Short: labels.get('editor.headings.h4'),
+      headingsGroup: labels.get('editor.headings.group'),
+    };
+    editor.addEventListener('docx-editor:save-request', () => {
+      if (this.canWrite) {
+        this.save().catch(() => {});
+      }
     });
-    this.#startCollab();
+    editor.addEventListener('docx-editor:error', (event) => notifySaveFailed(event.detail.message));
+    this.replaceChildren(editor);
+    this.#editor = editor;
+    this.#open();
+    if (this.fileIdentifier !== '') {
+      this.#startCollab();
+    }
   }
 
   disconnectedCallback() {
     this.#teardownCollab();
-    this.#unmount?.();
-    this.#unmount = null;
-    this.#api = null;
+    this.#editor?.remove();
+    this.#editor = null;
   }
 
-  #setDirty(dirty) {
-    if (this.#dirty === dirty) {
-      return;
+  /** Saves to the FAL file (or `save-url`); resolves once stored. */
+  async save() {
+    if (!this.canWrite) {
+      return null;
     }
-    this.#dirty = dirty;
-    this.dispatchEvent(new CustomEvent('docx-editor:change', { bubbles: true, detail: { dirty } }));
+    if (this.#saving) {
+      return this.#saving;
+    }
+    this.#saving = this.#persist(async (bytes) => {
+      const result = await saveDocument(this.fileIdentifier, this.#revision, bytes, this.getAttribute('save-url'));
+      this.#revision = result.revision ?? this.#revision;
+      return result;
+    }).finally(() => {
+      this.#saving = null;
+    });
+    return this.#saving;
+  }
+
+  /** Stores the document as a new file in a folder; resolves to {file, …}. */
+  async saveAsToFolder(folderIdentifier, fileName) {
+    return this.#persist((bytes) => saveDocumentAs(folderIdentifier, fileName || this.fileName, bytes), false);
+  }
+
+  async #open() {
+    try {
+      const payload = await loadDocument(this.fileIdentifier, this.getAttribute('load-url'));
+      this.#revision = payload.revision ?? this.#revision;
+      await this.#editor.load(decodeBase64ToArrayBuffer(payload.data));
+    } catch (error) {
+      notifySaveFailed(error?.message || String(error));
+    }
+  }
+
+  /** Serializes, hands the bytes to `store`, and marks the stored revision clean. */
+  async #persist(store, markClean = true) {
+    const editor = this.#editor;
+    if (!editor?.editor) {
+      throw new Error(labels.get('editor.notReady'));
+    }
+    const revision = editor.revision;
+    try {
+      const bytes = await editor.serialize();
+      const result = await store(bytes);
+      if (markClean) {
+        editor.markClean(revision);
+        notifySaved(document.getElementById('docx-editor-app')?.dataset.filePath ?? this.fileName);
+        this.dispatchEvent(new CustomEvent('docx-editor:saved', { bubbles: true, detail: { revision: this.#revision } }));
+      }
+      return result;
+    } catch (error) {
+      notifySaveFailed(error?.message || String(error));
+      if (error?.httpStatus === 409) {
+        this.#showConflict();
+      }
+      throw error;
+    }
   }
 
   async #startCollab() {
     window.addEventListener('pagehide', this.#teardownCollab);
+    this.#pollTimer = window.setInterval(async () => {
+      try {
+        const state = await fetchRevision(this.fileIdentifier);
+        if (state.revision > this.#revision) {
+          this.#showConflict();
+        }
+      } catch {
+        // polling is best effort
+      }
+    }, REVISION_POLL_INTERVAL);
     try {
       const joined = await joinSession(this.fileIdentifier);
       this.#sessionUid = joined.sessionUid;
@@ -150,4 +236,6 @@ export class Typo3DocxEditorElement extends HTMLElement {
   }
 }
 
-customElements.define('typo3-docx-editor', Typo3DocxEditorElement);
+if (!customElements.get('typo3-docx-editor')) {
+  customElements.define('typo3-docx-editor', Typo3DocxEditorElement);
+}

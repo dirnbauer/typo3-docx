@@ -10,3 +10,6 @@
 /package-lock.json export-ignore
 /phpstan.neon export-ignore
 /vite.config.js export-ignore
+# CI rebuilds the bundle and compares it byte for byte: store it as built,
+# without line-ending normalisation (one font licence ships with CRLF).
+/Resources/Public/Vite/** -text

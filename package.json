@@ -1,23 +1,25 @@
 {
   "name": "typo3-docx-editor",
-  "version": "1.5.0",
+  "version": "2.0.0",
   "private": true,
-  "description": "Vite build for TYPO3 docx_editor: the <typo3-docx-editor> element around @eigenpal/docx-editor-react",
+  "description": "Vite build for TYPO3 docx_editor: the <webcon-docx-editor> and <typo3-docx-editor> elements around @docx-editor.dev/vue",
   "type": "module",
   "scripts": {
     "dev": "vite build --watch --mode development",
     "build": "vite build --mode production",
-    "test:build": "node --test Build/vite/plugins/*.test.js Build/Sources/*.test.js"
+    "test:build": "node --test Build/Tests/*.test.js"
   },
   "dependencies": {
-    "@eigenpal/docx-editor-core": "^1.9.0",
-    "@eigenpal/docx-editor-i18n": "^1.9.0",
-    "@eigenpal/docx-editor-react": "^1.9.0",
-    "react": "^19.3.0",
-    "react-dom": "^19.3.0"
+    "@docx-editor.dev/core": "~2.21.1",
+    "@docx-editor.dev/fonts": "~2.21.1",
+    "@docx-editor.dev/i18n": "~2.21.1",
+    "@docx-editor.dev/vue": "~2.21.1",
+    "fflate": "^0.8.3",
+    "vue": "^3.5.43"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^6.1.1",
+    "@happy-dom/global-registrator": "^20.14.5",
+    "@vitejs/plugin-vue": "^6.0.9",
     "vite": "^8.3.0"
   },
   "engines": {
