@@ -123,7 +123,12 @@ final readonly class RoundTripManifest
             sort($names);
             foreach ($names as $name) {
                 $field = $record->fields[$name];
-                $fields[] = [$field->name, $field->hash, $field->level, $field->reference];
+                $entry = [$field->name, $field->hash, $field->level, $field->reference];
+                if ($field->value !== '') {
+                    // Only when there is one, so that the signatures of older exports still match.
+                    $entry[] = $field->value;
+                }
+                $fields[] = $entry;
             }
             $records[] = [
                 $record->table,

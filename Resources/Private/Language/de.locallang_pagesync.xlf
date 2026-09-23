@@ -67,6 +67,48 @@
         <target>Dieses Feld kann nicht in Word bearbeitet werden.</target>
       </segment>
     </unit>
+    <unit id="export.link.page">
+      <segment>
+        <source>Page: %1$s (%2$s)</source>
+        <target>Seite: %1$s (%2$s)</target>
+      </segment>
+    </unit>
+    <unit id="export.link.file">
+      <segment>
+        <source>File: %s</source>
+        <target>Datei: %s</target>
+      </segment>
+    </unit>
+    <unit id="export.link.folder">
+      <segment>
+        <source>Folder: %s</source>
+        <target>Ordner: %s</target>
+      </segment>
+    </unit>
+    <unit id="export.link.record">
+      <segment>
+        <source>%1$s: %2$s</source>
+        <target>%1$s: %2$s</target>
+      </segment>
+    </unit>
+    <unit id="export.link.email">
+      <segment>
+        <source>E-mail: %s</source>
+        <target>E-Mail: %s</target>
+      </segment>
+    </unit>
+    <unit id="export.link.telephone">
+      <segment>
+        <source>Phone: %s</source>
+        <target>Telefon: %s</target>
+      </segment>
+    </unit>
+    <unit id="export.link.unavailable">
+      <segment>
+        <source>%s (not found, or not visible to you)</source>
+        <target>%s (nicht gefunden oder für Sie nicht sichtbar)</target>
+      </segment>
+    </unit>
     <unit id="error.notADocx">
       <segment>
         <source>The file is not a Word document (.docx).</source>

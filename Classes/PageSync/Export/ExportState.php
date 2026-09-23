@@ -89,6 +89,7 @@ final class ExportState
                     $field->hash,
                     $field->level,
                     $this->fieldReferences[$key . ':' . $name] ?? 0,
+                    $field->value,
                 );
             }
             // Collections and read-only fields have no hash, but a control whose tag may be a

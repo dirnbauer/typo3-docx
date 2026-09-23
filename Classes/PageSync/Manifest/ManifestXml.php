@@ -76,6 +76,9 @@ final readonly class ManifestXml
                 if ($field->level > 0) {
                     $fieldElement->setAttribute('level', (string)$field->level);
                 }
+                if ($field->value !== '') {
+                    $fieldElement->setAttribute('value', $field->value);
+                }
                 $element->appendChild($fieldElement);
             }
             $root->appendChild($element);
@@ -161,6 +164,7 @@ final readonly class ManifestXml
                     $fieldElement->getAttribute('hash'),
                     (int)$fieldElement->getAttribute('level'),
                     (int)$fieldElement->getAttribute('reference'),
+                    $fieldElement->getAttribute('value'),
                 );
             }
             $record = new ManifestRecord(

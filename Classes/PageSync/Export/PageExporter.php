@@ -19,6 +19,7 @@ use Webconsulting\DocxEditor\PageSync\Document\Bookmark;
 use Webconsulting\DocxEditor\PageSync\Document\ContentControl;
 use Webconsulting\DocxEditor\PageSync\Document\ControlLock;
 use Webconsulting\DocxEditor\PageSync\Document\Heading;
+use Webconsulting\DocxEditor\PageSync\Document\Link;
 use Webconsulting\DocxEditor\PageSync\Document\Paragraph;
 use Webconsulting\DocxEditor\PageSync\Document\PlainText;
 use Webconsulting\DocxEditor\PageSync\Document\Text;
@@ -56,6 +57,7 @@ final readonly class PageExporter
     public function __construct(
         private RecordRepository $records,
         private FigureLoader $figures,
+        private LinkLabels $links,
         private ElementShapeFactory $shapes,
         private FieldCodec $codec,
         private DocumentWriter $writer,
@@ -301,6 +303,14 @@ final readonly class PageExporter
                 $blocks[] = $this->collection($table, $record, $field, $child, $label, $languageId, $user, $labels, $state);
                 continue;
             }
+            if ($field->kind === FieldKind::Link) {
+                [$control, $manifestField] = $this->link($table, $record, $field, $label, $languageId, $user, $labels, $state);
+                $blocks[] = $control;
+                if ($manifestField !== null) {
+                    $manifestFields[$field->name] = $manifestField;
+                }
+                continue;
+            }
 
             $figures = $field->kind === FieldKind::File ? $this->figures->figures($table, $record, $field->name, (int)$user->workspace) : [];
             $content = $this->codec->export($field, $record, $headingLevel, $figures);
@@ -327,6 +337,32 @@ final readonly class PageExporter
         }
 
         return [$blocks, $manifestFields];
+    }
+
+    /**
+     * A link field, read-only: what it points to in words, linked to the stored target (as rich
+     * text links are), and the stored value in the manifest.
+     *
+     * @param array<string, mixed> $record
+     *
+     * @return array{0: ContentControl, 1: ?ManifestField}
+     */
+    private function link(string $table, array $record, FieldInfo $field, string $label, int $languageId, BackendUserAuthentication $user, LanguageService $labels, ExportState $state): array
+    {
+        $value = $record[$field->name] ?? '';
+        $value = is_scalar($value) ? trim((string)$value) : '';
+        $text = $value === '' ? '' : $this->links->label($value, (int)($record['pid'] ?? 0), $languageId, $user, $labels);
+        $blocks = $text === ''
+            ? $this->lockedSummary($field, new FieldContent([], '', true, 'lock.link'), $labels)
+            : [new Paragraph([new Link($this->links->target($value), [new Text($text)])])];
+        $control = new ContentControl(
+            $this->tag($state, $table, (int)$record['uid'], $field->name),
+            sprintf($this->label($labels, 'alias.readOnly'), $label),
+            $blocks,
+            ControlLock::SdtContentLocked,
+        );
+
+        return [$control, $value === '' ? null : new ManifestField($field->name, '', value: $value)];
     }
 
     /**

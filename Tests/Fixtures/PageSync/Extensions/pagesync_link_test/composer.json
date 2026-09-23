@@ -1,0 +1,14 @@
+{
+    "name": "webconsulting/pagesync-link-test",
+    "description": "Test fixture: a button element with a link field, for the readable link field tests",
+    "type": "typo3-cms-extension",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "typo3/cms-core": "*"
+    },
+    "extra": {
+        "typo3/cms": {
+            "extension-key": "pagesync_link_test"
+        }
+    }
+}
