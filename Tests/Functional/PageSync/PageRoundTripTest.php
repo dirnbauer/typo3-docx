@@ -297,26 +297,6 @@ final class PageRoundTripTest extends AbstractPageSyncTestCase
     /**
      * @return list<array<string, mixed>>
      */
-    private function elements(int $page): array
-    {
-        $query = $this->get(ConnectionPool::class)->getQueryBuilderForTable('tt_content');
-        $query->getRestrictions()->removeAll();
-
-        return $query->select('*')->from('tt_content')
-            ->where(
-                $query->expr()->eq('pid', $query->createNamedParameter($page, Connection::PARAM_INT)),
-                $query->expr()->eq('deleted', 0),
-                $query->expr()->eq('sys_language_uid', 0),
-                $query->expr()->eq('t3ver_wsid', 0),
-            )
-            ->orderBy('sorting')
-            ->executeQuery()
-            ->fetchAllAssociative();
-    }
-
-    /**
-     * @return list<array<string, mixed>>
-     */
     private function children(int $parent): array
     {
         $query = $this->get(ConnectionPool::class)->getQueryBuilderForTable('tx_pagesynctest_item');

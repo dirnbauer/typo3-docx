@@ -7,6 +7,7 @@ namespace Webconsulting\DocxEditor\Tests\Functional\PageSync;
 use Symfony\Component\Yaml\Yaml;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Core\Resource\StorageRepository;
@@ -16,6 +17,8 @@ use Webconsulting\DocxEditor\PageSync\Document\Block;
 use Webconsulting\DocxEditor\PageSync\Document\ContentControl;
 use Webconsulting\DocxEditor\PageSync\Document\DocxDocument;
 use Webconsulting\DocxEditor\PageSync\Ooxml\DocumentReader;
+use Webconsulting\DocxEditor\PageSync\Ooxml\DocumentWriter;
+use Webconsulting\DocxEditor\PageSync\Ooxml\WriteRequest;
 use Webconsulting\DocxEditor\Tests\Fixtures\PageSync\DocxFixtureBuilder;
 
 /**
@@ -94,6 +97,36 @@ abstract class AbstractPageSyncTestCase extends FunctionalTestCase
     }
 
     /**
+     * The document as Word would save it.
+     */
+    protected function binary(DocxDocument $document): string
+    {
+        return $this->get(DocumentWriter::class)->write(new WriteRequest($document->blocks, $document->manifest, $document->title));
+    }
+
+    /**
+     * Live content elements of a page in the default language, in order.
+     *
+     * @return list<array<string, mixed>>
+     */
+    protected function elements(int $page): array
+    {
+        $query = $this->get(ConnectionPool::class)->getQueryBuilderForTable('tt_content');
+        $query->getRestrictions()->removeAll();
+
+        return $query->select('*')->from('tt_content')
+            ->where(
+                $query->expr()->eq('pid', $query->createNamedParameter($page, Connection::PARAM_INT)),
+                $query->expr()->eq('deleted', 0),
+                $query->expr()->eq('sys_language_uid', 0),
+                $query->expr()->eq('t3ver_wsid', 0),
+            )
+            ->orderBy('sorting')
+            ->executeQuery()
+            ->fetchAllAssociative();
+    }
+
+    /**
      * @return array<string, mixed>
      */
     protected function row(string $table, int $uid): array
@@ -101,7 +134,7 @@ abstract class AbstractPageSyncTestCase extends FunctionalTestCase
         $query = $this->get(ConnectionPool::class)->getQueryBuilderForTable($table);
         $query->getRestrictions()->removeAll();
         $row = $query->select('*')->from($table)
-            ->where($query->expr()->eq('uid', $query->createNamedParameter($uid, \TYPO3\CMS\Core\Database\Connection::PARAM_INT)))
+            ->where($query->expr()->eq('uid', $query->createNamedParameter($uid, Connection::PARAM_INT)))
             ->executeQuery()
             ->fetchAssociative();
         self::assertIsArray($row, $table . ':' . $uid . ' does not exist');

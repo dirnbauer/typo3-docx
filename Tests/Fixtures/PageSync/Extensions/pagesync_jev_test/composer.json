@@ -1,0 +1,15 @@
+{
+    "name": "webconsulting/pagesync-jev-test",
+    "description": "Test fixture: replaces webcon_jev's HTTP client with a scripted one, so functional tests never call the API",
+    "type": "typo3-cms-extension",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "typo3/cms-core": "*",
+        "webconsulting/webcon-jev": "*"
+    },
+    "extra": {
+        "typo3/cms": {
+            "extension-key": "pagesync_jev_test"
+        }
+    }
+}
