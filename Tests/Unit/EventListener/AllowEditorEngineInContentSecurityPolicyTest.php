@@ -29,10 +29,22 @@ final class AllowEditorEngineInContentSecurityPolicyTest extends UnitTestCase
     }
 
     #[Test]
+    public function thePageEditorRouteRunsTheSameEngine(): void
+    {
+        $policy = $this->mutate(Scope::backend(), 'docx_editor_page');
+
+        self::assertTrue($policy->containsDirective(Directive::ScriptSrc, SourceKeyword::wasmUnsafeEval));
+        self::assertTrue($policy->containsDirective(Directive::ImgSrc, SourceScheme::blob));
+    }
+
+    #[Test]
     public function otherBackendRoutesAreLeftAlone(): void
     {
         self::assertTrue($this->mutate(Scope::backend(), 'media_management')->isEmpty());
         self::assertTrue($this->mutate(Scope::backend(), 'ajax_docx_editor_document_load')->isEmpty());
+        // The page round trip's other screens and endpoints do not render the engine.
+        self::assertTrue($this->mutate(Scope::backend(), 'docx_editor_page_new')->isEmpty());
+        self::assertTrue($this->mutate(Scope::backend(), 'ajax_docx_editor_page_preview')->isEmpty());
     }
 
     #[Test]

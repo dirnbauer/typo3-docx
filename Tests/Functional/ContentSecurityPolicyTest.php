@@ -44,6 +44,16 @@ final class ContentSecurityPolicyTest extends FunctionalTestCase
         self::assertTrue($policy->containsDirective(Directive::ObjectSrc, SourceKeyword::none));
     }
 
+    #[Test]
+    public function thePageEditorRouteAllowsTheSameEngine(): void
+    {
+        $policy = $this->policyFor('docx_editor_page');
+
+        self::assertTrue($policy->containsDirective(Directive::ScriptSrc, SourceKeyword::wasmUnsafeEval));
+        self::assertTrue($policy->containsDirective(Directive::ImgSrc, SourceScheme::blob));
+        self::assertFalse($policy->containsDirective(Directive::ScriptSrc, SourceKeyword::unsafeEval));
+    }
+
     /**
      * @return array<string, array{string}>
      */
@@ -53,6 +63,9 @@ final class ContentSecurityPolicyTest extends FunctionalTestCase
             'backend main frame' => ['main'],
             'file list' => ['media_management'],
             'editor AJAX route' => ['ajax_docx_editor_document_load'],
+            'import as subpages' => ['docx_editor_page_new'],
+            'page download' => ['docx_editor_page_download'],
+            'page preview AJAX route' => ['ajax_docx_editor_page_preview'],
         ];
     }
 
