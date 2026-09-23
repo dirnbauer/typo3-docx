@@ -101,7 +101,6 @@ final readonly class PageSyncController
             'bundleBuilt' => $bundleBuilt,
             'pageUid' => $pageUid,
             'languageId' => $languageId,
-            'languageTitle' => count($languages) > 1 ? $languages[$languageId]->getTitle() : '',
             'pageTitle' => (string)($pageInLanguage['title'] ?? ''),
             'editorLocale' => $this->editorRequestResolver->resolveEditorLocale($request),
             'returnUrl' => $returnUrl,

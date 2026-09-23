@@ -87,7 +87,7 @@ async function open() {
       dirtyBadge.hidden = true;
     }
     if (payload.skipped?.length) {
-      Notification.info(labels.get('ui.edit.skippedTitle'), labels.get('ui.edit.skipped', [payload.skipped.length]));
+      Notification.info(labels.get('ui.edit.skippedTitle'), labels.get('ui.edit.skipped', { count: payload.skipped.length }));
     }
   } catch (error) {
     Notification.error(labels.get('ui.error.open'), error?.message || String(error));

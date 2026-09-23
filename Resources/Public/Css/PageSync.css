@@ -125,3 +125,50 @@
 .page-sync-new__result {
     margin-top: 1.5rem;
 }
+
+/* Narrow screens: every element as a card instead of a table row. */
+@media (max-width: 767.98px) {
+    .page-sync-review__table,
+    .page-sync-review__table tbody {
+        display: block;
+    }
+
+    .page-sync-review__table thead {
+        clip: rect(0 0 0 0);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        width: 1px;
+    }
+
+    .page-sync-review__table tr {
+        align-items: start;
+        border-bottom: var(--typo3-component-border-width) solid var(--typo3-component-border-color);
+        display: grid;
+        gap: 0.25rem 0.75rem;
+        grid-template-columns: auto 1fr auto;
+        padding: 0.5rem 0;
+    }
+
+    .page-sync-review__table td {
+        border: 0;
+        padding: 0.25rem 0.5rem;
+    }
+
+    .page-sync-review__table td:first-child,
+    .page-sync-review__table td:nth-child(3) {
+        width: auto;
+    }
+
+    .page-sync-review__table td:nth-child(4) {
+        grid-column: 1 / -1;
+    }
+
+    .page-sync-review__table tr.page-sync-review__unchanged {
+        display: none;
+    }
+
+    .page-sync-review--all .page-sync-review__table tr.page-sync-review__unchanged {
+        display: grid;
+    }
+}

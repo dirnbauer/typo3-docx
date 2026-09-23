@@ -51,3 +51,25 @@ test('every label the scripts request exists in English and German', () => {
     assert.ok(german.has(key), `de.locallang.xlf lacks ${key}`);
   }
 });
+
+/**
+ * The page round trip's scripts ask the docx_editor.pagesync domain (`labels`, and
+ * the review's `label()` helper) and borrow the heading names from
+ * docx_editor.messages (`editorLabels`).
+ */
+test('every label the page round trip requests exists in English and German', () => {
+  const directory = join(root, 'Resources/Public/JavaScript/page-sync');
+  const pageSync = [unitIds('locallang_pagesync.xlf'), unitIds('de.locallang_pagesync.xlf')];
+  const messages = [unitIds('locallang.xlf'), unitIds('de.locallang.xlf')];
+  let found = 0;
+  for (const name of readdirSync(directory).filter((file) => file.endsWith('.js'))) {
+    const code = readFileSync(join(directory, name), 'utf8');
+    for (const match of code.matchAll(/(?<![A-Za-z])(labels\.get|label|editorLabels\.get)\('([^']+)'/g)) {
+      const [english, german] = match[1] === 'editorLabels.get' ? messages : pageSync;
+      assert.ok(english.has(match[2]), `${name}: English lacks ${match[2]}`);
+      assert.ok(german.has(match[2]), `${name}: German lacks ${match[2]}`);
+      found += 1;
+    }
+  }
+  assert.ok(found > 40, 'the scan found the label calls');
+});

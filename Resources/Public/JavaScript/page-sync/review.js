@@ -306,7 +306,7 @@ function renderPlan(plan, state) {
     });
     moves = h('div', { class: 'form-check page-sync-review__moves' }, [
       input,
-      text('label', label('ui.review.moves', [plan.moves.length]), { class: 'form-check-label', for: id }),
+      text('label', label('ui.review.moves', { count: plan.moves.length }), { class: 'form-check-label', for: id }),
     ]);
   }
 

@@ -488,7 +488,7 @@
     </unit>
     <unit id="ui.edit.skipped">
       <segment>
-        <source>%d elements are in containers or in columns the page layout does not show; edit them in the Page module.</source>
+        <source>{count, plural, one {# element is} other {# elements are}} in a container or in a column the page layout does not show; edit {count, plural, one {it} other {them}} in the Page module.</source>
       </segment>
     </unit>
     <unit id="ui.upload.dirtyTitle">
@@ -708,7 +708,7 @@
     </unit>
     <unit id="ui.review.moves">
       <segment>
-        <source>Apply the order of the Word document (%d elements move)</source>
+        <source>Apply the order of the Word document ({count, plural, one {# element moves} other {# elements move}})</source>
       </segment>
     </unit>
     <unit id="ui.review.cancel">

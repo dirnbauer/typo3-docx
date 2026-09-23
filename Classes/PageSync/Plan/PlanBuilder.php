@@ -262,7 +262,7 @@ final readonly class PlanBuilder
         $cType = (string)($record['CType'] ?? '');
         $shape = $this->shapes->forContentType($cType);
         $manifestRecord = $state->manifest?->record('tt_content', $uid);
-        $title = trim((string)($record['header'] ?? ''));
+        $title = $this->elementTitle($record);
         $translationSource = isset($state->sources[$uid]);
         $readOnly = $shape === null || $control->lock->forbidsEdit() || ($manifestRecord !== null && $manifestRecord->locked)
             || (!$state->user->isAdmin() && !$state->user->recordEditAccessInternals('tt_content', $record));
@@ -326,7 +326,7 @@ final readonly class PlanBuilder
             uid: $uid,
             type: $cType,
             colPos: $colPos,
-            title: trim((string)($record['header'] ?? '')),
+            title: $this->elementTitle($record),
             fields: $changes,
             children: $children,
             messages: [new PlanMessage('plan.message.recognisedBy.' . $by)],
@@ -706,7 +706,7 @@ final readonly class PlanBuilder
                 uid: $exported->uid,
                 type: (string)($record['CType'] ?? ''),
                 colPos: (int)($record['colPos'] ?? 0),
-                title: trim((string)($record['header'] ?? '')),
+                title: $this->elementTitle($record),
             );
         }
 
@@ -915,6 +915,31 @@ final readonly class PlanBuilder
         }
 
         return 0;
+    }
+
+    /**
+     * What the plan calls a content element: its header, or the first words of its content.
+     *
+     * @param array<string, mixed> $record
+     */
+    private function elementTitle(array $record): string
+    {
+        $header = trim((string)($record['header'] ?? ''));
+        $shape = $header === '' ? $this->shapes->forContentType((string)($record['CType'] ?? '')) : null;
+        if ($shape === null) {
+            return $header;
+        }
+        foreach ([FieldRole::Heading, FieldRole::Quote, FieldRole::Label, FieldRole::Subheading, FieldRole::Body, FieldRole::Value, FieldRole::Code] as $role) {
+            foreach ($shape->fieldsWithRole($role) as $field) {
+                $value = $record[$field->name] ?? '';
+                $text = is_scalar($value) ? trim(html_entity_decode(strip_tags((string)$value), ENT_QUOTES | ENT_HTML5)) : '';
+                if ($text !== '') {
+                    return self::preview($text, 80);
+                }
+            }
+        }
+
+        return '';
     }
 
     /**
