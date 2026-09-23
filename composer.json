@@ -26,6 +26,9 @@
     },
     "require": {
         "php": "^8.4",
+        "ext-dom": "*",
+        "ext-libxml": "*",
+        "ext-zip": "*",
         "typo3/cms-backend": "^14.3.7",
         "typo3/cms-core": "^14.3.7",
         "typo3/cms-filelist": "^14.3.7",
@@ -37,9 +40,22 @@
         "phpstan/phpstan-phpunit": "^2.0",
         "phpunit/phpunit": "^12.4 || ^13.0",
         "saschaegerer/phpstan-typo3": "^3.0",
+        "typo3/cms-rte-ckeditor": "^14.3.7",
+        "typo3/cms-workspaces": "^14.3.7",
         "typo3/coding-standards": "^0.9",
-        "typo3/testing-framework": "^9.5"
+        "typo3/testing-framework": "^9.5",
+        "webconsulting/webcon-jev": "^0.2.1"
     },
+    "suggest": {
+        "webconsulting/webcon-jev": "Lets Jev (TypeSafe AI) choose the content element type where the Word import cannot decide by structure alone (github.com/dirnbauer/typo3-webcon-jev)"
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/dirnbauer/typo3-webcon-jev.git",
+            "no-api": true
+        }
+    ],
     "autoload": {
         "psr-4": {
             "Webconsulting\\DocxEditor\\": "Classes/"
