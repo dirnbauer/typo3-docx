@@ -12,7 +12,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
  */
 final readonly class RevisionService
 {
-    private const TABLE = 'tx_docx_editor_revision';
+    private const string TABLE = 'tx_docx_editor_revision';
 
     public function __construct(
         private ConnectionPool $connectionPool,

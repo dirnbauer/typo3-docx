@@ -13,10 +13,10 @@
         <target>DOCX-Editor</target>
       </segment>
     </unit>
-    <unit id="editor.backToMedia">
+    <unit id="editor.heading">
       <segment>
-        <source>Back to Media</source>
-        <target>Zurück zu Medien</target>
+        <source>Edit %s</source>
+        <target>%s bearbeiten</target>
       </segment>
     </unit>
     <unit id="editor.download">
@@ -25,28 +25,40 @@
         <target>Herunterladen</target>
       </segment>
     </unit>
-    <unit id="editor.save">
-      <segment>
-        <source>Save</source>
-        <target>Speichern</target>
-      </segment>
-    </unit>
     <unit id="editor.saveAs">
       <segment>
         <source>Save as…</source>
         <target>Speichern unter…</target>
       </segment>
     </unit>
-    <unit id="editor.saveAsPrompt">
+    <unit id="editor.saveAs.title">
       <segment>
-        <source>Save as (file name)</source>
-        <target>Speichern unter (Dateiname)</target>
+        <source>Save as</source>
+        <target>Speichern unter</target>
+      </segment>
+    </unit>
+    <unit id="editor.saveAs.fileName">
+      <segment>
+        <source>File name</source>
+        <target>Dateiname</target>
+      </segment>
+    </unit>
+    <unit id="editor.saveAs.submit">
+      <segment>
+        <source>Save</source>
+        <target>Speichern</target>
       </segment>
     </unit>
     <unit id="editor.saveAsSuccess">
       <segment>
         <source>Document saved to the selected folder.</source>
         <target>Dokument im gewählten Ordner gespeichert.</target>
+      </segment>
+    </unit>
+    <unit id="editor.cancel">
+      <segment>
+        <source>Cancel</source>
+        <target>Abbrechen</target>
       </segment>
     </unit>
     <unit id="editor.saved">
@@ -67,10 +79,22 @@
         <target>Speichern fehlgeschlagen</target>
       </segment>
     </unit>
-    <unit id="editor.remoteUpdate">
+    <unit id="editor.notReady">
       <segment>
-        <source>Another editor saved a newer version.</source>
-        <target>Eine neuere Version wurde von einer anderen Person gespeichert.</target>
+        <source>The document is still loading.</source>
+        <target>Das Dokument wird noch geladen.</target>
+      </segment>
+    </unit>
+    <unit id="editor.conflict.title">
+      <segment>
+        <source>Newer version available</source>
+        <target>Neuere Version vorhanden</target>
+      </segment>
+    </unit>
+    <unit id="editor.conflict.text">
+      <segment>
+        <source>Another editor saved a newer version of this document. Reload it before you continue; changes you have not saved yet will be lost.</source>
+        <target>Eine andere Person hat eine neuere Version dieses Dokuments gespeichert. Laden Sie es neu, bevor Sie weiterarbeiten; noch nicht gespeicherte Änderungen gehen dabei verloren.</target>
       </segment>
     </unit>
     <unit id="editor.reload">
@@ -81,8 +105,8 @@
     </unit>
     <unit id="editor.collaborators">
       <segment>
-        <source>{count, plural, one {1 editor online} other {# editors online}}</source>
-        <target>{count, plural, one {1 Bearbeiter online} other {# Bearbeiter online}}</target>
+        <source>{count, plural, one {# editor online} other {# editors online}}</source>
+        <target>{count, plural, one {# Person online} other {# Personen online}}</target>
       </segment>
     </unit>
     <unit id="editor.loading">
@@ -145,10 +169,16 @@
         <target>Überschrift 4</target>
       </segment>
     </unit>
+    <unit id="editor.buildMissing.title">
+      <segment>
+        <source>Editor assets missing</source>
+        <target>Editor-Assets fehlen</target>
+      </segment>
+    </unit>
     <unit id="editor.buildMissing">
       <segment>
-        <source>Frontend assets are missing. Run <code>npm install</code> and <code>npm run build</code> in the extension directory.</source>
-        <target>Frontend-Assets fehlen. Führen Sie <code>npm install</code> und <code>npm run build</code> im Extension-Verzeichnis aus.</target>
+        <source>The editor bundle has not been built. Run npm ci and npm run build in the extension directory.</source>
+        <target>Das Editor-Bundle wurde nicht gebaut. Führen Sie npm ci und npm run build im Extension-Verzeichnis aus.</target>
       </segment>
     </unit>
     <unit id="error.title">
@@ -157,10 +187,154 @@
         <target>Dokument kann nicht geöffnet werden</target>
       </segment>
     </unit>
-    <unit id="error.missingFile">
+    <unit id="error.missingFileIdentifier">
       <segment>
         <source>No file was selected. Open a .docx file from the file list.</source>
         <target>Keine Datei ausgewählt. Öffnen Sie eine .docx-Datei über die Dateiliste.</target>
+      </segment>
+    </unit>
+    <unit id="error.fileNotFound">
+      <segment>
+        <source>The file does not exist.</source>
+        <target>Die Datei existiert nicht.</target>
+      </segment>
+    </unit>
+    <unit id="error.notDocx">
+      <segment>
+        <source>Only .docx files can be edited.</source>
+        <target>Nur .docx-Dateien können bearbeitet werden.</target>
+      </segment>
+    </unit>
+    <unit id="error.missingFolderIdentifier">
+      <segment>
+        <source>No folder was selected.</source>
+        <target>Kein Ordner ausgewählt.</target>
+      </segment>
+    </unit>
+    <unit id="error.folderNotFound">
+      <segment>
+        <source>The folder does not exist.</source>
+        <target>Der Ordner existiert nicht.</target>
+      </segment>
+    </unit>
+    <unit id="error.unreadable">
+      <segment>
+        <source>The file could not be read.</source>
+        <target>Die Datei konnte nicht gelesen werden.</target>
+      </segment>
+    </unit>
+    <unit id="error.uploadPreparation">
+      <segment>
+        <source>The file could not be prepared for storing.</source>
+        <target>Die Datei konnte nicht zum Speichern vorbereitet werden.</target>
+      </segment>
+    </unit>
+    <unit id="error.invalidDocx">
+      <segment>
+        <source>The content is not a valid .docx document.</source>
+        <target>Der Inhalt ist kein gültiges .docx-Dokument.</target>
+      </segment>
+    </unit>
+    <unit id="error.storageRejected">
+      <segment>
+        <source>The storage did not accept the file: %s</source>
+        <target>Der Speicher hat die Datei nicht angenommen: %s</target>
+      </segment>
+    </unit>
+    <unit id="error.notDocxCreated">
+      <segment>
+        <source>Only .docx files can be created.</source>
+        <target>Es können nur .docx-Dateien angelegt werden.</target>
+      </segment>
+    </unit>
+    <unit id="error.fileNameRequired">
+      <segment>
+        <source>Enter a file name.</source>
+        <target>Geben Sie einen Dateinamen ein.</target>
+      </segment>
+    </unit>
+    <unit id="error.invalidFileName">
+      <segment>
+        <source>This file name cannot be used.</source>
+        <target>Dieser Dateiname kann nicht verwendet werden.</target>
+      </segment>
+    </unit>
+    <unit id="error.noStorageAccess.read">
+      <segment>
+        <source>You have no read access to this storage.</source>
+        <target>Sie haben keinen Lesezugriff auf diesen Speicher.</target>
+      </segment>
+    </unit>
+    <unit id="error.noStorageAccess.write">
+      <segment>
+        <source>You have no write access to this storage.</source>
+        <target>Sie haben keinen Schreibzugriff auf diesen Speicher.</target>
+      </segment>
+    </unit>
+    <unit id="error.noFileAccess.read">
+      <segment>
+        <source>You may not read this file.</source>
+        <target>Sie dürfen diese Datei nicht lesen.</target>
+      </segment>
+    </unit>
+    <unit id="error.noFileAccess.write">
+      <segment>
+        <source>You may not change this file.</source>
+        <target>Sie dürfen diese Datei nicht ändern.</target>
+      </segment>
+    </unit>
+    <unit id="error.noFolderAccess">
+      <segment>
+        <source>You may not save files in this folder.</source>
+        <target>Sie dürfen in diesem Ordner keine Dateien speichern.</target>
+      </segment>
+    </unit>
+    <unit id="error.noAddAccess">
+      <segment>
+        <source>You may not add files to this storage.</source>
+        <target>Sie dürfen in diesem Speicher keine Dateien anlegen.</target>
+      </segment>
+    </unit>
+    <unit id="error.invalidRequest">
+      <segment>
+        <source>The request could not be read.</source>
+        <target>Die Anfrage konnte nicht gelesen werden.</target>
+      </segment>
+    </unit>
+    <unit id="error.conflict">
+      <segment>
+        <source>Another editor saved a newer version. Reload the document to continue.</source>
+        <target>Eine andere Person hat eine neuere Version gespeichert. Laden Sie das Dokument neu, um weiterzuarbeiten.</target>
+      </segment>
+    </unit>
+    <unit id="error.missingDocument">
+      <segment>
+        <source>The document content is missing.</source>
+        <target>Der Dokumentinhalt fehlt.</target>
+      </segment>
+    </unit>
+    <unit id="error.invalidPayload">
+      <segment>
+        <source>The document content could not be decoded.</source>
+        <target>Der Dokumentinhalt konnte nicht dekodiert werden.</target>
+      </segment>
+    </unit>
+    <unit id="error.missingSession">
+      <segment>
+        <source>The editing session is missing.</source>
+        <target>Die Bearbeitungssitzung fehlt.</target>
+      </segment>
+    </unit>
+    <unit id="error.invalidResponse">
+      <segment>
+        <source>The server sent an answer the editor cannot read.</source>
+        <target>Der Server hat eine Antwort gesendet, die der Editor nicht lesen kann.</target>
+      </segment>
+    </unit>
+    <unit id="error.requestFailed">
+      <segment>
+        <source>The request failed.</source>
+        <target>Die Anfrage ist fehlgeschlagen.</target>
       </segment>
     </unit>
   </file>

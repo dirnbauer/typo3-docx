@@ -51,7 +51,7 @@ final readonly class DocumentApiController extends AbstractDocxApiController
             $expectedRevision = $this->intValue($body, 'revision', -1);
             $current = $this->revisionService->getRevisionState($file->getCombinedIdentifier());
             if ($expectedRevision >= 0 && $current['revision'] !== $expectedRevision) {
-                throw new DocxEditorException('Document was updated by another editor. Reload to continue.', 409);
+                throw new DocxEditorException('error.conflict', 409);
             }
 
             $file->setContents($binary);
@@ -66,7 +66,7 @@ final readonly class DocumentApiController extends AbstractDocxApiController
             $body = $this->parseRequestPayload($request);
             $folderIdentifier = $this->stringValue($body, 'folder');
             if ($folderIdentifier === '') {
-                throw new DocxEditorException('Missing folder identifier.', 400);
+                throw new DocxEditorException('error.missingFolderIdentifier', 400);
             }
             $binary = $this->decodeDocument($body);
 
@@ -90,11 +90,11 @@ final readonly class DocumentApiController extends AbstractDocxApiController
     {
         $encoded = $this->stringValue($body, 'data');
         if ($encoded === '') {
-            throw new DocxEditorException('Missing document payload.', 400);
+            throw new DocxEditorException('error.missingDocument', 400);
         }
         $binary = base64_decode($encoded, true);
         if ($binary === false) {
-            throw new DocxEditorException('Invalid base64 payload.', 400);
+            throw new DocxEditorException('error.invalidPayload', 400);
         }
 
         return $binary;

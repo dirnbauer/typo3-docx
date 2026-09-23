@@ -41,7 +41,7 @@ final class CollaborationApiControllerTest extends AbstractBackendRouteTestCase
         $response = $this->post(1, 'heartbeat', ['file' => self::DOCX]);
 
         self::assertSame(400, $response->getStatusCode());
-        self::assertSame('Missing session.', self::json($response)['error']);
+        self::assertSame('The editing session is missing.', self::json($response)['error']);
     }
 
     #[Test]

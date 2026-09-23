@@ -20,7 +20,7 @@ use Webconsulting\DocxEditor\Exception\DocxEditorException;
  */
 final readonly class DocxFileService
 {
-    private const EXTENSION = 'docx';
+    private const string EXTENSION = 'docx';
 
     public function __construct(
         private ResourceFactory $resourceFactory,
@@ -35,15 +35,15 @@ final readonly class DocxFileService
     {
         $combinedIdentifier = trim($combinedIdentifier);
         if ($combinedIdentifier === '') {
-            throw new DocxEditorException('Missing file identifier.', 400);
+            throw new DocxEditorException('error.missingFileIdentifier', 400);
         }
 
         $resource = $this->resourceFactory->retrieveFileOrFolderObject($combinedIdentifier);
         if (!$resource instanceof File) {
-            throw new DocxEditorException('File not found.', 404);
+            throw new DocxEditorException('error.fileNotFound', 404);
         }
         if (!$this->isDocxFile($resource)) {
-            throw new DocxEditorException('Only .docx files can be edited.', 415);
+            throw new DocxEditorException('error.notDocx', 415);
         }
 
         return $resource;
@@ -53,12 +53,12 @@ final readonly class DocxFileService
     {
         $combinedIdentifier = trim($combinedIdentifier);
         if ($combinedIdentifier === '') {
-            throw new DocxEditorException('Missing folder identifier.', 400);
+            throw new DocxEditorException('error.missingFolderIdentifier', 400);
         }
 
         $resource = $this->resourceFactory->retrieveFileOrFolderObject($combinedIdentifier);
         if (!$resource instanceof Folder) {
-            throw new DocxEditorException('Folder not found.', 404);
+            throw new DocxEditorException('error.folderNotFound', 404);
         }
 
         return $resource;
@@ -88,7 +88,7 @@ final readonly class DocxFileService
     {
         $contents = $file->getContents();
         if ($contents === '' && $file->getSize() > 0) {
-            throw new DocxEditorException('Could not read file contents.', 500);
+            throw new DocxEditorException('error.unreadable', 500);
         }
 
         return $contents;
@@ -104,16 +104,16 @@ final readonly class DocxFileService
 
         $temporaryFile = GeneralUtility::tempnam('docx_editor_');
         if (file_put_contents($temporaryFile, $binary) === false) {
-            throw new DocxEditorException('Could not prepare file for upload.', 500);
+            throw new DocxEditorException('error.uploadPreparation', 500);
         }
 
         try {
             $file = $folder->getStorage()->addFile($temporaryFile, $folder, $fileName, DuplicationBehavior::RENAME);
         } catch (ResultException $exception) {
             // FAL's consistency check: the bytes are not a Word document.
-            throw new DocxEditorException('The content is not a valid .docx document.', 415, $exception);
+            throw new DocxEditorException('error.invalidDocx', 415, previous: $exception);
         } catch (ResourceException $exception) {
-            throw new DocxEditorException($exception->getMessage(), 400, $exception);
+            throw new DocxEditorException('error.storageRejected', 400, [$exception->getMessage()], $exception);
         } finally {
             if (is_file($temporaryFile)) {
                 unlink($temporaryFile);
@@ -121,7 +121,7 @@ final readonly class DocxFileService
         }
 
         if (!$this->isDocxFile($file)) {
-            throw new DocxEditorException('Only .docx files can be created.', 415);
+            throw new DocxEditorException('error.notDocxCreated', 415);
         }
 
         return $file;
@@ -155,12 +155,12 @@ final readonly class DocxFileService
     {
         $fileName = trim($fileName);
         if ($fileName === '') {
-            throw new DocxEditorException('File name is required.', 400);
+            throw new DocxEditorException('error.fileNameRequired', 400);
         }
 
         $fileName = basename(str_replace('\\', '/', $fileName));
         if ($fileName === '' || $fileName === '.' || $fileName === '..') {
-            throw new DocxEditorException('Invalid file name.', 400);
+            throw new DocxEditorException('error.invalidFileName', 400);
         }
 
         if (!str_ends_with(strtolower($fileName), '.' . self::EXTENSION)) {
@@ -178,13 +178,13 @@ final readonly class DocxFileService
         $storage = $file->getStorage();
         $backendUser = $this->getBackendUser();
         if (!$backendUser->isAdmin() && !$backendUser->check($action, $storage->getUid() . ':')) {
-            throw new DocxEditorException(sprintf('No %s permission for this storage.', $action), 403);
+            throw new DocxEditorException('error.noStorageAccess.' . $action, 403);
         }
 
         try {
             $storage->checkFileActionPermission($action, $file);
         } catch (InsufficientFileAccessPermissionsException $exception) {
-            throw new DocxEditorException(sprintf('No %s permission for this file.', $action), 403, $exception);
+            throw new DocxEditorException('error.noFileAccess.' . $action, 403, previous: $exception);
         }
     }
 
@@ -193,13 +193,13 @@ final readonly class DocxFileService
         $storage = $folder->getStorage();
         $backendUser = $this->getBackendUser();
         if (!$backendUser->isAdmin() && !$backendUser->check('write', $storage->getUid() . ':')) {
-            throw new DocxEditorException('No write permission for this storage.', 403);
+            throw new DocxEditorException('error.noStorageAccess.write', 403);
         }
         if (!$folder->checkActionPermission('write')) {
-            throw new DocxEditorException('No write permission for this folder.', 403);
+            throw new DocxEditorException('error.noFolderAccess', 403);
         }
         if (!$storage->checkUserActionPermission('add', 'File')) {
-            throw new DocxEditorException('You are not allowed to add files in this storage.', 403);
+            throw new DocxEditorException('error.noAddAccess', 403);
         }
     }
 

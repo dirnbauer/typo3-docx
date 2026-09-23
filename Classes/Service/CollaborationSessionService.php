@@ -15,8 +15,8 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
  */
 final readonly class CollaborationSessionService
 {
-    private const TABLE = 'tx_docx_editor_session';
-    private const HEARTBEAT_TTL = 45;
+    private const string TABLE = 'tx_docx_editor_session';
+    private const int HEARTBEAT_TTL = 45;
 
     public function __construct(
         private ConnectionPool $connectionPool,

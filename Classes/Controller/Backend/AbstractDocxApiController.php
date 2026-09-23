@@ -7,11 +7,13 @@ namespace Webconsulting\DocxEditor\Controller\Backend;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Http\JsonResponse;
+use TYPO3\CMS\Core\Localization\LanguageService;
 use Webconsulting\DocxEditor\Exception\DocxEditorException;
 
 /**
  * JSON envelope shared by the AJAX controllers: `{ok: true, ...payload}` on
- * success, `{ok: false, error}` with the exception's HTTP status on failure.
+ * success, `{ok: false, error}` with the exception's HTTP status on failure;
+ * the error is translated into the backend user's language.
  */
 abstract readonly class AbstractDocxApiController
 {
@@ -23,8 +25,13 @@ abstract readonly class AbstractDocxApiController
         try {
             return new JsonResponse(['ok' => true] + $action());
         } catch (DocxEditorException $exception) {
+            $languageService = $GLOBALS['LANG'] ?? null;
+
             return new JsonResponse(
-                ['ok' => false, 'error' => $exception->getMessage()],
+                [
+                    'ok' => false,
+                    'error' => $exception->localizedMessage($languageService instanceof LanguageService ? $languageService : null),
+                ],
                 $exception->getStatusCode(),
             );
         }
@@ -45,10 +52,10 @@ abstract readonly class AbstractDocxApiController
         try {
             $decoded = json_decode((string)$request->getBody(), true, 512, JSON_THROW_ON_ERROR);
         } catch (\JsonException) {
-            throw new DocxEditorException('Invalid request body.', 400);
+            throw new DocxEditorException('error.invalidRequest', 400);
         }
         if (!is_array($decoded)) {
-            throw new DocxEditorException('Invalid request body.', 400);
+            throw new DocxEditorException('error.invalidRequest', 400);
         }
 
         return $decoded;

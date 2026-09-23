@@ -44,7 +44,7 @@ final readonly class CollaborationApiController extends AbstractDocxApiControlle
             $file = $this->readableFile($this->stringValue($body, 'file'));
             $sessionUid = $this->intValue($body, 'sessionUid');
             if ($sessionUid <= 0) {
-                throw new DocxEditorException('Missing session.', 400);
+                throw new DocxEditorException('error.missingSession', 400);
             }
             $fileHash = $this->docxFileService->getFileHash($file);
             $this->collaborationSessionService->heartbeat($fileHash, $sessionUid);

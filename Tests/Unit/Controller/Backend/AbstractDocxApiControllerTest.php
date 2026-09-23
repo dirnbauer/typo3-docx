@@ -18,6 +18,7 @@ final class AbstractDocxApiControllerTest extends UnitTestCase
 {
     private TestableDocxApiController $controller;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -38,11 +39,11 @@ final class AbstractDocxApiControllerTest extends UnitTestCase
     public function respondMapsDocxEditorExceptionsToErrorResponses(int $code, int $expectedStatus): void
     {
         $response = $this->controller->run(static function () use ($code): array {
-            throw new DocxEditorException('Boom', $code);
+            throw new DocxEditorException('error.boom', $code);
         });
 
         self::assertSame($expectedStatus, $response->getStatusCode());
-        self::assertSame(['ok' => false, 'error' => 'Boom'], self::decode($response));
+        self::assertSame(['ok' => false, 'error' => 'error.boom'], self::decode($response), 'without a language service the key is the message');
     }
 
     /**
