@@ -1,5 +1,5 @@
 <script setup>
-import { computed, h, provide } from 'vue';
+import { computed, defineComponent, h, provide } from 'vue';
 import {
   DocxEditorContent,
   DocxEditorContentControl,
@@ -35,10 +35,15 @@ import { engineLocale } from './i18n.js';
  * the packaged <DocxEditor> renders; composition is what allows the
  * overrides.
  *
- * Review keeps the rows the open-source engine drives (paragraph marks,
- * forms protection); tracked-change navigation, accept/reject, markup views
- * and comments need the commercial @docx-editor.dev/pro review module, which
- * this extension does not ship. Such content in a document is kept on save.
+ * Only the Apache-2.0 packages are used. Everything that belongs to the
+ * commercial @docx-editor.dev/pro package is left out of the chrome, not just
+ * disabled: the Suggesting editing mode (with it the whole editing-mode
+ * switch), the Comments & Changes toggle, the reviewers list, tracked-change
+ * navigation, accept/reject and markup views, and "Add a comment" in the
+ * context menu. Review keeps the rows the open-source engine drives
+ * (paragraph marks, forms protection). The engine still shows tracked
+ * changes in their final state and keeps them and comments on save.
+ * Build/Tests/chrome.test.js holds the chrome to that.
  */
 const props = defineProps({
   document: { type: Uint8Array, default: undefined },
@@ -60,6 +65,11 @@ provide(PageNumberTranslationContext, (key) => t(key));
 
 const showContentControls = computed(() => props.contentControls === 'show');
 
+// The preset context menu's "Add a comment…" row (review.comments) needs the
+// commercial review module: replaced by a row that renders nothing.
+const NoCommentRow = defineComponent({ name: 'WebconNoCommentRow', setup: () => () => null });
+NoCommentRow.docxRow = 'review.comments';
+
 const popups = computed(() => ({
   hyperlink: (popupProps) => h(DocxEditorHyperLink, popupProps),
   contentControl: (popupProps) =>
@@ -69,7 +79,7 @@ const popups = computed(() => ({
         })
       : h(DocxEditorContentControl, popupProps),
   equation: () => h(DocxEditorEquation),
-  contextMenu: (popupProps) => h(DocxEditorContextMenu, { ...popupProps, t }),
+  contextMenu: (popupProps) => h(DocxEditorContextMenu, { ...popupProps, t }, { default: () => [h(NoCommentRow)] }),
 }));
 
 const tableInteractionLabel = (key) => t(key);
@@ -100,6 +110,7 @@ const MenuPageSetup = DocxEditorMenu.PageSetup;
 const MenuRow = DocxEditorMenu.Row;
 const ToolbarComments = DocxEditorToolbar.Comments;
 const ToolbarEditingMode = DocxEditorToolbar.EditingMode;
+const ToolbarReviewers = DocxEditorToolbar.Reviewers;
 const ToolbarContentControlRemove = DocxEditorToolbar.ContentControlRemove;
 </script>
 
@@ -144,7 +155,8 @@ const ToolbarContentControlRemove = DocxEditorToolbar.ContentControlRemove;
         <DocxEditorToolbar class="webcon-docx-editor__toolbar" :on-save="readOnly ? undefined : requestSave">
           <CuratedStylePicker :labels="labels" />
           <ToolbarComments hidden />
-          <ToolbarEditingMode v-if="readOnly" hidden />
+          <ToolbarReviewers hidden />
+          <ToolbarEditingMode hidden />
           <ToolbarContentControlRemove v-if="showContentControls" hidden />
           <HeadingButtons v-if="!readOnly" :labels="labels" />
         </DocxEditorToolbar>

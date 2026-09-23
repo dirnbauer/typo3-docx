@@ -126,7 +126,7 @@ jobs:
       - name: Audit npm dependencies
         run: npm audit --audit-level=high
 
-      - name: Round-trip, catalogue and label tests
+      - name: Round-trip, chrome, licence, catalogue and label tests
         run: npm run test:build
 
       - name: Build
