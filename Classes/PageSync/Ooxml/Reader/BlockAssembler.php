@@ -181,7 +181,15 @@ final class BlockAssembler
 
     private static function looksLikeAttribution(RawParagraph $paragraph): bool
     {
-        $text = trim($paragraph->text());
+        return self::isAttributionText($paragraph->text());
+    }
+
+    /**
+     * A short dash-led line: "— Jane Doe, CEO".
+     */
+    public static function isAttributionText(string $text): bool
+    {
+        $text = trim($text);
 
         return $text !== ''
             && mb_strlen($text) <= self::MAX_CITATION_LENGTH
@@ -193,7 +201,7 @@ final class BlockAssembler
      *
      * @return list<Inline>
      */
-    private static function stripAttributionDash(array $inlines): array
+    public static function stripAttributionDash(array $inlines): array
     {
         $inlines = self::withoutImages($inlines);
         foreach ($inlines as $index => $inline) {

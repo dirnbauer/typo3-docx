@@ -282,7 +282,7 @@ final readonly class DocumentWriter
             return null;
         }
         $hyperlink = $this->element($document, 'hyperlink');
-        if (str_starts_with($href, '#')) {
+        if (str_starts_with($href, '#') && strlen($href) > 1) {
             $hyperlink->setAttributeNS(Ns::W, 'w:anchor', substr($href, 1));
         } else {
             // Relationship targets are URIs: whitespace and control characters are not allowed.

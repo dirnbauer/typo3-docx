@@ -25,6 +25,7 @@ use Webconsulting\DocxEditor\PageSync\Document\TableRow;
 use Webconsulting\DocxEditor\PageSync\Document\Text;
 use Webconsulting\DocxEditor\PageSync\Html\BlocksToHtml;
 use Webconsulting\DocxEditor\PageSync\Html\HtmlToBlocks;
+use Webconsulting\DocxEditor\PageSync\Ooxml\Reader\BlockAssembler;
 use Webconsulting\DocxEditor\PageSync\Schema\FieldInfo;
 use Webconsulting\DocxEditor\PageSync\Schema\FieldKind;
 use Webconsulting\DocxEditor\PageSync\Schema\FieldRole;
@@ -190,9 +191,76 @@ final readonly class FieldCodec
      */
     private function canonicalRichText(array $blocks): string
     {
-        $html = $this->blocksToHtml->convert(self::withoutFigures($blocks));
+        $html = $this->blocksToHtml->convert(self::asWordReadsIt(self::withoutFigures($blocks)));
 
         return $this->blocksToHtml->convert($this->htmlToBlocks->convert($html));
+    }
+
+    /**
+     * The structure as Word gives it back. Word cannot keep two quotes or two code blocks apart
+     * that follow each other, reads a paragraph set entirely in code as a code block and a short
+     * dash-led line after (or at the end of) a quote as its attribution. Both sides of a
+     * comparison go through this, so such differences are not a change.
+     *
+     * @param list<Block> $blocks
+     *
+     * @return list<Block>
+     */
+    private static function asWordReadsIt(array $blocks): array
+    {
+        $result = [];
+        foreach ($blocks as $block) {
+            if ($block instanceof Paragraph && $block->role === ParagraphRole::Body && self::isAllCode($block->inlines)) {
+                $block = new CodeBlock(PlainText::ofInlines($block->inlines));
+            }
+            if ($block instanceof Quote && $block->citation === [] && count($block->paragraphs) > 1) {
+                $last = $block->paragraphs[count($block->paragraphs) - 1];
+                if (BlockAssembler::isAttributionText(PlainText::ofInlines($last->inlines))) {
+                    $block = new Quote(array_slice($block->paragraphs, 0, -1), BlockAssembler::stripAttributionDash($last->inlines));
+                }
+            }
+            $key = array_key_last($result);
+            $previous = $key === null ? null : $result[$key];
+            if ($key !== null && $previous instanceof Quote && $previous->citation === []) {
+                if ($block instanceof Quote) {
+                    $result[$key] = new Quote([...$previous->paragraphs, ...$block->paragraphs], $block->citation);
+                    continue;
+                }
+                if ($block instanceof Paragraph && $block->role === ParagraphRole::Body && BlockAssembler::isAttributionText(PlainText::ofInlines($block->inlines))) {
+                    $result[$key] = new Quote($previous->paragraphs, BlockAssembler::stripAttributionDash($block->inlines));
+                    continue;
+                }
+            }
+            if ($key !== null && $previous instanceof CodeBlock && $block instanceof CodeBlock) {
+                $result[$key] = new CodeBlock($previous->code . "\n" . $block->code);
+                continue;
+            }
+            $result[] = $block;
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param list<Inline> $inlines
+     */
+    private static function isAllCode(array $inlines): bool
+    {
+        $hasCode = false;
+        foreach ($inlines as $inline) {
+            if (!$inline instanceof Text) {
+                return false;
+            }
+            if (trim($inline->text) === '') {
+                continue;
+            }
+            if (!$inline->marks->code) {
+                return false;
+            }
+            $hasCode = true;
+        }
+
+        return $hasCode;
     }
 
     /**
