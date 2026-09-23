@@ -6,7 +6,8 @@ namespace Webconsulting\DocxEditor\PageSync\Manifest;
 
 /**
  * One exported field and the hash of the value it had in the export — the base of the
- * three-way comparison between Word, TYPO3 and the export.
+ * three-way comparison between Word, TYPO3 and the export. Collections and read-only fields
+ * have no hash; they are listed only when their control's tag is a short reference.
  */
 final readonly class ManifestField
 {

@@ -368,7 +368,7 @@ final readonly class PlanBuilder
                 continue;
             }
             $manifestField = $manifestRecord?->field($field->name);
-            if ($manifestRecord !== null && $manifestField === null && $state->trusted()) {
+            if ($manifestRecord !== null && ($manifestField === null || $manifestField->hash === '') && $state->trusted()) {
                 // Read-only in the export (no hash was recorded for it).
                 continue;
             }

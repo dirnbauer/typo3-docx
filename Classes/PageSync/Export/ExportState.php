@@ -91,6 +91,14 @@ final class ExportState
                     $this->fieldReferences[$key . ':' . $name] ?? 0,
                 );
             }
+            // Collections and read-only fields have no hash, but a control whose tag may be a
+            // reference: without an entry the import could not resolve it.
+            foreach ($this->fieldReferences as $fieldKey => $reference) {
+                $name = substr($fieldKey, strlen($key) + 1);
+                if (str_starts_with($fieldKey, $key . ':') && !str_contains($name, ':') && !isset($fields[$name])) {
+                    $fields[$name] = new ManifestField($name, '', 0, $reference);
+                }
+            }
             $records[$key] = new ManifestRecord(
                 table: $record->table,
                 uid: $record->uid,
