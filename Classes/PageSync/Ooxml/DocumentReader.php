@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Webconsulting\DocxEditor\PageSync\Ooxml;
 
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Webconsulting\DocxEditor\PageSync\Document\Block;
 use Webconsulting\DocxEditor\PageSync\Document\Bookmark;
 use Webconsulting\DocxEditor\PageSync\Document\ContentControl;
@@ -40,6 +41,7 @@ use Webconsulting\DocxEditor\PageSync\Ooxml\Reader\ReadContext;
  * as gone. Everything visual — fonts, colours, sizes, spacing, alignment — belongs to the site's
  * CSS and is dropped.
  */
+#[Autoconfigure(public: true)]
 final readonly class DocumentReader
 {
     public function __construct(

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Webconsulting\DocxEditor\PageSync\Ooxml;
 
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Webconsulting\DocxEditor\PageSync\Document\Block;
 use Webconsulting\DocxEditor\PageSync\Document\Bookmark;
@@ -36,6 +37,7 @@ use Webconsulting\DocxEditor\PageSync\Ooxml\Writer\WriterState;
  * lists, tables with header rows, embedded pictures with alt text, and the content controls,
  * bookmarks and manifest the round trip needs.
  */
+#[Autoconfigure(public: true)]
 final readonly class DocumentWriter
 {
     /** The text width of an A4 page with 2.5 cm margins, in EMU. */

@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:2.0" version="2.0" srcLang="en">
+  <file id="pagesync" original="pagesync">
+    <unit id="export.alias.pageTitle">
+      <segment>
+        <source>Page title</source>
+      </segment>
+    </unit>
+    <unit id="export.alias.column">
+      <segment>
+        <source>Column: %s</source>
+      </segment>
+    </unit>
+    <unit id="export.alias.readOnly">
+      <segment>
+        <source>%s (read-only)</source>
+      </segment>
+    </unit>
+    <unit id="export.alias.untranslated">
+      <segment>
+        <source>%s (not translated yet)</source>
+      </segment>
+    </unit>
+    <unit id="export.summary.element">
+      <segment>
+        <source>%s — this element is edited in TYPO3.</source>
+      </segment>
+    </unit>
+    <unit id="export.summary.lock.field">
+      <segment>
+        <source>This field is edited in TYPO3.</source>
+      </segment>
+    </unit>
+    <unit id="export.summary.lock.link">
+      <segment>
+        <source>Link — edited in TYPO3.</source>
+      </segment>
+    </unit>
+    <unit id="export.summary.lock.files">
+      <segment>
+        <source>Files — edited in TYPO3.</source>
+      </segment>
+    </unit>
+    <unit id="export.summary.lock.embeddedContent">
+      <segment>
+        <source>Contains embedded media — edit this text in TYPO3.</source>
+      </segment>
+    </unit>
+    <unit id="export.summary.lock.definitionList">
+      <segment>
+        <source>Definition list — edited in TYPO3.</source>
+      </segment>
+    </unit>
+    <unit id="export.summary.lock.unsupportedField">
+      <segment>
+        <source>This field cannot be edited in Word.</source>
+      </segment>
+    </unit>
+    <unit id="error.notADocx">
+      <segment>
+        <source>The file is not a Word document (.docx).</source>
+      </segment>
+    </unit>
+    <unit id="error.fileTooLarge">
+      <segment>
+        <source>The Word document is larger than %d MB.</source>
+      </segment>
+    </unit>
+    <unit id="error.tooManyParts">
+      <segment>
+        <source>The Word document consists of more than %d parts and is refused.</source>
+      </segment>
+    </unit>
+    <unit id="error.unsafePartName">
+      <segment>
+        <source>The Word document contains a part with an invalid name (%s).</source>
+      </segment>
+    </unit>
+    <unit id="error.partTooLarge">
+      <segment>
+        <source>A part of the Word document is too large (%s).</source>
+      </segment>
+    </unit>
+    <unit id="error.zipBomb">
+      <segment>
+        <source>The Word document unpacks to far more than its size (%s) and is refused.</source>
+      </segment>
+    </unit>
+    <unit id="error.missingPart">
+      <segment>
+        <source>A part of the Word document is missing (%s).</source>
+      </segment>
+    </unit>
+    <unit id="error.brokenPart">
+      <segment>
+        <source>A part of the Word document cannot be read (%s).</source>
+      </segment>
+    </unit>
+    <unit id="error.unreadable">
+      <segment>
+        <source>The Word document cannot be read.</source>
+      </segment>
+    </unit>
+    <unit id="error.unsafeXml">
+      <segment>
+        <source>A part of the Word document uses XML features that are refused for security reasons (%s).</source>
+      </segment>
+    </unit>
+    <unit id="error.brokenXml">
+      <segment>
+        <source>A part of the Word document is not well-formed XML (%s).</source>
+      </segment>
+    </unit>
+    <unit id="error.templateMissing">
+      <segment>
+        <source>The Word template %s does not exist.</source>
+      </segment>
+    </unit>
+    <unit id="error.templateWithoutStyles">
+      <segment>
+        <source>The Word template %s has no styles.</source>
+      </segment>
+    </unit>
+    <unit id="error.writeFailed">
+      <segment>
+        <source>The Word document could not be written.</source>
+      </segment>
+    </unit>
+    <unit id="error.pageNotFound">
+      <segment>
+        <source>Page %d does not exist.</source>
+      </segment>
+    </unit>
+    <unit id="error.noPageAccess">
+      <segment>
+        <source>You may not edit page %d.</source>
+      </segment>
+    </unit>
+    <unit id="error.noLanguageAccess">
+      <segment>
+        <source>You may not edit language %d.</source>
+      </segment>
+    </unit>
+    <unit id="error.languageNotInSite">
+      <segment>
+        <source>Language %d is not available on this site.</source>
+      </segment>
+    </unit>
+    <unit id="warning.linkedImage">
+      <segment>
+        <source>A picture is only linked, not embedded, and was left out (%s).</source>
+      </segment>
+    </unit>
+    <unit id="warning.missingImage">
+      <segment>
+        <source>A picture is missing from the document (%s).</source>
+      </segment>
+    </unit>
+    <unit id="warning.unsupportedImage">
+      <segment>
+        <source>A picture is not in a web format (PNG, JPEG, GIF, WebP) and was left out (%s).</source>
+      </segment>
+    </unit>
+    <unit id="warning.unsupportedDrawing">
+      <segment>
+        <source>A chart, SmartArt graphic or shape cannot be imported and was left out.</source>
+      </segment>
+    </unit>
+    <unit id="warning.altChunk">
+      <segment>
+        <source>Embedded content from another format cannot be imported and was left out.</source>
+      </segment>
+    </unit>
+  </file>
+</xliff>

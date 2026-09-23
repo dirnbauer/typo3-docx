@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:2.0" version="2.0" srcLang="en" trgLang="de">
+  <file id="pagesync" original="pagesync">
+    <unit id="export.alias.pageTitle">
+      <segment>
+        <source>Page title</source>
+        <target>Seitentitel</target>
+      </segment>
+    </unit>
+    <unit id="export.alias.column">
+      <segment>
+        <source>Column: %s</source>
+        <target>Spalte: %s</target>
+      </segment>
+    </unit>
+    <unit id="export.alias.readOnly">
+      <segment>
+        <source>%s (read-only)</source>
+        <target>%s (schreibgeschützt)</target>
+      </segment>
+    </unit>
+    <unit id="export.alias.untranslated">
+      <segment>
+        <source>%s (not translated yet)</source>
+        <target>%s (noch nicht übersetzt)</target>
+      </segment>
+    </unit>
+    <unit id="export.summary.element">
+      <segment>
+        <source>%s — this element is edited in TYPO3.</source>
+        <target>%s – dieses Element wird in TYPO3 bearbeitet.</target>
+      </segment>
+    </unit>
+    <unit id="export.summary.lock.field">
+      <segment>
+        <source>This field is edited in TYPO3.</source>
+        <target>Dieses Feld wird in TYPO3 bearbeitet.</target>
+      </segment>
+    </unit>
+    <unit id="export.summary.lock.link">
+      <segment>
+        <source>Link — edited in TYPO3.</source>
+        <target>Link – wird in TYPO3 bearbeitet.</target>
+      </segment>
+    </unit>
+    <unit id="export.summary.lock.files">
+      <segment>
+        <source>Files — edited in TYPO3.</source>
+        <target>Dateien – werden in TYPO3 bearbeitet.</target>
+      </segment>
+    </unit>
+    <unit id="export.summary.lock.embeddedContent">
+      <segment>
+        <source>Contains embedded media — edit this text in TYPO3.</source>
+        <target>Enthält eingebettete Medien – diesen Text in TYPO3 bearbeiten.</target>
+      </segment>
+    </unit>
+    <unit id="export.summary.lock.definitionList">
+      <segment>
+        <source>Definition list — edited in TYPO3.</source>
+        <target>Definitionsliste – wird in TYPO3 bearbeitet.</target>
+      </segment>
+    </unit>
+    <unit id="export.summary.lock.unsupportedField">
+      <segment>
+        <source>This field cannot be edited in Word.</source>
+        <target>Dieses Feld kann nicht in Word bearbeitet werden.</target>
+      </segment>
+    </unit>
+    <unit id="error.notADocx">
+      <segment>
+        <source>The file is not a Word document (.docx).</source>
+        <target>Die Datei ist kein Word-Dokument (.docx).</target>
+      </segment>
+    </unit>
+    <unit id="error.fileTooLarge">
+      <segment>
+        <source>The Word document is larger than %d MB.</source>
+        <target>Das Word-Dokument ist größer als %d MB.</target>
+      </segment>
+    </unit>
+    <unit id="error.tooManyParts">
+      <segment>
+        <source>The Word document consists of more than %d parts and is refused.</source>
+        <target>Das Word-Dokument besteht aus mehr als %d Teilen und wird abgelehnt.</target>
+      </segment>
+    </unit>
+    <unit id="error.unsafePartName">
+      <segment>
+        <source>The Word document contains a part with an invalid name (%s).</source>
+        <target>Das Word-Dokument enthält einen Teil mit ungültigem Namen (%s).</target>
+      </segment>
+    </unit>
+    <unit id="error.partTooLarge">
+      <segment>
+        <source>A part of the Word document is too large (%s).</source>
+        <target>Ein Teil des Word-Dokuments ist zu groß (%s).</target>
+      </segment>
+    </unit>
+    <unit id="error.zipBomb">
+      <segment>
+        <source>The Word document unpacks to far more than its size (%s) and is refused.</source>
+        <target>Das Word-Dokument entpackt sich auf ein Vielfaches seiner Größe (%s) und wird abgelehnt.</target>
+      </segment>
+    </unit>
+    <unit id="error.missingPart">
+      <segment>
+        <source>A part of the Word document is missing (%s).</source>
+        <target>Ein Teil des Word-Dokuments fehlt (%s).</target>
+      </segment>
+    </unit>
+    <unit id="error.brokenPart">
+      <segment>
+        <source>A part of the Word document cannot be read (%s).</source>
+        <target>Ein Teil des Word-Dokuments kann nicht gelesen werden (%s).</target>
+      </segment>
+    </unit>
+    <unit id="error.unreadable">
+      <segment>
+        <source>The Word document cannot be read.</source>
+        <target>Das Word-Dokument kann nicht gelesen werden.</target>
+      </segment>
+    </unit>
+    <unit id="error.unsafeXml">
+      <segment>
+        <source>A part of the Word document uses XML features that are refused for security reasons (%s).</source>
+        <target>Ein Teil des Word-Dokuments verwendet XML-Funktionen, die aus Sicherheitsgründen abgelehnt werden (%s).</target>
+      </segment>
+    </unit>
+    <unit id="error.brokenXml">
+      <segment>
+        <source>A part of the Word document is not well-formed XML (%s).</source>
+        <target>Ein Teil des Word-Dokuments ist kein gültiges XML (%s).</target>
+      </segment>
+    </unit>
+    <unit id="error.templateMissing">
+      <segment>
+        <source>The Word template %s does not exist.</source>
+        <target>Die Word-Vorlage %s existiert nicht.</target>
+      </segment>
+    </unit>
+    <unit id="error.templateWithoutStyles">
+      <segment>
+        <source>The Word template %s has no styles.</source>
+        <target>Die Word-Vorlage %s enthält keine Formatvorlagen.</target>
+      </segment>
+    </unit>
+    <unit id="error.writeFailed">
+      <segment>
+        <source>The Word document could not be written.</source>
+        <target>Das Word-Dokument konnte nicht geschrieben werden.</target>
+      </segment>
+    </unit>
+    <unit id="error.pageNotFound">
+      <segment>
+        <source>Page %d does not exist.</source>
+        <target>Seite %d existiert nicht.</target>
+      </segment>
+    </unit>
+    <unit id="error.noPageAccess">
+      <segment>
+        <source>You may not edit page %d.</source>
+        <target>Sie dürfen Seite %d nicht bearbeiten.</target>
+      </segment>
+    </unit>
+    <unit id="error.noLanguageAccess">
+      <segment>
+        <source>You may not edit language %d.</source>
+        <target>Sie dürfen Sprache %d nicht bearbeiten.</target>
+      </segment>
+    </unit>
+    <unit id="error.languageNotInSite">
+      <segment>
+        <source>Language %d is not available on this site.</source>
+        <target>Sprache %d ist auf dieser Website nicht verfügbar.</target>
+      </segment>
+    </unit>
+    <unit id="warning.linkedImage">
+      <segment>
+        <source>A picture is only linked, not embedded, and was left out (%s).</source>
+        <target>Ein Bild ist nur verknüpft, nicht eingebettet, und wurde ausgelassen (%s).</target>
+      </segment>
+    </unit>
+    <unit id="warning.missingImage">
+      <segment>
+        <source>A picture is missing from the document (%s).</source>
+        <target>Ein Bild fehlt im Dokument (%s).</target>
+      </segment>
+    </unit>
+    <unit id="warning.unsupportedImage">
+      <segment>
+        <source>A picture is not in a web format (PNG, JPEG, GIF, WebP) and was left out (%s).</source>
+        <target>Ein Bild liegt nicht in einem Webformat vor (PNG, JPEG, GIF, WebP) und wurde ausgelassen (%s).</target>
+      </segment>
+    </unit>
+    <unit id="warning.unsupportedDrawing">
+      <segment>
+        <source>A chart, SmartArt graphic or shape cannot be imported and was left out.</source>
+        <target>Ein Diagramm, eine SmartArt-Grafik oder eine Form kann nicht importiert werden und wurde ausgelassen.</target>
+      </segment>
+    </unit>
+    <unit id="warning.altChunk">
+      <segment>
+        <source>Embedded content from another format cannot be imported and was left out.</source>
+        <target>Eingebetteter Inhalt aus einem anderen Format kann nicht importiert werden und wurde ausgelassen.</target>
+      </segment>
+    </unit>
+  </file>
+</xliff>
