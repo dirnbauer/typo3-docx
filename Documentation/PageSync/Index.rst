@@ -45,16 +45,23 @@ Blocks elements with collections one control per item.
 -   Headings, paragraphs, bold, italic, underline, strike-through, sub- and
     superscript, links, bulleted and numbered lists, tables, quotes and code
     are kept both ways.
--   Pictures of image fields are embedded; alternative text and caption travel
-    with them. New or replaced pictures are stored in the folder from the
-    settings, identical pictures only once.
--   Elements and fields the editor may not change (plugins, links, file fields
-    with other files than pictures, fields excluded from translation…) are
-    shown read-only with a short summary.
+-   Pictures of image fields are embedded as a copy scaled to the size Word
+    shows them (see :ref:`page-sync-pictures`); alternative text and caption
+    travel with them. New or replaced pictures are stored in the folder from
+    the settings, identical pictures only once.
+-   Link fields (a button's target, a teaser link) are shown read-only as what
+    they point to: *Page: About us (/Home/Company/About us/)*, *File:
+    brochure.pdf*, *E-mail: office@example.com*, the record's title, the phone
+    number or the URL. The hyperlink keeps the stored target, the manifest the
+    stored value; the import never changes a link field.
+-   Elements and fields the editor may not change (plugins, file fields with
+    other files than pictures, fields excluded from translation…) are shown
+    read-only with a short summary.
 -   With more than one column in the backend layout, each column starts with
     a heading "Column: Main" etc.
 -   A hidden signed part of the document records which record and field every
-    control belongs to and what each field held at export time.
+    control belongs to, what each field held at export time and which file
+    each picture stands for.
 
 Edit in Word
 ============
@@ -146,6 +153,39 @@ Translations and workspaces
     exported in another workspace can still be imported; its elements are
     compared with the current workspace.
 
+..  _page-sync-pictures:
+
+Pictures
+========
+
+A page's pictures are embedded as copies made by TYPO3's image processing, in
+the file's own format: as many pixels as Word needs to show the picture — at
+most as wide as the text — at ``pageSync.pictureResolution`` pixels per inch
+(150 by default, what Word calls "Web"), and no edge longer than
+``pageSync.pictureMaxEdge`` (2000). Smaller pictures, GIFs and pictures TYPO3
+cannot process are embedded as they are. A page full of large pictures
+exports to a fraction of its former size and fits the upload limit on the way
+back.
+
+The copy only stands in for the file: every picture is named after its file
+reference (``typo3:sys_file_reference:31``, Word shows the name in the
+:guilabel:`Selection Pane`), and the manifest records which copy stands for
+which file. On import
+
+-   a picture that still holds the embedded copy is the same file reference —
+    alt text and caption edits are applied to it, the file stays as it is,
+    also when a word processor renamed the picture;
+-   a picture replaced in Word (inserted anew, or :guilabel:`Change Picture`,
+    which keeps the name) is stored as a new file in the picture folder, as
+    Word holds it;
+-   an exported picture used a second time refers to its file again.
+
+Word can compress pictures when it saves (:guilabel:`File > Options >
+Advanced > Image Size and Quality`); copies at 220 ppi or less are left alone.
+A picture a word processor did recompress counts as replaced. Documents
+exported by 2.2 or earlier hold the files themselves; they are recognised as
+before.
+
 ..  _page-sync-cli:
 
 Command line
@@ -167,7 +207,9 @@ Command line
     vendor/bin/typo3 docx-editor:page:import handbook.docx --parent=7 --split=h1 --apply
 
 Options: ``--workspace``, ``--language`` (with ``--pid``), ``--no-jev``. The
-commands run as TYPO3's command-line user.
+commands run as TYPO3's command-line user. The export prints the document's
+size and warns when it is larger than an import accepts.
+``--out`` takes a file or a directory; a path ending in ``/`` is created.
 
 What Word cannot carry
 ======================
@@ -185,10 +227,12 @@ What Word cannot carry
 -   Merged table cells are split again; table cells hold text only.
 -   Elements in containers or in columns the backend layout does not show are
     not part of the document.
--   Link fields and link targets are read-only.
--   Pictures are embedded at their stored size. A page with many large
-    pictures can export to more than ``pageSync.maxUploadMegabytes``; raise
-    the setting to import such a document again.
+-   Link fields are read-only: the document shows what they point to, and a
+    new link target is set in TYPO3.
+-   Pictures travel as scaled copies (:ref:`page-sync-pictures`). A page with
+    very many pictures can still export to more than
+    ``pageSync.maxUploadMegabytes``; lower ``pageSync.pictureResolution`` or
+    raise the limit to import such a document again.
 
 When a word processor removes the content controls (for example Word's
 :guilabel:`Remove Content Control`, or LibreOffice converting them),

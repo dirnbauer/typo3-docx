@@ -169,14 +169,18 @@ embedded editor; the backend screens and the commands only call
     * - ``Manifest``
       - Control tags (``typo3:tt_content:12:bodytext``, short
         ``typo3:#3:2`` references for long Content Blocks names) and the
-        signed custom XML part with the exported value of every field.
+        signed custom XML part with the exported value of every field, the
+        stored value of every link field and, for every picture, the file
+        reference and file it stands for and the hash of its embedded copy.
     * - ``Schema``
       - Element shapes from the TCA schema API (sub-schemas,
         ``columnsOverrides``, collections) and the role of every field
         (heading, body, image, quote, item title…).
     * - ``Export``, ``Field``, ``Html``
       - Field values to blocks and back; rich text through a canonical HTML
-        form so that only real edits count as changes.
+        form so that only real edits count as changes. Pictures as scaled
+        copies (:php:`PictureDerivatives`), link fields as labels
+        (:php:`LinkLabels`).
     * - ``Segmentation``, ``Matching``
       - New content split into parts; every allowed type scored on how well
         the part fills its fields; Jev as tie-breaker.

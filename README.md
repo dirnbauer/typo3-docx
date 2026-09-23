@@ -135,9 +135,18 @@ vendor/bin/typo3 docx-editor:page:import /tmp/x.docx --pid=42 --apply --confirm-
 vendor/bin/typo3 docx-editor:page:import book.docx --parent=7 --split=h1 --apply
 ```
 
+Pictures travel as copies scaled by TYPO3's image processing to the size Word
+shows them (150 ppi, at most 2000 px on the long edge, in the file's format),
+so a page full of photos fits the upload limit. The manifest records which
+copy stands for which file reference: an unchanged picture comes back as the
+same reference and file, only a picture replaced in Word becomes a new file.
+Link fields show what they point to (page title and path, file, record,
+e-mail address, URL) and are never written back.
+
 Settings (`pageSync.*` in the extension configuration): picture folder
 (default `1:/user_upload/word/{page}/`, pictures deduplicated by SHA-1),
-new pages hidden, upload limit (25 MB), a Word template (`.dotx`) for exported
+new pages hidden, upload limit (25 MB), picture resolution (150 ppi) and
+longest picture edge (2000 px), a Word template (`.dotx`) for exported
 documents, excluded content types (`html`), and Jev (on/off, confidence
 threshold 0.6, candidates, cache lifetime).
 

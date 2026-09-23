@@ -9,6 +9,19 @@ Changelog
 The full history is kept in
 `CHANGELOG.md <https://github.com/dirnbauer/typo3-docx/blob/main/CHANGELOG.md>`__.
 
+2.3.0
+=====
+
+-   Pictures of a page travel to Word as copies scaled to the size Word shows
+    them (:ref:`page-sync-pictures`): a lab page with 27 pictures exports to
+    17.8 MB instead of 51.1 MB and fits the upload limit. An unchanged picture
+    comes back as the same file reference and file, only a picture replaced
+    in Word becomes a new file. Settings ``pageSync.pictureResolution`` (150
+    ppi) and ``pageSync.pictureMaxEdge`` (2000 px).
+-   Link fields show what they point to — page title and path, file, record,
+    e-mail address, phone number or URL — instead of ``t3://page?uid=…``; the
+    stored value travels in the manifest and is never written back.
+
 2.2.1
 =====
 

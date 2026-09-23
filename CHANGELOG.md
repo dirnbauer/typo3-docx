@@ -2,6 +2,60 @@
 
 All notable changes to this project are documented in this file.
 
+## [2.3.0] - 2026-09-23
+
+Two limits of the Word ↔ page round trip are gone: pages with many pictures
+fit the upload limit, and link fields say where they point.
+
+### Added
+
+- **Compact pictures.** A page's pictures are embedded as copies made by
+  TYPO3's image processing, in the file's own format: as many pixels as Word
+  needs to show the picture (at most text-wide) at
+  `pageSync.pictureResolution` pixels per inch (default 150, Word's "Web"),
+  and no edge longer than `pageSync.pictureMaxEdge` (default 2000). Smaller
+  pictures, GIFs and pictures TYPO3 cannot process are embedded as they are.
+  Lab page 1121 (27 PNG pictures of about 1.9 MB each) exported to 51.1 MB
+  (48.8 MiB) and could not come back through the 25 MiB upload limit; it now
+  exports to 17.8 MB (17.0 MiB) and imports as 37 × unchanged.
+- **Pictures keep their identity.** Every exported picture is named after its
+  file reference (`wp:docPr` name `typo3:sys_file_reference:<uid>`), and the
+  signed manifest lists, per picture, the reference, the file, the file's
+  SHA-1 and the SHA-1 of the embedded copy. A picture that comes back with
+  that copy is the same reference (alt text and caption edits apply to it;
+  the file stays), also when a word processor dropped the name; a picture
+  replaced in Word — inserted anew or via *Change Picture*, which keeps the
+  name — is stored as a new FAL file as Word holds it; an exported picture
+  used a second time refers to its file again instead of storing the copy.
+  Documents exported by 2.2 (full files, no picture list) are recognised as
+  before.
+- **Readable link fields.** A read-only link field shows what it points to,
+  resolved through the LinkService the way the backend's link field explains
+  it: *Page: Technical features (/Desiderio/Technical features/)* (title in
+  the document's language, path in the page tree, `#section` for fragments),
+  *File: brochure.pdf*, *Folder: …*, the record's title for record links
+  (table from the page's `TCEMAIN.linkHandler`), *E-mail: …*, *Phone: …* or
+  the URL; a target that is gone or hidden from the user shows the stored
+  link with "not found, or not visible to you". The hyperlink keeps the
+  stored target, the manifest the stored value (`<t3:field value="…">`); the
+  import never writes a link field.
+- `docx-editor:page:export` prints the document's size and warns when an
+  import would refuse it; `--out` with a trailing `/` creates the directory.
+
+### Changed
+
+- Comparing pictures on import no longer reads the files: a picture's
+  identity is its file's SHA-1 from the FAL index.
+- The manifest signature covers the new picture list and link values; a
+  manifest without them signs exactly as 2.2 did, so older documents stay
+  trusted.
+- CI installs ImageMagick for the picture tests.
+
+### Removed
+
+- The PHPStan mapping of the `backend.user` request attribute, which TYPO3
+  never sets (2.2.1).
+
 ## [2.2.1] - 2026-09-23
 
 ### Fixed

@@ -36,6 +36,14 @@ tab :guilabel:`pageSync`:
       - ``25``
       - Larger documents are refused, as are packages that unpack to far more
         than their size.
+    * - ``pageSync.pictureResolution``
+      - ``150``
+      - Pixels per inch of the copy a picture is embedded as, at the size Word
+        shows it (at most the text width). 150 is Word's "Web", 220 its
+        "Print"; ``0`` embeds the stored files (see :ref:`page-sync-pictures`).
+    * - ``pageSync.pictureMaxEdge``
+      - ``2000``
+      - No embedded picture has a longer edge, in pixels; ``0`` for no limit.
     * - ``pageSync.wordTemplate``
       - (empty)
       - An ``EXT:`` or project path to a ``.dotx``/``.docx`` whose styles
