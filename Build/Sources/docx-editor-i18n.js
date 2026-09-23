@@ -1,22 +1,20 @@
 import de from '@eigenpal/docx-editor-i18n/de';
 import en from '@eigenpal/docx-editor-i18n/en';
+import labels from '~labels/docx_editor.messages';
 
-const HEADING_KEYS = ['heading1', 'heading2', 'heading3', 'heading4'];
+const HEADING_LEVELS = [1, 2, 3, 4];
 
 /**
- * eigenpal's i18n bundle plus the TYPO3-translated heading names. Heading 4 is
- * missing upstream, so the TYPO3 label is its only source.
+ * eigenpal's i18n bundle with the heading names from the docx_editor.messages
+ * domain. Heading 4 is missing upstream, so TYPO3 is its only source.
  *
  * @param {'de' | 'en' | string} locale
- * @param {Record<string, string>} headingLabels
  */
-export function buildDocxEditorI18n(locale, headingLabels = {}) {
+export function buildDocxEditorI18n(locale) {
   const base = locale === 'de' ? de : en;
-  const styles = { ...base.styles, heading4: locale === 'de' ? 'Überschrift 4' : 'Heading 4' };
-  for (const key of HEADING_KEYS) {
-    if (headingLabels[key]) {
-      styles[key] = headingLabels[key];
-    }
+  const styles = { ...base.styles };
+  for (const level of HEADING_LEVELS) {
+    styles[`heading${level}`] = labels.get(`editor.headings.h${level}.title`);
   }
   return { ...base, styles };
 }

@@ -10,8 +10,9 @@ import { popoverAlignPlugin } from './Build/vite/plugins/popover-align.js';
  * element) with stable file names, so the PHP side needs no manifest:
  *   Resources/Public/Vite/docx-editor.js  (import map: @webconsulting/docx-editor/editor.js)
  *   Resources/Public/Vite/docx-editor.css
- * TYPO3 modules under @webconsulting/docx-editor/ are resolved by the backend
- * import map at runtime and therefore stay external.
+ * The TYPO3 modules under @webconsulting/docx-editor/ and the label domains
+ * under ~labels/ are resolved by the backend import map at runtime and
+ * therefore stay external.
  */
 export default defineConfig({
   base: '',
@@ -29,7 +30,7 @@ export default defineConfig({
     target: 'es2022',
     rolldownOptions: {
       input: resolve(process.cwd(), 'Build/Sources/docx-editor.js'),
-      external: [/^@webconsulting\/docx-editor\//],
+      external: [/^@webconsulting\/docx-editor\//, /^~labels\//],
       output: {
         codeSplitting: false,
         entryFileNames: 'docx-editor.js',

@@ -1,4 +1,5 @@
 import { applyStyle } from '@eigenpal/docx-editor-core/prosemirror/commands';
+import labels from '~labels/docx_editor.messages';
 
 const HEADING_LEVELS = [1, 2, 3, 4];
 
@@ -22,20 +23,19 @@ function applyParagraphStyleId(editorRef, styleId) {
  * @param {object} props
  * @param {import('react').RefObject<import('@eigenpal/docx-editor-react').DocxEditorRef | null>} props.editorRef
  * @param {string | null} [props.activeStyleId]
- * @param {Record<string, string>} [props.labels]
  */
-export function DocxHeadingToolbar({ editorRef, activeStyleId = null, labels = {} }) {
+export function DocxHeadingToolbar({ editorRef, activeStyleId = null }) {
   return (
     <div
       className="docx-heading-toolbar"
       role="toolbar"
-      aria-label={labels.group ?? 'Headings'}
+      aria-label={labels.get('editor.headings.group')}
       data-testid="typo3-heading-toolbar"
     >
       {HEADING_LEVELS.map((level) => {
         const styleId = `Heading${level}`;
         const isActive = activeStyleId === styleId;
-        const title = labels[`heading${level}Title`] ?? `Heading ${level}`;
+        const title = labels.get(`editor.headings.h${level}.title`);
         return (
           <button
             key={styleId}
@@ -47,7 +47,7 @@ export function DocxHeadingToolbar({ editorRef, activeStyleId = null, labels = {
             onMouseDown={(event) => event.preventDefault()}
             onClick={() => applyParagraphStyleId(editorRef, styleId)}
           >
-            {labels[`heading${level}`] ?? `H${level}`}
+            {labels.get(`editor.headings.h${level}`)}
           </button>
         );
       })}

@@ -1,20 +1,18 @@
 import Notification from '@typo3/backend/notification.js';
+import labels from '~labels/docx_editor.messages';
 
 /**
- * Save feedback via the TYPO3 Notification API. `labels` is the parsed
- * `data-labels` JSON of #docx-editor-app.
+ * Save feedback through the TYPO3 notification API.
  *
- * @param {Record<string, string>} labels
+ * @param {string} filePath e.g. "fileadmin / user_upload/report.docx"
  */
-export function notifySaved(labels) {
-  Notification.success(labels.saved ?? 'Saved', labels.savedDetail ?? '');
+export function notifySaved(filePath) {
+  Notification.success(labels.get('editor.saved'), labels.get('editor.savedDetail', [filePath]));
 }
 
 /**
- * @param {Record<string, string>} labels
  * @param {string} [detail]
  */
-export function notifySaveFailed(labels, detail = '') {
-  const title = labels.saveFailed ?? 'Save failed';
-  Notification.error(title, detail || title);
+export function notifySaveFailed(detail = '') {
+  Notification.error(labels.get('editor.saveFailed'), detail);
 }

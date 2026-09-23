@@ -1,3 +1,5 @@
+import labels from '~labels/docx_editor.messages';
+
 /**
  * Backend AJAX calls. Every function resolves to the decoded JSON envelope
  * (`{ok, ...}`) and throws when the route is not registered or `ok` is false;
@@ -26,10 +28,10 @@ async function requestJson(url, init = {}) {
   try {
     data = await response.json();
   } catch {
-    data = { ok: false, error: 'Invalid server response.' };
+    data = { ok: false, error: labels.get('error.invalidResponse') };
   }
   if (!data.ok) {
-    const error = new Error(data.error || response.statusText || 'Request failed.');
+    const error = new Error(data.error || labels.get('error.requestFailed'));
     error.httpStatus = response.status;
     throw error;
   }
@@ -42,8 +44,9 @@ function getJson(route, params) {
   return requestJson(url);
 }
 
-function postJson(route, body) {
+function postJson(route, body, init = {}) {
   return requestJson(routeUrl(route), {
+    ...init,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -82,8 +85,9 @@ export function heartbeatSession(fileIdentifier, sessionUid) {
   return postJson('docx_editor_collab_heartbeat', { file: fileIdentifier, sessionUid });
 }
 
+/** Sent while the page unloads, hence keepalive. */
 export function leaveSession(fileIdentifier, sessionUid) {
-  return postJson('docx_editor_collab_leave', { file: fileIdentifier, sessionUid });
+  return postJson('docx_editor_collab_leave', { file: fileIdentifier, sessionUid }, { keepalive: true });
 }
 
 export function encodeArrayBufferToBase64(arrayBuffer) {

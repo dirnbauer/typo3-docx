@@ -1,17 +1,21 @@
+import labels from '~labels/docx_editor.messages';
 import { notifySaved, notifySaveFailed } from '@webconsulting/docx-editor/notify.js';
 import { mountDocxEditor } from './docx-editor-mount.jsx';
 import { heartbeatSession, joinSession, leaveSession } from './docx-editor-api.js';
-import { formatIcu } from './docx-icu-format.js';
 
 const HEARTBEAT_INTERVAL = 15000;
 
 /**
  * <typo3-docx-editor>: hosts the React editor in light DOM (so the bundled
- * eigenpal styles apply), exposes save()/saveAs() to the docheader toolbar
- * and keeps the presence session alive.
+ * eigenpal styles apply), exposes save()/saveAsToFolder() and the `dirty`
+ * state to the DocHeader glue (toolbar.js) and keeps the presence session
+ * alive.
  *
  * Attributes: file-identifier, file-name, revision, can-write ("1"/"0"),
- * editor-locale. Labels come from #docx-editor-app[data-labels].
+ * editor-locale. Page context comes from #docx-editor-app[data-*], labels
+ * from the docx_editor.messages domain.
+ *
+ * Events (bubbling): `docx-editor:change` whenever `dirty` flips.
  */
 export class Typo3DocxEditorElement extends HTMLElement {
   #api = null;
@@ -22,10 +26,10 @@ export class Typo3DocxEditorElement extends HTMLElement {
 
   #heartbeatTimer = 0;
 
-  #labels = {};
+  #dirty = false;
 
   #teardownCollab = () => {
-    window.removeEventListener('beforeunload', this.#teardownCollab);
+    window.removeEventListener('pagehide', this.#teardownCollab);
     window.clearInterval(this.#heartbeatTimer);
     if (this.#sessionUid) {
       leaveSession(this.fileIdentifier, this.#sessionUid).catch(() => {});
@@ -45,20 +49,27 @@ export class Typo3DocxEditorElement extends HTMLElement {
     return this.getAttribute('can-write') === '1';
   }
 
+  /** Whether the document has changes that are not saved yet. */
+  get dirty() {
+    return this.#dirty;
+  }
+
   async save() {
     if (!this.#api) {
-      throw new Error('Editor is not ready yet.');
+      throw new Error(labels.get('editor.notReady'));
     }
     await this.#api.save();
   }
 
   async saveAsToFolder(folderIdentifier, fileName) {
-    return this.#api?.saveAs(folderIdentifier, fileName);
+    if (!this.#api) {
+      throw new Error(labels.get('editor.notReady'));
+    }
+    return this.#api.saveAs(folderIdentifier, fileName);
   }
 
   connectedCallback() {
     const app = document.getElementById('docx-editor-app');
-    this.#labels = JSON.parse(app?.dataset.labels ?? '{}');
     const mount = document.createElement('div');
     mount.className = 'mount';
     this.replaceChildren(mount);
@@ -69,14 +80,16 @@ export class Typo3DocxEditorElement extends HTMLElement {
       canWrite: this.canWrite,
       initialRevision: Number(this.getAttribute('revision') ?? 0),
       editorLocale: this.getAttribute('editor-locale') ?? 'en',
-      loadingLabel: this.#labels.loading ?? 'Loading document…',
-      headingLabels: this.#labels.headings ?? {},
       onApi: (api) => {
         this.#api = api;
       },
-      onSaved: () => notifySaved(this.#labels),
-      onError: (message) => notifySaveFailed(this.#labels, message),
-      onConflict: () => this.#showConflictBanner(),
+      onChange: () => this.#setDirty(true),
+      onSaved: () => {
+        this.#setDirty(false);
+        notifySaved(app?.dataset.filePath ?? this.fileName);
+      },
+      onError: (message) => notifySaveFailed(message),
+      onConflict: () => this.#showConflict(),
     });
     this.#startCollab();
   }
@@ -88,8 +101,16 @@ export class Typo3DocxEditorElement extends HTMLElement {
     this.#api = null;
   }
 
+  #setDirty(dirty) {
+    if (this.#dirty === dirty) {
+      return;
+    }
+    this.#dirty = dirty;
+    this.dispatchEvent(new CustomEvent('docx-editor:change', { bubbles: true, detail: { dirty } }));
+  }
+
   async #startCollab() {
-    window.addEventListener('beforeunload', this.#teardownCollab);
+    window.addEventListener('pagehide', this.#teardownCollab);
     try {
       const joined = await joinSession(this.fileIdentifier);
       this.#sessionUid = joined.sessionUid;
@@ -107,26 +128,25 @@ export class Typo3DocxEditorElement extends HTMLElement {
     }, HEARTBEAT_INTERVAL);
   }
 
-  #showConflictBanner() {
-    const banner = document.querySelector('[data-docx-remote-banner]');
-    if (!banner || !banner.classList.contains('d-none')) {
+  /** Another editor stored a newer revision: offer to reload. */
+  #showConflict() {
+    const callout = document.querySelector('[data-docx-conflict]');
+    if (!callout || !callout.hidden) {
       return;
     }
-    banner.classList.remove('d-none');
-    banner
-      .querySelector('[data-docx-remote-reload]')
-      ?.addEventListener('click', () => window.location.reload(), { once: true });
+    callout.hidden = false;
+    callout.querySelector('[data-docx-reload]')?.addEventListener('click', () => window.location.reload(), { once: true });
   }
 
   #renderPresence(participants = []) {
-    const target = document.querySelector('[data-docx-presence]');
-    if (!target) {
+    const badge = document.querySelector('[data-docx-presence]');
+    const label = badge?.querySelector('[data-docx-presence-label]');
+    if (!badge || !label) {
       return;
     }
-    const count = participants.length;
-    const template =
-      this.#labels.collaborators || '{count, plural, one {1 editor online} other {# editors online}}';
-    target.textContent = count === 0 ? '' : formatIcu(template, { count }, this.getAttribute('editor-locale') ?? 'en');
+    badge.hidden = participants.length === 0;
+    label.textContent = labels.get('editor.collaborators', { count: participants.length });
+    badge.title = participants.map((participant) => participant.userName).join(', ');
   }
 }
 

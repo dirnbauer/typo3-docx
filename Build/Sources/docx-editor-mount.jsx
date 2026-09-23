@@ -1,6 +1,7 @@
 import { createRoot } from 'react-dom/client';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DocxEditor } from '@eigenpal/docx-editor-react';
+import labels from '~labels/docx_editor.messages';
 import {
   decodeBase64ToArrayBuffer,
   fetchRevision,
@@ -16,8 +17,9 @@ const REVISION_POLL_INTERVAL = 5000;
 /**
  * React adapter for eigenpal/docx-editor. Mounted by <typo3-docx-editor> only.
  *
- * Callbacks: onApi({save, saveAs}) once the document is loaded, onSaved(),
- * onError(message), onConflict() when another editor stored a newer revision.
+ * Callbacks: onApi({save, saveAs}) once the document is loaded, onChange()
+ * on every edit, onSaved(), onError(message), onConflict() when another
+ * editor stored a newer revision.
  */
 function DocxEditorHost({
   fileIdentifier,
@@ -25,9 +27,8 @@ function DocxEditorHost({
   canWrite,
   initialRevision,
   editorLocale,
-  loadingLabel,
-  headingLabels,
   onApi,
+  onChange,
   onSaved,
   onError,
   onConflict,
@@ -111,10 +112,15 @@ function DocxEditorHost({
     });
   }, [buffer, currentBuffer, fileName, onApi, persist, save]);
 
-  const i18n = useMemo(() => buildDocxEditorI18n(editorLocale, headingLabels), [editorLocale, headingLabels]);
+  const i18n = useMemo(() => buildDocxEditorI18n(editorLocale), [editorLocale]);
 
   if (!buffer) {
-    return <div className="docx-editor-loading">{loadingLabel}</div>;
+    return (
+      <div className="docx-editor-module__loading" role="status">
+        <typo3-backend-spinner size="small"></typo3-backend-spinner>
+        <span>{labels.get('editor.loading')}</span>
+      </div>
+    );
   }
 
   return (
@@ -124,13 +130,17 @@ function DocxEditorHost({
       documentName={fileName}
       mode={canWrite ? 'editing' : 'viewing'}
       readOnly={!canWrite}
+      // The TYPO3 theme (Editor.tokens.css) follows the backend's colour
+      // scheme for the chrome; eigenpal's own dark mode would also invert
+      // the document page, which has to stay as Word shows it.
+      colorMode="light"
+      showFileOpen={false}
       i18n={i18n}
       toolbarExtra={
-        canWrite ? (
-          <DocxHeadingToolbar editorRef={editorRef} activeStyleId={activeStyleId} labels={headingLabels} />
-        ) : null
+        canWrite ? <DocxHeadingToolbar editorRef={editorRef} activeStyleId={activeStyleId} /> : null
       }
       onSave={canWrite ? save : undefined}
+      onChange={canWrite ? onChange : undefined}
       onSelectionChange={(state) => setActiveStyleId(state?.styleId ?? null)}
       onError={(error) => onError(error.message)}
     />

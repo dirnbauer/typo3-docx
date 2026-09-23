@@ -22,35 +22,44 @@ final class EditorControllerTest extends AbstractBackendRouteTestCase
         $html = (string)$response->getBody();
 
         self::assertSame(200, $response->getStatusCode());
+        self::assertStringContainsString('<h1>Edit example.docx</h1>', $html);
         self::assertStringContainsString('<typo3-docx-editor', $html);
         self::assertStringContainsString('file-identifier="1:/user_upload/example.docx"', $html);
         self::assertStringContainsString('file-name="example.docx"', $html);
         self::assertStringContainsString('can-write="1"', $html);
         self::assertStringContainsString('editor-locale="en"', $html);
         self::assertStringContainsString('revision="0"', $html);
-        self::assertStringContainsString('data-identifier="docx-editor-save"', $html);
-        self::assertStringContainsString('data-identifier="docx-editor-save-as"', $html);
         self::assertStringContainsString('@webconsulting/docx-editor/editor.js', $html);
         self::assertStringContainsString('@webconsulting/docx-editor/toolbar.js', $html);
+        self::assertStringContainsString('@typo3/backend/element/status-indicator-element.js', $html);
         self::assertStringContainsString('Resources/Public/Vite/docx-editor.css', $html);
+        self::assertStringNotContainsString('data-labels=', $html, 'labels come from the docx_editor.messages domain');
     }
 
     #[Test]
-    public function editRouteEmbedsAllJavaScriptLabelsAsOneJsonAttribute(): void
+    public function theDocHeaderOffersTheCoreCloseAndSaveButtons(): void
     {
         $html = (string)$this->requestEditor(1, ['file' => self::DOCX])->getBody();
 
-        self::assertSame(1, preg_match('/ data-labels="([^"]+)"/', $html, $matches));
-        $labels = json_decode(html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5), true, 512, JSON_THROW_ON_ERROR);
+        // Close, like core's text file editor, back to the file's folder.
+        self::assertMatchesRegularExpression('#<a [^>]*href="/typo3/module/file/list\?[^"]*id=1:/user_upload/"[^>]*data-docx-action="close"#', $html);
+        // The core save button, with the save variants in its dropdown.
+        self::assertStringContainsString('name="_savedok"', $html);
+        self::assertStringContainsString('data-name="_saveandclosedok"', $html);
+        self::assertStringContainsString('data-name="_saveasdok"', $html);
+        self::assertStringContainsString('download="example.docx"', $html);
+    }
 
-        self::assertIsArray($labels);
-        self::assertSame('Saved', $labels['saved']);
-        self::assertSame('Saved to fileadmin / user_upload/example.docx', $labels['savedDetail']);
-        self::assertSame('Save failed', $labels['saveFailed']);
-        self::assertSame('Loading document…', $labels['loading']);
-        self::assertStringContainsString('{count, plural,', $labels['collaborators']);
-        self::assertSame('Heading 4', $labels['headings']['heading4Title']);
-        self::assertSame('H1', $labels['headings']['heading1']);
+    #[Test]
+    public function editRouteHandsThePageContextToTheScripts(): void
+    {
+        $html = html_entity_decode((string)$this->requestEditor(1, ['file' => self::DOCX])->getBody(), ENT_QUOTES | ENT_HTML5);
+
+        self::assertStringContainsString('data-file-path="fileadmin / user_upload/example.docx"', $html);
+        self::assertStringContainsString('data-default-folder-identifier="1:/user_upload/"', $html);
+        self::assertMatchesRegularExpression('#data-return-url="/typo3/module/file/list\?[^"]*id=1:/user_upload/"#', $html);
+        self::assertStringContainsString('data-docx-presence hidden', $html);
+        self::assertStringContainsString('data-docx-conflict hidden', $html);
     }
 
     #[Test]
@@ -60,8 +69,7 @@ final class EditorControllerTest extends AbstractBackendRouteTestCase
 
         self::assertStringContainsString('<typo3-docx-editor', $html);
         self::assertStringContainsString('editor-locale="de"', $html);
-        self::assertStringContainsString('Gespeichert unter fileadmin / user_upload/example.docx', html_entity_decode($html, ENT_QUOTES | ENT_HTML5));
-        self::assertStringContainsString('Zurück zu Medien', $html);
+        self::assertStringContainsString('<h1>example.docx bearbeiten</h1>', $html);
     }
 
     #[Test]
@@ -81,8 +89,18 @@ final class EditorControllerTest extends AbstractBackendRouteTestCase
         $html = (string)$this->requestEditor(1, [])->getBody();
 
         self::assertStringNotContainsString('<typo3-docx-editor', $html);
+        self::assertStringContainsString('<h1>Cannot open document</h1>', $html);
         self::assertStringContainsString('No file was selected.', $html);
-        self::assertStringContainsString('Back to Media', $html);
+        self::assertStringContainsString('class="callout callout-danger"', $html);
+        self::assertMatchesRegularExpression('/<a [^>]*data-docx-action="close"[^>]*>/', $html, 'the DocHeader offers Close');
+    }
+
+    #[Test]
+    public function errorsAreShownInTheUserLanguage(): void
+    {
+        $html = (string)$this->requestEditor(2, ['file' => self::TXT])->getBody();
+
+        self::assertStringContainsString('Nur .docx-Dateien können bearbeitet werden.', html_entity_decode($html, ENT_QUOTES | ENT_HTML5));
     }
 
     /**

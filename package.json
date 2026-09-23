@@ -1,6 +1,6 @@
 {
   "name": "typo3-docx-editor",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "private": true,
   "description": "Vite build for TYPO3 docx_editor: the <typo3-docx-editor> element around @eigenpal/docx-editor-react",
   "type": "module",
