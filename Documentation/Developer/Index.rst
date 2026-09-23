@@ -130,6 +130,88 @@ exports ``WebconDocxEditorElement`` (``<webcon-docx-editor>``),
     ``save()``, ``saveAsToFolder(folder, name)``, ``dirty``,
     ``editorElement``.
 
+Page round trip
+===============
+
+The engine lives in :file:`Classes/PageSync/` and is independent of the
+embedded editor; the backend screens and the commands only call
+:php:`PageSyncService`.
+
+..  list-table::
+    :header-rows: 1
+    :widths: 25 75
+
+    * - Namespace
+      - Responsibility
+    * - ``Document``
+      - The document model: headings, paragraphs with marks and links,
+        lists, tables, figures, quotes, code, content controls, bookmarks.
+    * - ``Ooxml``
+      - :php:`DocumentReader` / :php:`DocumentWriter` on ``ZipArchive`` and
+        DOM: XXE-safe parsing, archive limits, styles by Word's built-in
+        names (localised style ids work), numbering, fields and hyperlinks,
+        tracked changes, text boxes, embedded pictures, the Word template.
+    * - ``Manifest``
+      - Control tags (``typo3:tt_content:12:bodytext``, short
+        ``typo3:#3:2`` references for long Content Blocks names) and the
+        signed custom XML part with the exported value of every field.
+    * - ``Schema``
+      - Element shapes from the TCA schema API (sub-schemas,
+        ``columnsOverrides``, collections) and the role of every field
+        (heading, body, image, quote, item title…).
+    * - ``Export``, ``Field``, ``Html``
+      - Field values to blocks and back; rich text through a canonical HTML
+        form so that only real edits count as changes.
+    * - ``Segmentation``, ``Matching``
+      - New content split into parts; every allowed type scored on how well
+        the part fills its fields; Jev as tie-breaker.
+    * - ``Plan``, ``Apply``
+      - Three-way comparison per field (Word, TYPO3 now, the export), the
+        reviewable plan, and the DataHandler data and command maps.
+
+Choosing content types in your own code
+---------------------------------------
+
+Implement :php:`Webconsulting\DocxEditor\PageSync\Matching\MappingRuleInterface`
+in a site package to raise (or add) a type for parts you recognise — the
+interface's service tag is applied automatically:
+
+..  code-block:: php
+
+    final readonly class TeamMemberRule implements MappingRuleInterface
+    {
+        public function __construct(private FieldPlacer $placer) {}
+
+        public function propose(PartShape $part, ContentTypeCandidate $candidate): ?Proposal
+        {
+            // A heading, a portrait and a few lines of text: one of our team cards.
+            if ($candidate->cType !== 'site_teammember' || $part->images === [] || $part->heading === null) {
+                return null;
+            }
+            $placement = $this->placer->place($part, $candidate->shape);
+
+            // The fit decides; the preference tips the balance against equally good types.
+            return new Proposal($candidate->cType, $placement->score(), $placement, 'team-member', preference: 0.05);
+        }
+    }
+
+Or listen to :php:`ModifyContentTypeProposalsEvent` to re-rank, drop or add
+proposals per part. Proposals for types the editor may not create are dropped
+after the event.
+
+Jev
+---
+
+With webcon_jev installed, :php:`JevContentTypeChooser` builds a transient
+decision (uid 0, identifier ``docx_editor.content_type``) with one *choice*
+question per contested part — the options are the contending types, each
+described by its label and fields — and runs it through
+:php:`DecisionRunner::run()` with the run context
+``docx_editor_page_import``. The switch, token, cache, budget guard, fallback
+and run log are webcon_jev's. Parts are batched to stay inside the API's
+request limits. webcon_jev is optional: the runner is a nullable constructor
+argument, so without the extension the import boots and matches by structure.
+
 Frontend build
 ==============
 
@@ -199,3 +281,12 @@ CI runs them against MariaDB 10.11. They request the real backend routes with
 a fixture storage and cover the editor page, the document API (load, save,
 409, save-as), the collaboration API and the route-scoped
 Content-Security-Policy.
+
+The page round trip's functional tests run on a fixture site with core and
+Content-Blocks-shaped element types, a workspace, a translation and three
+backend users: export, round trip, conflicts, workspaces, translations,
+permissions, new pages, the preview/apply digest check, the CLI, the backend
+routes and screens, a document edited and saved by Microsoft Word, and Jev
+through webcon_jev with a scripted client (``pagesync_jev_test`` replaces the
+HTTP client — no test calls the API). One test class boots without
+webcon_jev.

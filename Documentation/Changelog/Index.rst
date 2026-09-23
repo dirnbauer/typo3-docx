@@ -9,6 +9,18 @@ Changelog
 The full history is kept in
 `CHANGELOG.md <https://github.com/dirnbauer/typo3-docx/blob/main/CHANGELOG.md>`__.
 
+2.1.0
+=====
+
+-   Edit pages in Word (:ref:`page-sync`): the Page module's Word menu and
+    the page tree's context menu open a page as a Word document in the
+    embedded editor, download it or import an edited one; every change is
+    reviewed before it is written through the DataHandler.
+-   Import Word documents as subpages, split into the content elements that
+    fit them best; Jev (webcon_jev 0.2.1, optional) decides between equally
+    good types.
+-   Commands ``docx-editor:page:export`` and ``docx-editor:page:import``.
+
 2.0.0
 =====
 

@@ -9,6 +9,11 @@ WYSIWYG editing of Word (`.docx`) files inside the TYPO3 backend, powered by
 `@docx-editor.dev/vue`, Apache-2.0): open a file from the file list, edit it
 full-page, save it straight back to FAL.
 
+**Edit pages in Word:** a page and its content elements become one Word
+document — edit it in the backend or in Word, LibreOffice or any word
+processor, and import it back after reviewing every change. A Word document
+can become new pages, split into the content elements that fit it.
+
 ## What it is
 
 - **Edit DOCX** action on `.docx` files in the file list; the editor is a backend
@@ -52,11 +57,13 @@ not use. Documents that contain tracked changes or comments keep them on save.
 | PHP | 8.4 or 8.5 (both gate CI) |
 | Browser | current Chrome, Edge, Firefox or Safari (WebAssembly) |
 | Node.js | 22.12+ — only to rebuild the frontend bundle |
+| PHP extensions | `dom`, `libxml`, `zip` |
+| Optional | [`webconsulting/webcon-jev`](https://github.com/dirnbauer/typo3-webcon-jev) `^0.2.1` — Jev chooses between content types that fit a Word part equally well |
 
 ## Install
 
 ```bash
-composer require webconsulting/docx-editor:^2.0
+composer require webconsulting/docx-editor:^2.1
 vendor/bin/typo3 extension:setup
 ```
 
@@ -65,12 +72,15 @@ The Vite bundle is committed; a normal install needs no Node.js.
 
 ## Configure
 
-Nothing to configure — no TypoScript, no TSconfig. Access follows FAL: read
-permission opens a document (read-only), write permission enables saving.
-Routes: `Configuration/Backend/Routes.php` (editor) and
-`Configuration/Backend/AjaxRoutes.php` (load, save, save-as, presence, revision).
+The file editor needs no configuration — no TypoScript, no TSconfig. Access
+follows FAL: read permission opens a document (read-only), write permission
+enables saving. The page round trip has a few extension settings (see below).
+Routes: `Configuration/Backend/Routes.php` (editor, page editor, import as
+subpages, page download) and `Configuration/Backend/AjaxRoutes.php` (load,
+save, save-as, presence, revision; page load, preview, apply, discard).
 
-**Content-Security-Policy:** on the editor route only, the extension adds
+**Content-Security-Policy:** on the editor routes only (`docx_editor` and the
+page editor `docx_editor_page`), the extension adds
 `script-src 'wasm-unsafe-eval'` (the HarfBuzz text shaper is WebAssembly; this
 allows compiling WebAssembly, not JavaScript `eval`) and `img-src blob:` (the
 engine paints document images from `blob:` URLs). Every other backend route
@@ -83,6 +93,63 @@ keeps the core policy. See `AllowEditorEngineInContentSecurityPolicy`.
    **Save and close** and **Save as…** (target folder, then file name).
 3. **Close** returns to the folder; with unsaved changes it asks first.
 4. If another editor saved meanwhile, a warning callout offers **Reload document**.
+
+## Edit pages in Word
+
+The Page module's DocHeader gets a **Word** menu (and the page tree's context
+menu the same entries), shown only where the editor may use them:
+
+- **Edit in Word** — the page in the embedded editor. The page title is the
+  first line; every content element is a Word *content control* named after
+  its type, every field a control inside it (collection items of Content
+  Blocks elements included). Edit inside the frames, write new sections
+  between elements, delete or move elements. **Review and save** (or
+  Ctrl/Cmd+S) shows what the import would change and writes it on **Import**.
+- **Download as Word document** / **Upload Word document…** — the same round
+  trip through Word, LibreOffice or any other word processor.
+- **Import Word document as subpages…** — one page (titled by the first
+  Heading 1), a page per Heading 1 or a page per page break; new pages start
+  hidden.
+
+The review lists every element — new (with the proposed content type and the
+alternatives), changed, conflicting (changed in Word *and* in TYPO3 since the
+export: pick a side per field), removed in Word (deleted only when you tick
+it), translated or read-only. Everything is written through the DataHandler as
+the current user, in the current workspace and language. If TYPO3 changed
+between review and import, nothing is written.
+
+New content is split at headings, page breaks and horizontal lines; each part
+becomes the allowed content type it fills best (heading → header, text →
+body, pictures → image field, question/answer pairs or steps → a collection,
+quote → quote field…). The allowed types are those the New Content Element
+wizard offers for the column. Where types fit equally well and
+`webcon_jev` is installed, **Jev** chooses among them; below its confidence
+threshold the structural fit stays and the element is marked for review.
+
+```bash
+vendor/bin/typo3 docx-editor:page:export 42 --out=/tmp/              # page 42 as .docx
+vendor/bin/typo3 docx-editor:page:import /tmp/x.docx --pid=42        # dry run: prints the plan
+vendor/bin/typo3 docx-editor:page:import /tmp/x.docx --pid=42 --apply --confirm-deletions
+vendor/bin/typo3 docx-editor:page:import book.docx --parent=7 --split=h1 --apply
+```
+
+Settings (`pageSync.*` in the extension configuration): picture folder
+(default `1:/user_upload/word/{page}/`, pictures deduplicated by SHA-1),
+new pages hidden, upload limit (25 MB), a Word template (`.dotx`) for exported
+documents, excluded content types (`html`), and Jev (on/off, confidence
+threshold 0.6, candidates, cache lifetime).
+
+What Word cannot carry: fonts, colours, sizes and alignment are not imported;
+CSS classes and inline styles of a rich text field are dropped when that
+field is changed in Word (the review says so); rich text with embedded media
+or iframes, link fields, plugins and non-picture files are read-only; two
+quotes in a row become one; text boxes become paragraphs; charts, SmartArt and
+EMF/WMF/TIFF pictures, headers, footers, footnotes and comments are not
+imported. Elements in containers or in columns the backend layout does not
+show are not part of the document. If a word processor removes the content
+controls, elements are recognised by their bookmarks, then by their text.
+
+Details: [Edit pages in Word](Documentation/PageSync/Index.rst).
 
 ## Integrate
 
@@ -156,7 +223,7 @@ commit `Resources/Public/Vite/`; CI fails on drift. CSS in
 
 ## Docs
 
-- [Manual](Documentation/Index.rst): introduction, installation, usage, configuration and security
+- [Manual](Documentation/Index.rst): introduction, installation, usage, editing pages in Word, configuration and security
 - [Developer guide](Documentation/Developer/Index.rst): architecture, integration API, build, tests
 - [Changelog](CHANGELOG.md)
 

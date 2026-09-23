@@ -2,6 +2,64 @@
 
 All notable changes to this project are documented in this file.
 
+## [2.1.0] - 2026-09-23
+
+Edit pages in Word: a page and its content elements as one Word document,
+edited in the backend or in any word processor and imported back after a
+review of every change; Word documents imported as new pages.
+
+### Added
+
+- **Word menu** in the Page module's DocHeader and the page tree's context
+  menu: *Edit in Word*, *Download as Word document*, *Import Word document as
+  subpages…* — each only where the backend user may use it.
+- **Edit in Word** (`docx_editor_page`): the page in `<webcon-docx-editor>`
+  with every content control drawn. The page title, every content element and
+  every field (collection items of Content Blocks elements included) are
+  content controls tagged `typo3:<table>:<uid>[:<field>]`; a signed custom XML
+  part records the exported value of every field. Save, *File > Save* and
+  Ctrl/Cmd+S open the review; *Upload Word document…* reviews a document
+  edited elsewhere.
+- **Review** before anything is written: new elements with the proposed
+  content type and the alternatives (and whether structure or Jev chose it),
+  changed fields, conflicts decided per field (TYPO3 wins by default),
+  deletions only when ticked, translations, the new order. The import goes
+  through the DataHandler as the current user, in the current workspace and
+  language (RTE transformation and HTML sanitizer included); pictures are
+  stored in `1:/user_upload/word/{page}/`, deduplicated by SHA-1. A preview is
+  kept for its user for a day; if TYPO3 changed before it is applied, nothing
+  is written.
+- **Import as subpages** (`docx_editor_page_new`): one page, a page per
+  Heading 1 or a page per page break; hidden by default, after the existing
+  subpages.
+- **Content type matching**: every part is scored against the types the New
+  Content Element wizard allows in the column (backend layout, TSconfig,
+  permissions) on how well it fills their fields, from the TCA schema.
+  Extensible with `MappingRuleInterface` (auto-tagged) and
+  `ModifyContentTypeProposalsEvent`.
+- **Jev** (optional, `webconsulting/webcon-jev ^0.2.1`): where types fit
+  equally well, a transient decision (`docx_editor.content_type`) asks Jev to
+  choose, through webcon_jev's `DecisionRunner` with the run context
+  `docx_editor_page_import`. Below the confidence threshold (0.6) the
+  structural choice stays and the element is marked for review.
+- **CLI**: `docx-editor:page:export <page> [--language] [--workspace] [--out]`
+  and `docx-editor:page:import <file> --pid=|--parent= [--split] [--language]
+  [--workspace] [--apply] [--confirm-deletions] [--prefer=typo3|word]
+  [--no-jev]` — a dry run unless `--apply` is given.
+- Extension settings `pageSync.*`: picture folder, new pages hidden, upload
+  limit, Word template, excluded content types, Jev switch, threshold,
+  candidates and cache lifetime.
+- Word documents are read without DTDs or entities and within archive, part
+  and ratio limits. Elements whose content controls a word processor removed
+  are recognised by their bookmarks, then by their text.
+
+### Changed
+
+- The engine's CSP allowance (`'wasm-unsafe-eval'`, `img-src blob:`) also
+  applies to the `docx_editor_page` route — and only there.
+- CI installs `zip`, `dom` and `sodium`; the extension requires `ext-zip`,
+  `ext-dom` and `ext-libxml`.
+
 ## [2.0.0] - 2026-09-23
 
 A new editor engine. `@eigenpal/docx-editor-*` 1.9 (React), deprecated
