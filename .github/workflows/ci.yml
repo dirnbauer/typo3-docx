@@ -123,11 +123,13 @@ jobs:
       - name: Audit npm dependencies
         run: npm audit --audit-level=high
 
-      - name: Verify the eigenpal chunk patches still anchor
+      - name: Round-trip, catalogue and label tests
         run: npm run test:build
 
       - name: Build
         run: npm run build
 
       - name: The committed bundle must match the build
-        run: git diff --exit-code -- Resources/Public/Vite
+        run: |
+          git status --porcelain -- Resources/Public/Vite
+          test -z "$(git status --porcelain -- Resources/Public/Vite)"

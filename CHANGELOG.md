@@ -2,6 +2,78 @@
 
 All notable changes to this project are documented in this file.
 
+## [2.0.0] - 2026-09-23
+
+A new editor engine. `@eigenpal/docx-editor-*` 1.9 (React), deprecated
+upstream, gives way to its successor docx-editor.dev 2.21
+(`@docx-editor.dev/core`, `/vue`, `/i18n`, `/fonts` — all Apache-2.0, fonts
+OFL/GUST), composed in Vue. PHP routes, tables and permissions are unchanged;
+the lab and site constraint becomes `^2.0`.
+
+### Changed
+
+- **Engine:** Word-faithful layout (HarfBuzz text shaping, Word's line and
+  page breaking, rulers, navigation pane, page setup and paragraph dialogs).
+  The engine keeps the opened package as its model and serializes it back:
+  untouched saves change nothing, edits touch only what was edited, and
+  content controls, bookmarks, custom XML, custom properties, tracked changes,
+  comments and unmodeled markup survive. 1.x rewrote styles into direct
+  formatting, dropped page breaks, section columns and table looks, and
+  duplicated images on its full-save path.
+- **Vue instead of React:** `Build/Sources/editor/*.vue` compose
+  `@docx-editor.dev/vue` (menus, toolbar, viewport, popups). The components
+  are compiled at build time and the bundle carries Vue's runtime-only build —
+  no template compiler, no `'unsafe-eval'`.
+- **Curated styles without chunk patches:** the style picker is the
+  toolbar's own `StylePicker` with Normal + Heading 1–4 as its items, the
+  H1–H4 buttons use `useParagraphStyle()`. Styles are matched by Word name, so
+  German Word files (`Standard`, `berschrift1`) work; latent headings get
+  Word's definitions while the document is open and are removed again on save
+  unless applied. The three Vite plugins that patched eigenpal's minified
+  chunks are gone, and so is the popover clamp in `toolbar.js`.
+- **Fonts:** metric-compatible open fonts for Calibri, Cambria, Arial, Times
+  New Roman, Courier New and Century Gothic (`@docx-editor.dev/fonts`) ship in
+  `Resources/Public/Vite/assets/` and load same-origin, per family, on demand.
+  `typo3-disable-external-fonts.js` is gone — nothing calls a font CDN.
+- **German:** about 200 strings the upstream German catalogue leaves
+  untranslated are completed in `Build/Sources/editor/i18n/de.json`.
+- **Menus:** File offers Save and Page setup (no Open, no converter-based
+  export); Review offers paragraph marks and forms protection.
+- Theme: `Editor.tokens.css` maps the docx-editor.dev tokens to TYPO3's
+  (surface containers for notices and selections); `Editor.toolbar.css` is
+  gone, `Editor.base.css` lays out the composed editor.
+- Bundle: `docx-editor.js` 2,877 kB (833 kB gzip, was 2,098 / 619 kB),
+  `docx-editor.css` 132 kB (21 kB gzip, was 48 / 8 kB), lazy chunks for
+  EMF/WMF, TIFF and the shaper loader, `harfbuzz.wasm` 427 kB (176 kB gzip)
+  and 8.2 MB of fonts of which a document loads only what it uses.
+
+### Added
+
+- `AllowEditorEngineInContentSecurityPolicy`: `script-src
+  'wasm-unsafe-eval'` and `img-src blob:` on the `docx_editor` route only;
+  unit and functional tests prove other backend routes keep the core policy.
+- `<webcon-docx-editor>`: the editor as a reusable element — `load(bytes)`,
+  `serialize()`, `dirty`/`revision`/`markClean()`, `docx-editor:ready`,
+  `:change`, `:save-request`, `:error`, `:font-error`; attributes `locale`,
+  `readonly` and `content-controls="show"` (all control boundaries visible,
+  no Remove actions).
+- `<typo3-docx-editor>` attributes `load-url` and `save-url` to load from or
+  save to other endpoints with the same JSON payloads, and
+  `content-controls`.
+- Round-trip fidelity tests (`Build/Tests/round-trip.test.js`, headless in
+  happy-dom) on generated fixtures with styles, lists, tables, images,
+  headers and footers, fields, comments, content controls, bookmarks, tracked
+  changes, footnotes and custom XML; a test for the German overlay.
+- `Resources/Public/Vite/licenses/`: licences of all bundled code and fonts.
+
+### Removed
+
+- React, react-dom, `@vitejs/plugin-react` and every `@eigenpal/*` package.
+- Features of the 1.x editor that docx-editor.dev ships only in its commercial
+  `@docx-editor.dev/pro`: suggesting mode and accept/reject of tracked
+  changes, markup views, and comment threads. Existing tracked changes and
+  comments are kept on save.
+
 ## [1.5.0] - 2026-09-23
 
 The editor page becomes a native TYPO3 v14 citizen: core DocHeader buttons

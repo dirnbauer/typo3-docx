@@ -9,6 +9,22 @@ Changelog
 The full history is kept in
 `CHANGELOG.md <https://github.com/dirnbauer/typo3-docx/blob/main/CHANGELOG.md>`__.
 
+2.0.0
+=====
+
+-   New engine: docx-editor.dev 2.21 (``@docx-editor.dev/core``, ``/vue``,
+    ``/i18n``, ``/fonts``; Apache-2.0) replaces ``@eigenpal/docx-editor`` 1.9
+    and React. Word-faithful layout, lossless saves of the opened package,
+    fonts served from the extension, German chrome completed.
+-   Curated Normal + Heading 1–4 through the toolbar's own style picker, by
+    Word style name; the chunk patches are gone.
+-   ``'wasm-unsafe-eval'`` and ``blob:`` images on the editor route only.
+-   ``<webcon-docx-editor>`` with a byte-level API, ``content-controls="show"``,
+    ``load-url`` / ``save-url`` on ``<typo3-docx-editor>``.
+-   Round-trip fidelity tests.
+-   Not included any more: tracked-change review and comment threads
+    (commercial ``@docx-editor.dev/pro`` upstream).
+
 1.5.0
 =====
 

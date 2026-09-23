@@ -30,25 +30,37 @@ Architecture
       - Revision counter and presence sessions.
     * - :file:`Classes/EventListener/AddDocxEditFileActionListener.php`
       - Adds :guilabel:`Edit DOCX` to the file list.
-    * - :file:`Build/Sources/typo3-docx-editor.js`
-      - ``<typo3-docx-editor>`` custom element (vanilla, light DOM): mounts
-        React, exposes ``save()`` / ``saveAsToFolder()``, presence heartbeat.
-    * - :file:`Build/Sources/docx-editor-mount.jsx`
-      - React adapter around ``@eigenpal/docx-editor-react``: load, save,
-        revision polling, H1–H4 toolbar.
+    * - :file:`Classes/EventListener/AllowEditorEngineInContentSecurityPolicy.php`
+      - ``'wasm-unsafe-eval'`` and ``blob:`` images on the editor route only
+        (see :ref:`security`).
+    * - :file:`Build/Sources/webcon-docx-editor.js`
+      - ``<webcon-docx-editor>``: the editor as a custom element with a
+        byte-level API (:ref:`developer-integration`).
+    * - :file:`Build/Sources/typo3-docx-editor.js`,
+        :file:`docx-editor-api.js`
+      - ``<typo3-docx-editor>``: the module element around it — FAL load and
+        save through the AJAX routes, *Save as…*, presence, newer-revision
+        warning.
+    * - :file:`Build/Sources/editor/`
+      - The Vue composition of ``@docx-editor.dev/vue``
+        (:file:`EditorShell.vue`: menus, toolbar, rulers, navigation, popups),
+        the curated style picker and H1–H4 buttons, the content-control mode,
+        the German catalogue overlay (:file:`i18n/de.json`) and
+        :file:`curated-styles.js`.
     * - :file:`Resources/Public/JavaScript/toolbar.js`, :file:`notify.js`
       - TYPO3 ES modules (import map ``@webconsulting/docx-editor/``):
         DocHeader buttons, the unsaved-changes dialog (core labels from
         ``~labels/backend.alt_doc``), folder browser, file name dialog,
         notifications.
-    * - :file:`Resources/Public/Css/Editor.*.css`
-      - TYPO3 token mapping and toolbar theming, registered after the bundle
-        CSS so they win the cascade.
+    * - :file:`Resources/Public/Css/Editor.tokens.css`,
+        :file:`Editor.base.css`
+      - The editor's design tokens mapped to TYPO3's (so dark mode follows
+        the backend) and the module layout; registered after the bundle CSS.
 
 Every script imports its labels from the ``docx_editor.messages`` domain
 (``import labels from '~labels/docx_editor.messages'``); the Vite bundle keeps
 ``~labels/`` external so the backend import map resolves it at runtime.
-Plurals are ICU messages. :file:`Build/Sources/labels.test.js` (run by
+Plurals are ICU messages. :file:`Build/Tests/labels.test.js` (run by
 ``npm run test:build``) fails when a script asks for a key that is missing in
 English or German — the label providers throw on unknown keys.
 
@@ -56,62 +68,123 @@ Server-side errors are :php:`DocxEditorException` instances whose message is
 a key of the same domain; the error page and the JSON API translate it into
 the backend user's language (:php:`DocxEditorException::localizedMessage()`).
 
+The editor engine
+=================
+
+``@docx-editor.dev/core`` keeps the opened OOXML package as its model and
+serializes it back on save: edited parts are rewritten from typed nodes,
+unmodeled elements and attributes are re-emitted in place, other parts and
+media are copied. ``serialize()`` always goes through that package
+serializer — never through a "new document" export — which is why content
+controls, bookmarks, custom XML parts and custom properties survive.
+
+Only Apache-2.0 packages are used: ``@docx-editor.dev/core``, ``/vue``,
+``/i18n`` and ``/fonts`` (fonts under SIL OFL 1.1 and GUST). The review
+module, comment rail, collaboration and PDF export live in the commercial
+``@docx-editor.dev/pro`` and ``@docx-editor.dev/editor-api``; the Review menu
+therefore keeps only paragraph marks and forms protection, and the toolbar
+has no comment button.
+
+Curated styles
+--------------
+
+The engine refuses a paragraph style the document does not define, and Word
+leaves unused headings undefined (latent). :file:`curated-styles.js` maps the
+roles Normal and Heading 1–4 to the document's own style IDs by Word name
+(``Standard`` / ``berschrift1`` in a German Word), adds Word's definitions for
+missing headings to :file:`styles.xml` when a document is opened
+(``materializeCuratedStyles()``), and removes the ones no paragraph, list
+level or style refers to before the bytes leave the editor
+(``dropUnusedMaterializedStyles()``).
+
+..  _developer-integration:
+
+Integration API
+===============
+
+The bundle (import map ``@webconsulting/docx-editor/editor.js``) defines and
+exports ``WebconDocxEditorElement`` (``<webcon-docx-editor>``),
+``Typo3DocxEditorElement`` (``<typo3-docx-editor>``) and ``mountDocxEditor()``.
+
+``<webcon-docx-editor>``
+    Attributes ``locale`` (``de``/``en``), ``readonly`` and
+    ``content-controls="show"``; property ``labels``; methods
+    ``load(bytes)`` (resolves when the document is shown),
+    ``serialize()`` (``Uint8Array``), ``markClean(revision)``; properties
+    ``revision``, ``dirty`` and ``editor`` (the core editor instance); events
+    ``docx-editor:ready``, ``docx-editor:change`` (``{dirty, revision}``),
+    ``docx-editor:save-request`` (File › Save, the toolbar, :kbd:`Ctrl/Cmd+S`),
+    ``docx-editor:error`` and ``docx-editor:font-error``. The element needs a
+    height.
+
+``content-controls="show"``
+    Draws every content control's boundary and tag, and removes the *Remove*
+    actions from the toolbar and from the control popup — for documents whose
+    controls map to TYPO3 records.
+
+``<typo3-docx-editor>``
+    Adds FAL loading and saving, presence and the newer-revision warning.
+    ``load-url`` replaces the load route (GET, answers
+    ``{ok, data, revision}``, ``data`` base64); ``save-url`` replaces the save
+    route (POST ``{file, revision, data}``, answers ``{ok, revision}``). Public:
+    ``save()``, ``saveAsToFolder(folder, name)``, ``dirty``,
+    ``editorElement``.
+
 Frontend build
 ==============
 
 ..  code-block:: bash
 
     npm ci
-    npm run test:build   # every chunk patch must still find its anchor
-    npm run build        # -> Resources/Public/Vite/docx-editor.{js,css}
+    npm run test:build   # round-trip, catalogue and label tests
+    npm run build        # -> Resources/Public/Vite/
 
-The bundle has stable file names, so PHP needs no manifest; TYPO3 adds its own
-cache-busting. Commit :file:`Resources/Public/Vite/` — the CI ``assets`` job
-rebuilds and fails on ``git diff``.
-
-Upstream chunk patches
-----------------------
-
-Three Vite plugins in :file:`Build/vite/plugins/` rewrite the minified
-``@eigenpal/docx-editor-react`` dist by content pattern (any chunk file name):
+Vite compiles the Vue single-file components; the bundle carries Vue's
+runtime-only build, so nothing is compiled in the browser. Output:
 
 ..  list-table::
     :header-rows: 1
 
-    * - Plugin
-      - Purpose
-    * - :file:`heading4-fallback.js`
-      - Appends Heading 4 to the built-in fallback style array (upstream
-        stops at Heading 3).
-    * - :file:`style-dropdown-headings.js`
-      - Replaces the dropdown's option source with a filter over the fallback
-        array so every document offers exactly Normal + Heading 1–4.
-    * - :file:`popover-align.js`
-      - Opens the editing-mode picker rightward; :file:`toolbar.js` clamps any
-        popover back into the viewport at runtime.
+    * - Path
+      - Content
+    * - :file:`docx-editor.js`, :file:`docx-editor.css`
+      - The module (stable names, no manifest; TYPO3 adds cache-busting).
+    * - :file:`chunks/`
+      - Code the engine loads on demand (EMF/WMF and TIFF images, the shaper
+        loader).
+    * - :file:`assets/`
+      - :file:`harfbuzz-*.wasm` and the font files, fetched relative to the
+        module.
+    * - :file:`licenses/`
+      - Licences of everything bundled (Vite's licence report), the fonts'
+        licences and the upstream packages' third-party notices.
 
-Each plugin lists known ``SHAPES`` (``needle`` string or identifier-agnostic
-regular expression, ``sample``, ``transform``). After bumping the upstream
-packages run ``npm run test:build``; if a shape no longer matches, **add** a new
-entry instead of editing old ones, re-run, rebuild, and check in the backend
-that the dropdown shows Normal + H1–H4 and headings apply. If upstream ships
-Heading 4 natively (``styles.heading4`` appears in the dist), delete
-``heading4-fallback`` and its test.
+Commit :file:`Resources/Public/Vite/` — the CI ``assets`` job rebuilds and
+fails on ``git diff``. In the DDEV lab, build to a scratch folder
+(``npx vite build --outDir /tmp/docx-editor-vite``) and copy the result in:
+the file sync can delete freshly emptied output directories.
 
-The upstream package line
--------------------------
+Round-trip tests
+----------------
 
-``@eigenpal/docx-editor-*`` 1.9.0 is the last release of that line; every
-version is deprecated on npm. eigenpal continues the editor as
-``@docx-editor.dev/react`` and ``@docx-editor.dev/core`` 2.x (Apache-2.0; the
-review and collaboration features are in the commercial
-``@docx-editor.dev/pro``). 2.x is a new API rather than an update: a
-composition model (``DocxEditor.Root``, ``Toolbar``, ``Viewport``) and hooks
-such as ``useParagraphStyle()``, which would replace the three chunk patches,
-and a layout engine that, for exact line breaks, shapes text with a HarfBuzz
-WebAssembly module from font files the host supplies (the backend CSP then
-needs ``'wasm-unsafe-eval'``). Moving to it is a port of
-:file:`Build/Sources/` and the theme, not a version bump.
+:file:`Build/Tests/round-trip.test.js` opens the fixtures in
+:file:`Build/Tests/Fixtures/` with the engine the bundle ships (headless, in
+happy-dom), saves, re-opens and compares every part of the package in a
+namespace-aware canonical form (:file:`Build/Tests/lib/ooxml-canonical.js`):
+untouched saves change nothing, a typed edit changes only its paragraph, and
+content controls, bookmarks, tracked changes, footnotes, custom XML and custom
+properties survive. :file:`generate-fixtures.py` (python-docx) documents how
+the fixtures were made.
+
+Upgrading the engine
+--------------------
+
+The docx-editor.dev packages release as one version group; keep them on the
+same ``~2.x.y``. After an upgrade run ``npm run test:build`` —
+:file:`Build/Tests/i18n.test.js` fails for overlay keys upstream has
+translated since (drop them from :file:`i18n/de.json`) — rebuild, and check in
+the backend that the style picker, the H1–H4 buttons and the Review menu
+behave.
 
 Quality gates
 =============
@@ -124,4 +197,5 @@ Quality gates
 Functional tests use sqlite by default (:file:`Build/phpunit/FunctionalTests.xml`);
 CI runs them against MariaDB 10.11. They request the real backend routes with
 a fixture storage and cover the editor page, the document API (load, save,
-409, save-as) and the collaboration API.
+409, save-as), the collaboration API and the route-scoped
+Content-Security-Policy.

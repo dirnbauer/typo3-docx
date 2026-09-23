@@ -11,9 +11,27 @@ Open and edit
 
 #.  Open :guilabel:`Media` > :guilabel:`Filelist` and browse to a `.docx` file.
 #.  Choose the :guilabel:`Edit DOCX` action.
-#.  Edit in the full-page editor. The style dropdown offers
+#.  Edit in the full-page editor. The style picker offers
     :guilabel:`Normal` and :guilabel:`Heading 1`–:guilabel:`Heading 4`; the same
-    headings are available as H1–H4 buttons at the start of the toolbar.
+    headings are available as H1–H4 buttons at the end of the toolbar.
+
+Word keeps headings a document has not used yet *latent* — undefined in the
+file. While a document is open the editor adds Word's definitions for the
+missing ones, and on save it keeps only those you applied, so an untouched
+document is saved without them. Styles are matched by their Word name, so a
+German Word's ``Standard`` and ``Überschrift 1`` appear as Normal and
+Heading 1.
+
+Menus
+=====
+
+-   :guilabel:`File`: :guilabel:`Save` and :guilabel:`Page setup`. There is no
+    :guilabel:`Open` — it would replace the FAL file with a local one.
+-   :guilabel:`Format`, :guilabel:`Insert`: text and paragraph formatting, the
+    paragraph dialog, images, tables, notes, breaks, table of contents.
+-   :guilabel:`Review`: show paragraph marks, protect the document for forms.
+    Tracked-change review and comment threads are not included (see
+    :ref:`introduction`); existing tracked changes and comments are kept.
 
 Save
 ====
@@ -50,7 +68,16 @@ callout offers :guilabel:`Reload document`.
 Light and dark mode
 ===================
 
-The editor follows the colour scheme of the backend: its title bar, toolbar,
-menus and dialogs use TYPO3's design tokens. The document page stays white, as
-Word shows it; the upstream editor's own dark mode, which inverts the page, is
-not used.
+The editor follows the colour scheme of the backend: its menu bar, toolbar,
+rulers, menus and dialogs use TYPO3's design tokens. The document page stays
+white, as Word shows it; the upstream editor's own dark mode, which inverts the
+page, is not used.
+
+Fonts
+=====
+
+Metric-compatible open fonts stand in for Calibri, Cambria, Arial, Times New
+Roman, Courier New and Century Gothic, so lines and pages break where Word
+breaks them. They load from the extension, and only when a document uses the
+family. A notice under the toolbar names fonts the document uses that are not
+available; they are drawn with a substitute.

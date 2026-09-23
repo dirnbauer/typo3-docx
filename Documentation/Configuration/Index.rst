@@ -48,12 +48,22 @@ Security
 -   The presence table stores backend user id, display name and heartbeat
     only; the revision table stores counters and SHA-256 hashes.
 
-External fonts
---------------
+Content-Security-Policy
+-----------------------
 
-The upstream editor attempts to load Office typefaces from
-``fonts.googleapis.com`` / ``fonts.gstatic.com``. The bundle ships
-:file:`typo3-disable-external-fonts.js`, which blocks those stylesheet
-injections, so the backend Content Security Policy needs no Google hosts.
-Fallbacks are system fonts and fonts embedded in the document. Keep the guard
-unless you deliberately allow external font hosts.
+The backend policy stays as TYPO3 ships it on every route but one: on the
+editor route (``docx_editor``), the PSR-14 listener
+:php:`AllowEditorEngineInContentSecurityPolicy` adds
+
+-   ``script-src 'wasm-unsafe-eval'`` — the text shaper (HarfBuzz) is
+    WebAssembly, loaded from :file:`Resources/Public/Vite/assets/`. The
+    keyword allows compiling WebAssembly; JavaScript ``eval`` stays forbidden,
+    and the Vue templates are compiled at build time, so no ``'unsafe-eval'``
+    is needed;
+-   ``img-src blob:`` — the engine paints the document's images from
+    ``blob:`` URLs it creates from the package.
+
+Fonts and the WebAssembly module are fetched from the extension's public
+folder (same origin); the editor contacts no CDN and no font service.
+:file:`Tests/Functional/ContentSecurityPolicyTest.php` checks both the
+editor route and that other backend routes keep the core policy.

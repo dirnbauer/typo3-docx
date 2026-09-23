@@ -1,6 +1,6 @@
 {
     "name": "webconsulting/docx-editor",
-    "description": "DOCX Editor - WYSIWYG .docx editing from the TYPO3 v14 file list with eigenpal/docx-editor",
+    "description": "DOCX Editor - WYSIWYG .docx editing from the TYPO3 v14 file list with docx-editor.dev",
     "type": "typo3-cms-extension",
     "license": "GPL-2.0-or-later",
     "keywords": [
@@ -82,13 +82,13 @@
             "npm ci",
             "npm run test:build",
             "npm run build",
-            "git diff --exit-code -- Resources/Public/Vite"
+            "test -z \"$(git status --porcelain -- Resources/Public/Vite)\""
         ]
     },
     "extra": {
         "typo3/cms": {
             "extension-key": "docx_editor",
-            "version": "1.5.0"
+            "version": "2.0.0"
         }
     }
 }
