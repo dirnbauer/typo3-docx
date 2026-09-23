@@ -23,8 +23,8 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
  */
 abstract class AbstractBackendRouteTestCase extends FunctionalTestCase
 {
-    protected const DOCX = '1:/user_upload/example.docx';
-    protected const TXT = '1:/user_upload/notes.txt';
+    protected const string DOCX = '1:/user_upload/example.docx';
+    protected const string TXT = '1:/user_upload/notes.txt';
 
     protected array $coreExtensionsToLoad = ['filelist'];
 
@@ -35,6 +35,7 @@ abstract class AbstractBackendRouteTestCase extends FunctionalTestCase
         'typo3conf/ext/docx_editor/Tests/Functional/Fixtures/Files/notes.txt' => 'fileadmin/user_upload/notes.txt',
     ];
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();

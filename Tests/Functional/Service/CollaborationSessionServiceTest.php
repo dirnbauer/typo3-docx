@@ -14,6 +14,7 @@ final class CollaborationSessionServiceTest extends FunctionalTestCase
 
     protected array $testExtensionsToLoad = ['webconsulting/docx-editor'];
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();

@@ -12,6 +12,7 @@ parameters:
         - Tests
     tmpDir: var/phpstan
     treatPhpDocTypesAsCertain: false
+    checkMissingOverrideMethodAttribute: true
     typo3:
         requestGetAttributeMapping:
             backend.user: TYPO3\CMS\Core\Authentication\BackendUserAuthentication
