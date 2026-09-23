@@ -79,6 +79,16 @@ final readonly class PlanDecisions
         );
     }
 
+    /**
+     * The same decisions, with content types for the new elements the editor did not decide on.
+     *
+     * @param array<string, string> $types
+     */
+    public function withDefaultTypes(array $types): self
+    {
+        return new self($this->excluded, $this->types + $types, $this->resolutions, $this->confirmedDeletions, $this->conflictDefault, $this->applyMoves);
+    }
+
     public function includes(PlanEntry $entry): bool
     {
         if (in_array($entry->id, $this->excluded, true)) {

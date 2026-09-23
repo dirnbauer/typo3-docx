@@ -25,6 +25,8 @@ final readonly class ApplyResult
         public array $translated = [],
         public array $errors = [],
         public int $workspaceId = 0,
+        /** The page written to — for an import as a new page, the page created. */
+        public int $pageUid = 0,
     ) {}
 
     public function succeeded(): bool
@@ -45,6 +47,7 @@ final readonly class ApplyResult
             'translated' => $this->translated,
             'errors' => $this->errors,
             'workspace' => $this->workspaceId,
+            'page' => $this->pageUid,
         ];
     }
 }

@@ -39,6 +39,14 @@ final readonly class PageSyncSettings
         return str_replace('{page}', (string)$pageUid, $folder);
     }
 
+    /**
+     * Pages created by "Import as new page" start hidden, for review before they go live.
+     */
+    public function newPagesHidden(): bool
+    {
+        return $this->bool('newPagesHidden', true);
+    }
+
     public function maxUploadMegabytes(): int
     {
         return max(1, min(200, $this->int('maxUploadMegabytes', 25)));

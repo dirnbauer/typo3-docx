@@ -74,6 +74,35 @@ final readonly class RecordRepository
     }
 
     /**
+     * The uid of the last page under a parent in the default language, as the workspace sees it;
+     * 0 when the parent has no subpages.
+     */
+    public function lastSubpage(int $parentUid, int $workspaceId): int
+    {
+        $query = $this->connectionPool->getQueryBuilderForTable('pages');
+        $query->getRestrictions()->removeAll()
+            ->add(GeneralUtility::makeInstance(DeletedRestriction::class))
+            ->add(GeneralUtility::makeInstance(WorkspaceRestriction::class, $workspaceId));
+        $result = $query->select('*')->from('pages')
+            ->where(
+                $query->expr()->eq('pid', $query->createNamedParameter($parentUid, Connection::PARAM_INT)),
+                $query->expr()->eq('sys_language_uid', 0),
+            )
+            ->executeQuery();
+
+        $last = null;
+        while ($row = $result->fetchAssociative()) {
+            $row = $this->overlay('pages', $row, $workspaceId);
+            if ($row !== null && (int)($row['pid'] ?? 0) === $parentUid && ($last === null || (int)($row['sorting'] ?? 0) >= (int)($last['sorting'] ?? 0))) {
+                $last = $row;
+            }
+        }
+
+        // After the overlay, "uid" is the live uid — what the DataHandler expects as a position.
+        return (int)($last['uid'] ?? 0);
+    }
+
+    /**
      * The content elements of a page in one language (records for "all languages" included),
      * sorted as the Page module sorts them.
      *

@@ -323,21 +323,22 @@ final class PartAnalyzer
     }
 
     /**
-     * Unwraps content controls and drops markers that carry no content.
+     * Unwraps content controls and drops markers that carry no content — page breaks and
+     * horizontal rules too, unless they are kept to split at.
      *
      * @param list<Block> $blocks
      *
      * @return list<Block>
      */
-    public static function flatten(array $blocks): array
+    public static function flatten(array $blocks, bool $keepBreaks = false): array
     {
         $flat = [];
         foreach ($blocks as $block) {
             if ($block instanceof ContentControl) {
-                array_push($flat, ...self::flatten($block->blocks));
+                array_push($flat, ...self::flatten($block->blocks, $keepBreaks));
                 continue;
             }
-            if ($block instanceof Bookmark || $block instanceof PageBreak || $block instanceof HorizontalRule) {
+            if ($block instanceof Bookmark || (!$keepBreaks && ($block instanceof PageBreak || $block instanceof HorizontalRule))) {
                 continue;
             }
             $flat[] = $block;

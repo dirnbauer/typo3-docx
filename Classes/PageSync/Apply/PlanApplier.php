@@ -48,20 +48,54 @@ final readonly class PlanApplier
         private PageSyncSettings $settings,
     ) {}
 
-    public function apply(SyncPlan $plan, PlanDecisions $decisions, BackendUserAuthentication $user): ApplyResult
+    /**
+     * Applies the plans of a document imported as new pages: after the last subpage of their
+     * parent, each page after the one before it.
+     *
+     * @param list<SyncPlan> $plans
+     *
+     * @return list<ApplyResult>
+     */
+    public function applyNewPages(array $plans, PlanDecisions $decisions, BackendUserAuthentication $user): array
+    {
+        $results = [];
+        $afterPage = $plans === [] ? 0 : $this->records->lastSubpage($plans[0]->parentPageUid, (int)$user->workspace);
+        foreach ($plans as $plan) {
+            $result = $this->apply($plan, $decisions, $user, $afterPage);
+            $results[] = $result;
+            $afterPage = $result->pageUid > 0 ? $result->pageUid : $afterPage;
+        }
+
+        return $results;
+    }
+
+    /**
+     * @param int $afterPageUid For a new page: the page it goes after (0: first under its parent)
+     */
+    public function apply(SyncPlan $plan, PlanDecisions $decisions, BackendUserAuthentication $user, int $afterPageUid = 0): ApplyResult
     {
         if ((int)$user->workspace !== $plan->workspaceId) {
             throw new PageSyncException('error.workspaceChanged', 409);
         }
         $job = new ApplyJob($plan, $decisions, $user, $this->settings->imageFolder($plan->pageUid));
+        if ($plan->newPage) {
+            // First in the data map, so the content's "NEW" page id resolves.
+            $job->data['pages'][ApplyJob::NEW_PAGE] = [
+                'pid' => $afterPageUid > 0 ? -$afterPageUid : $plan->parentPageUid,
+                'title' => $plan->page->title ?? 'Untitled',
+                'doktype' => 1,
+                'hidden' => $this->settings->newPagesHidden() ? 1 : 0,
+            ];
+        }
 
         $this->commands($job);
         $translated = $job->commandsRun === [] ? [] : $this->runCommands($job, $job->commandsRun);
 
-        if ($plan->page !== null && $decisions->includes($plan->page)) {
-            $pageUid = $plan->page->action === EntryAction::Translate ? ($translated['pages'][$plan->pageUid] ?? 0) : $plan->page->uid;
+        $pageEntry = $plan->page;
+        if ($pageEntry !== null && !$plan->newPage && $decisions->includes($pageEntry)) {
+            $pageUid = $pageEntry->action === EntryAction::Translate ? ($translated['pages'][$plan->pageUid] ?? 0) : $pageEntry->uid;
             if ($pageUid > 0) {
-                $this->update($job, $plan->page, 'pages', $pageUid, []);
+                $this->update($job, $pageEntry, 'pages', $pageUid, []);
             }
         }
         foreach ($plan->entries as $entry) {
@@ -78,10 +112,17 @@ final readonly class PlanApplier
         $this->queueCreates($job);
 
         $created = [];
+        $newPageUid = 0;
         if ($job->data !== []) {
             $dataHandler = $this->dataHandler($job->data, [], $user);
             $dataHandler->process_datamap();
             $this->collectErrors($dataHandler, $job);
+            if ($plan->newPage) {
+                $newPageUid = (int)($dataHandler->substNEWwithIDs[ApplyJob::NEW_PAGE] ?? 0);
+                if ($newPageUid <= 0) {
+                    $job->errors[] = 'The new page was not created.';
+                }
+            }
             foreach ($job->newIds as $entryId => $newId) {
                 $uid = (int)($dataHandler->substNEWwithIDs[$newId] ?? 0);
                 if ($uid > 0) {
@@ -113,6 +154,7 @@ final readonly class PlanApplier
             translated: $translatedEntries,
             errors: $job->errors,
             workspaceId: $plan->workspaceId,
+            pageUid: $plan->newPage ? $newPageUid : $plan->pageUid,
         );
     }
 
@@ -299,7 +341,8 @@ final readonly class PlanApplier
             return;
         }
         $type = $job->decisions->typeFor($entry);
-        $candidates = $job->candidates[$entry->colPos] ??= $this->candidates->forColumn($job->plan->pageUid, $entry->colPos, $job->user);
+        $contextPage = $job->plan->newPage ? $job->plan->parentPageUid : $job->plan->pageUid;
+        $candidates = $job->candidates[$entry->colPos] ??= $this->candidates->forColumn($contextPage, $entry->colPos, $job->user);
         $candidate = $candidates[$type] ?? null;
         if ($candidate === null) {
             $job->errors[] = sprintf('Content type "%s" may not be created in column %d.', $type, $entry->colPos);
@@ -312,7 +355,7 @@ final readonly class PlanApplier
             'CType' => $type,
             'colPos' => $entry->colPos,
             'sys_language_uid' => $job->plan->languageId,
-        ] + $this->row($job, $mapping, $job->plan->pageUid);
+        ] + $this->row($job, $mapping, $job->plan->newPage ? 0 : $job->plan->pageUid);
         $job->creates[] = ['entry' => $entry, 'newId' => $newId, 'row' => $row];
         $job->newIds[$entry->id] = $newId;
     }
@@ -330,7 +373,12 @@ final readonly class PlanApplier
         foreach ($groups as $group) {
             foreach (array_reverse($group) as $create) {
                 $afterUid = $create['entry']->afterUid;
-                $job->data['tt_content'][$create['newId']] = ['pid' => $afterUid > 0 ? -$afterUid : $job->plan->pageUid] + $create['row'];
+                $pid = match (true) {
+                    $afterUid > 0 => -$afterUid,
+                    $job->plan->newPage => ApplyJob::NEW_PAGE,
+                    default => $job->plan->pageUid,
+                };
+                $job->data['tt_content'][$create['newId']] = ['pid' => $pid] + $create['row'];
             }
         }
     }
@@ -367,7 +415,7 @@ final readonly class PlanApplier
             $ids = [];
             foreach ($value->items as $item) {
                 $newId = $job->newId();
-                $job->data[$value->childTable][$newId] = ['pid' => $pid, 'sys_language_uid' => $job->plan->languageId] + $this->row($job, $item, $pid);
+                $job->data[$value->childTable][$newId] = ['pid' => $this->pid($job, $pid), 'sys_language_uid' => $job->plan->languageId] + $this->row($job, $item, $pid);
                 $ids[] = $newId;
             }
 
@@ -457,7 +505,7 @@ final readonly class PlanApplier
             $newId = $job->newId();
             $job->data['sys_file_reference'][$newId] = [
                 'uid_local' => $file->getUid(),
-                'pid' => $pid,
+                'pid' => $this->pid($job, $pid),
                 'alternative' => $figure->image->alternative,
                 'title' => $figure->image->title,
                 'description' => trim(PlainText::ofInlines($figure->caption)),
@@ -466,6 +514,14 @@ final readonly class PlanApplier
         }
 
         return $ids;
+    }
+
+    /**
+     * The page records go on: the page itself, or the page being created.
+     */
+    private function pid(ApplyJob $job, int $pid): int|string
+    {
+        return $pid === 0 && $job->plan->newPage ? ApplyJob::NEW_PAGE : $pid;
     }
 
     /**

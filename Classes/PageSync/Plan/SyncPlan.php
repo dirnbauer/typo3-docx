@@ -88,6 +88,24 @@ final readonly class SyncPlan
     }
 
     /**
+     * The content type chosen for every new element, by entry id — kept with a preview so the
+     * rebuilt plan applies exactly what the editor reviewed, whatever Jev would say the second time.
+     *
+     * @return array<string, string>
+     */
+    public function chosenTypes(): array
+    {
+        $types = [];
+        foreach ($this->entries as $entry) {
+            if ($entry->action === EntryAction::Create && $entry->type !== '') {
+                $types[$entry->id] = $entry->type;
+            }
+        }
+
+        return $types;
+    }
+
+    /**
      * @param array<string, int> $counts
      */
     private static function count(PlanEntry $entry, array &$counts): void
@@ -103,8 +121,10 @@ final readonly class SyncPlan
      */
     private static function digestLines(PlanEntry $entry, array &$lines): void
     {
-        $line = $entry->id . ':' . $entry->action->value . ':' . $entry->table . ':' . $entry->uid . ':' . $entry->type;
-        foreach ($entry->fields as $field) {
+        // The type of a new element is the editor's choice (see chosenTypes()), not TYPO3's state.
+        $type = $entry->action === EntryAction::Create ? '' : $entry->type;
+        $line = $entry->id . ':' . $entry->action->value . ':' . $entry->table . ':' . $entry->uid . ':' . $type;
+        foreach ($entry->action === EntryAction::Create ? [] : $entry->fields as $field) {
             $line .= '|' . $field->field->name . '=' . $field->status->value . '/' . hash('xxh128', $field->wordPreview . "\0" . $field->typo3Preview);
         }
         $lines[] = $line;

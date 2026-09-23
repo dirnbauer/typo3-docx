@@ -146,6 +146,286 @@
         <source>Language %d is not available on this site.</source>
       </segment>
     </unit>
+    <unit id="error.noPageCreation">
+      <segment>
+        <source>You may not create pages below page %d.</source>
+      </segment>
+    </unit>
+    <unit id="error.workspaceNotFound">
+      <segment>
+        <source>Workspace %d does not exist or is not available to you.</source>
+      </segment>
+    </unit>
+    <unit id="error.workspaceChanged">
+      <segment>
+        <source>You switched to another workspace since the preview. Upload the document again.</source>
+      </segment>
+    </unit>
+    <unit id="error.planOutdated">
+      <segment>
+        <source>The page was changed in TYPO3 since the preview. Review the import again.</source>
+      </segment>
+    </unit>
+    <unit id="error.planNotFound">
+      <segment>
+        <source>The preview has expired or belongs to someone else. Upload the document again.</source>
+      </segment>
+    </unit>
+    <unit id="error.storeFailed">
+      <segment>
+        <source>The document could not be kept for the preview.</source>
+      </segment>
+    </unit>
+    <unit id="error.noFolderAccess">
+      <segment>
+        <source>You may not store pictures in the folder %s.</source>
+      </segment>
+    </unit>
+    <unit id="error.imageRejected">
+      <segment>
+        <source>The picture %s was refused by the file storage.</source>
+      </segment>
+    </unit>
+    <unit id="plan.action.create">
+      <segment>
+        <source>New</source>
+      </segment>
+    </unit>
+    <unit id="plan.action.update">
+      <segment>
+        <source>Changed</source>
+      </segment>
+    </unit>
+    <unit id="plan.action.conflict">
+      <segment>
+        <source>Conflict</source>
+      </segment>
+    </unit>
+    <unit id="plan.action.unchanged">
+      <segment>
+        <source>Unchanged</source>
+      </segment>
+    </unit>
+    <unit id="plan.action.delete">
+      <segment>
+        <source>Removed in Word</source>
+      </segment>
+    </unit>
+    <unit id="plan.action.translate">
+      <segment>
+        <source>Translate</source>
+      </segment>
+    </unit>
+    <unit id="plan.action.readOnly">
+      <segment>
+        <source>Read-only</source>
+      </segment>
+    </unit>
+    <unit id="plan.action.skip">
+      <segment>
+        <source>Not imported</source>
+      </segment>
+    </unit>
+    <unit id="plan.status.unchanged">
+      <segment>
+        <source>unchanged</source>
+      </segment>
+    </unit>
+    <unit id="plan.status.changed">
+      <segment>
+        <source>changed in Word</source>
+      </segment>
+    </unit>
+    <unit id="plan.status.conflict">
+      <segment>
+        <source>changed in Word and in TYPO3</source>
+      </segment>
+    </unit>
+    <unit id="plan.status.changedInTypo3">
+      <segment>
+        <source>changed in TYPO3 only — kept</source>
+      </segment>
+    </unit>
+    <unit id="plan.status.readOnly">
+      <segment>
+        <source>read-only — not imported</source>
+      </segment>
+    </unit>
+    <unit id="plan.status.new">
+      <segment>
+        <source>new</source>
+      </segment>
+    </unit>
+    <unit id="plan.message.noManifest">
+      <segment>
+        <source>This document was not exported from TYPO3: everything in it is imported as new content.</source>
+      </segment>
+    </unit>
+    <unit id="plan.message.untrustedManifest">
+      <segment>
+        <source>The document's TYPO3 information was changed outside TYPO3 and is only used to recognise elements.</source>
+      </segment>
+    </unit>
+    <unit id="plan.message.otherPage">
+      <segment>
+        <source>This document was exported from page %d (language %d). Its elements are imported as new content.</source>
+      </segment>
+    </unit>
+    <unit id="plan.message.otherWorkspace">
+      <segment>
+        <source>This document was exported from workspace %d, you are working in workspace %d.</source>
+      </segment>
+    </unit>
+    <unit id="plan.message.duplicate">
+      <segment>
+        <source>Element %d appears more than once in the document; only its first occurrence is imported.</source>
+      </segment>
+    </unit>
+    <unit id="plan.message.connectedTranslation">
+      <segment>
+        <source>This translation follows the default language: new elements are added there, not here.</source>
+      </segment>
+    </unit>
+    <unit id="plan.message.contentOutsideFields">
+      <segment>
+        <source>Text was written outside the fields of this element and is not imported.</source>
+      </segment>
+    </unit>
+    <unit id="plan.message.noType">
+      <segment>
+        <source>No content element you may create here fits this part.</source>
+      </segment>
+    </unit>
+    <unit id="plan.message.recognisedBy.bookmark">
+      <segment>
+        <source>Recognised by its bookmark — its content control was removed in Word.</source>
+      </segment>
+    </unit>
+    <unit id="plan.message.recognisedBy.fingerprint">
+      <segment>
+        <source>Recognised by its text — its content control was removed in Word.</source>
+      </segment>
+    </unit>
+    <unit id="jev.context">
+      <segment>
+        <source>Word import (docx_editor)</source>
+      </segment>
+    </unit>
+    <unit id="cli.page">
+      <segment>
+        <source>Page</source>
+      </segment>
+    </unit>
+    <unit id="cli.newPage">
+      <segment>
+        <source>New page</source>
+      </segment>
+    </unit>
+    <unit id="cli.language">
+      <segment>
+        <source>language</source>
+      </segment>
+    </unit>
+    <unit id="cli.workspace">
+      <segment>
+        <source>workspace</source>
+      </segment>
+    </unit>
+    <unit id="cli.column.action">
+      <segment>
+        <source>Action</source>
+      </segment>
+    </unit>
+    <unit id="cli.column.record">
+      <segment>
+        <source>Record</source>
+      </segment>
+    </unit>
+    <unit id="cli.column.type">
+      <segment>
+        <source>Type</source>
+      </segment>
+    </unit>
+    <unit id="cli.column.content">
+      <segment>
+        <source>Content</source>
+      </segment>
+    </unit>
+    <unit id="cli.column.details">
+      <segment>
+        <source>Details</source>
+      </segment>
+    </unit>
+    <unit id="cli.decidedBy.structure">
+      <segment>
+        <source>chosen by structure</source>
+      </segment>
+    </unit>
+    <unit id="cli.decidedBy.jev">
+      <segment>
+        <source>chosen by Jev</source>
+      </segment>
+    </unit>
+    <unit id="cli.decidedBy.editor">
+      <segment>
+        <source>chosen by the editor</source>
+      </segment>
+    </unit>
+    <unit id="cli.needsReview">
+      <segment>
+        <source>(please review)</source>
+      </segment>
+    </unit>
+    <unit id="cli.lossy">
+      <segment>
+        <source>(loses TYPO3 formatting)</source>
+      </segment>
+    </unit>
+    <unit id="cli.recognisedBy">
+      <segment>
+        <source>recognised by</source>
+      </segment>
+    </unit>
+    <unit id="cli.move">
+      <segment>
+        <source>Move</source>
+      </segment>
+    </unit>
+    <unit id="cli.after">
+      <segment>
+        <source>after</source>
+      </segment>
+    </unit>
+    <unit id="cli.result.page">
+      <segment>
+        <source>Page</source>
+      </segment>
+    </unit>
+    <unit id="cli.result.created">
+      <segment>
+        <source>Created</source>
+      </segment>
+    </unit>
+    <unit id="cli.result.updated">
+      <segment>
+        <source>Updated</source>
+      </segment>
+    </unit>
+    <unit id="cli.result.deleted">
+      <segment>
+        <source>Deleted</source>
+      </segment>
+    </unit>
+    <unit id="cli.result.moved">
+      <segment>
+        <source>Moved</source>
+      </segment>
+    </unit>
+    <unit id="cli.result.translated">
+      <segment>
+        <source>Translated</source>
+      </segment>
+    </unit>
     <unit id="warning.linkedImage">
       <segment>
         <source>A picture is only linked, not embedded, and was left out (%s).</source>

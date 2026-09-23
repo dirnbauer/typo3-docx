@@ -175,6 +175,342 @@
         <target>Sprache %d ist auf dieser Website nicht verfügbar.</target>
       </segment>
     </unit>
+    <unit id="error.noPageCreation">
+      <segment>
+        <source>You may not create pages below page %d.</source>
+        <target>Sie dürfen unterhalb von Seite %d keine Seiten anlegen.</target>
+      </segment>
+    </unit>
+    <unit id="error.workspaceNotFound">
+      <segment>
+        <source>Workspace %d does not exist or is not available to you.</source>
+        <target>Arbeitsbereich %d existiert nicht oder steht Ihnen nicht zur Verfügung.</target>
+      </segment>
+    </unit>
+    <unit id="error.workspaceChanged">
+      <segment>
+        <source>You switched to another workspace since the preview. Upload the document again.</source>
+        <target>Sie haben seit der Vorschau den Arbeitsbereich gewechselt. Laden Sie das Dokument erneut hoch.</target>
+      </segment>
+    </unit>
+    <unit id="error.planOutdated">
+      <segment>
+        <source>The page was changed in TYPO3 since the preview. Review the import again.</source>
+        <target>Die Seite wurde seit der Vorschau in TYPO3 geändert. Prüfen Sie den Import erneut.</target>
+      </segment>
+    </unit>
+    <unit id="error.planNotFound">
+      <segment>
+        <source>The preview has expired or belongs to someone else. Upload the document again.</source>
+        <target>Die Vorschau ist abgelaufen oder gehört jemand anderem. Laden Sie das Dokument erneut hoch.</target>
+      </segment>
+    </unit>
+    <unit id="error.storeFailed">
+      <segment>
+        <source>The document could not be kept for the preview.</source>
+        <target>Das Dokument konnte für die Vorschau nicht zwischengespeichert werden.</target>
+      </segment>
+    </unit>
+    <unit id="error.noFolderAccess">
+      <segment>
+        <source>You may not store pictures in the folder %s.</source>
+        <target>Sie dürfen im Ordner %s keine Bilder ablegen.</target>
+      </segment>
+    </unit>
+    <unit id="error.imageRejected">
+      <segment>
+        <source>The picture %s was refused by the file storage.</source>
+        <target>Das Bild %s wurde vom Dateispeicher abgelehnt.</target>
+      </segment>
+    </unit>
+    <unit id="plan.action.create">
+      <segment>
+        <source>New</source>
+        <target>Neu</target>
+      </segment>
+    </unit>
+    <unit id="plan.action.update">
+      <segment>
+        <source>Changed</source>
+        <target>Geändert</target>
+      </segment>
+    </unit>
+    <unit id="plan.action.conflict">
+      <segment>
+        <source>Conflict</source>
+        <target>Konflikt</target>
+      </segment>
+    </unit>
+    <unit id="plan.action.unchanged">
+      <segment>
+        <source>Unchanged</source>
+        <target>Unverändert</target>
+      </segment>
+    </unit>
+    <unit id="plan.action.delete">
+      <segment>
+        <source>Removed in Word</source>
+        <target>In Word entfernt</target>
+      </segment>
+    </unit>
+    <unit id="plan.action.translate">
+      <segment>
+        <source>Translate</source>
+        <target>Übersetzen</target>
+      </segment>
+    </unit>
+    <unit id="plan.action.readOnly">
+      <segment>
+        <source>Read-only</source>
+        <target>Schreibgeschützt</target>
+      </segment>
+    </unit>
+    <unit id="plan.action.skip">
+      <segment>
+        <source>Not imported</source>
+        <target>Nicht importiert</target>
+      </segment>
+    </unit>
+    <unit id="plan.status.unchanged">
+      <segment>
+        <source>unchanged</source>
+        <target>unverändert</target>
+      </segment>
+    </unit>
+    <unit id="plan.status.changed">
+      <segment>
+        <source>changed in Word</source>
+        <target>in Word geändert</target>
+      </segment>
+    </unit>
+    <unit id="plan.status.conflict">
+      <segment>
+        <source>changed in Word and in TYPO3</source>
+        <target>in Word und in TYPO3 geändert</target>
+      </segment>
+    </unit>
+    <unit id="plan.status.changedInTypo3">
+      <segment>
+        <source>changed in TYPO3 only — kept</source>
+        <target>nur in TYPO3 geändert – bleibt erhalten</target>
+      </segment>
+    </unit>
+    <unit id="plan.status.readOnly">
+      <segment>
+        <source>read-only — not imported</source>
+        <target>schreibgeschützt – wird nicht importiert</target>
+      </segment>
+    </unit>
+    <unit id="plan.status.new">
+      <segment>
+        <source>new</source>
+        <target>neu</target>
+      </segment>
+    </unit>
+    <unit id="plan.message.noManifest">
+      <segment>
+        <source>This document was not exported from TYPO3: everything in it is imported as new content.</source>
+        <target>Dieses Dokument wurde nicht aus TYPO3 exportiert: sein gesamter Inhalt wird als neuer Inhalt importiert.</target>
+      </segment>
+    </unit>
+    <unit id="plan.message.untrustedManifest">
+      <segment>
+        <source>The document's TYPO3 information was changed outside TYPO3 and is only used to recognise elements.</source>
+        <target>Die TYPO3-Informationen des Dokuments wurden außerhalb von TYPO3 verändert und dienen nur noch zum Wiedererkennen von Elementen.</target>
+      </segment>
+    </unit>
+    <unit id="plan.message.otherPage">
+      <segment>
+        <source>This document was exported from page %d (language %d). Its elements are imported as new content.</source>
+        <target>Dieses Dokument wurde aus Seite %d (Sprache %d) exportiert. Seine Elemente werden als neuer Inhalt importiert.</target>
+      </segment>
+    </unit>
+    <unit id="plan.message.otherWorkspace">
+      <segment>
+        <source>This document was exported from workspace %d, you are working in workspace %d.</source>
+        <target>Dieses Dokument wurde aus Arbeitsbereich %d exportiert, Sie arbeiten in Arbeitsbereich %d.</target>
+      </segment>
+    </unit>
+    <unit id="plan.message.duplicate">
+      <segment>
+        <source>Element %d appears more than once in the document; only its first occurrence is imported.</source>
+        <target>Element %d kommt mehrfach im Dokument vor; nur das erste Vorkommen wird importiert.</target>
+      </segment>
+    </unit>
+    <unit id="plan.message.connectedTranslation">
+      <segment>
+        <source>This translation follows the default language: new elements are added there, not here.</source>
+        <target>Diese Übersetzung folgt der Standardsprache: neue Elemente werden dort angelegt, nicht hier.</target>
+      </segment>
+    </unit>
+    <unit id="plan.message.contentOutsideFields">
+      <segment>
+        <source>Text was written outside the fields of this element and is not imported.</source>
+        <target>Text wurde außerhalb der Felder dieses Elements geschrieben und wird nicht importiert.</target>
+      </segment>
+    </unit>
+    <unit id="plan.message.noType">
+      <segment>
+        <source>No content element you may create here fits this part.</source>
+        <target>Kein Inhaltselement, das Sie hier anlegen dürfen, passt zu diesem Abschnitt.</target>
+      </segment>
+    </unit>
+    <unit id="plan.message.recognisedBy.bookmark">
+      <segment>
+        <source>Recognised by its bookmark — its content control was removed in Word.</source>
+        <target>An seinem Lesezeichen erkannt – sein Inhaltssteuerelement wurde in Word entfernt.</target>
+      </segment>
+    </unit>
+    <unit id="plan.message.recognisedBy.fingerprint">
+      <segment>
+        <source>Recognised by its text — its content control was removed in Word.</source>
+        <target>An seinem Text erkannt – sein Inhaltssteuerelement wurde in Word entfernt.</target>
+      </segment>
+    </unit>
+    <unit id="jev.context">
+      <segment>
+        <source>Word import (docx_editor)</source>
+        <target>Word-Import (docx_editor)</target>
+      </segment>
+    </unit>
+    <unit id="cli.page">
+      <segment>
+        <source>Page</source>
+        <target>Seite</target>
+      </segment>
+    </unit>
+    <unit id="cli.newPage">
+      <segment>
+        <source>New page</source>
+        <target>Neue Seite</target>
+      </segment>
+    </unit>
+    <unit id="cli.language">
+      <segment>
+        <source>language</source>
+        <target>Sprache</target>
+      </segment>
+    </unit>
+    <unit id="cli.workspace">
+      <segment>
+        <source>workspace</source>
+        <target>Arbeitsbereich</target>
+      </segment>
+    </unit>
+    <unit id="cli.column.action">
+      <segment>
+        <source>Action</source>
+        <target>Aktion</target>
+      </segment>
+    </unit>
+    <unit id="cli.column.record">
+      <segment>
+        <source>Record</source>
+        <target>Datensatz</target>
+      </segment>
+    </unit>
+    <unit id="cli.column.type">
+      <segment>
+        <source>Type</source>
+        <target>Typ</target>
+      </segment>
+    </unit>
+    <unit id="cli.column.content">
+      <segment>
+        <source>Content</source>
+        <target>Inhalt</target>
+      </segment>
+    </unit>
+    <unit id="cli.column.details">
+      <segment>
+        <source>Details</source>
+        <target>Details</target>
+      </segment>
+    </unit>
+    <unit id="cli.decidedBy.structure">
+      <segment>
+        <source>chosen by structure</source>
+        <target>nach Struktur gewählt</target>
+      </segment>
+    </unit>
+    <unit id="cli.decidedBy.jev">
+      <segment>
+        <source>chosen by Jev</source>
+        <target>von Jev gewählt</target>
+      </segment>
+    </unit>
+    <unit id="cli.decidedBy.editor">
+      <segment>
+        <source>chosen by the editor</source>
+        <target>vom Redakteur gewählt</target>
+      </segment>
+    </unit>
+    <unit id="cli.needsReview">
+      <segment>
+        <source>(please review)</source>
+        <target>(bitte prüfen)</target>
+      </segment>
+    </unit>
+    <unit id="cli.lossy">
+      <segment>
+        <source>(loses TYPO3 formatting)</source>
+        <target>(verliert TYPO3-Formatierung)</target>
+      </segment>
+    </unit>
+    <unit id="cli.recognisedBy">
+      <segment>
+        <source>recognised by</source>
+        <target>erkannt an</target>
+      </segment>
+    </unit>
+    <unit id="cli.move">
+      <segment>
+        <source>Move</source>
+        <target>Verschieben</target>
+      </segment>
+    </unit>
+    <unit id="cli.after">
+      <segment>
+        <source>after</source>
+        <target>nach</target>
+      </segment>
+    </unit>
+    <unit id="cli.result.page">
+      <segment>
+        <source>Page</source>
+        <target>Seite</target>
+      </segment>
+    </unit>
+    <unit id="cli.result.created">
+      <segment>
+        <source>Created</source>
+        <target>Angelegt</target>
+      </segment>
+    </unit>
+    <unit id="cli.result.updated">
+      <segment>
+        <source>Updated</source>
+        <target>Aktualisiert</target>
+      </segment>
+    </unit>
+    <unit id="cli.result.deleted">
+      <segment>
+        <source>Deleted</source>
+        <target>Gelöscht</target>
+      </segment>
+    </unit>
+    <unit id="cli.result.moved">
+      <segment>
+        <source>Moved</source>
+        <target>Verschoben</target>
+      </segment>
+    </unit>
+    <unit id="cli.result.translated">
+      <segment>
+        <source>Translated</source>
+        <target>Übersetzt</target>
+      </segment>
+    </unit>
     <unit id="warning.linkedImage">
       <segment>
         <source>A picture is only linked, not embedded, and was left out (%s).</source>

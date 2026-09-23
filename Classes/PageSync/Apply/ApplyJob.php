@@ -17,6 +17,9 @@ use Webconsulting\DocxEditor\PageSync\Plan\SyncPlan;
  */
 final class ApplyJob
 {
+    /** The data map id of a page created by the import. */
+    public const string NEW_PAGE = 'NEWdocxpage';
+
     /** @var array<string, array<int|string, array<string, mixed>>> */
     public array $data = [];
 
