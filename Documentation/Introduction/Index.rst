@@ -35,13 +35,30 @@ Features
 Not included
 ============
 
-Tracked-change review (suggesting mode, accept/reject, markup views), comment
-threads and real-time collaboration are part of the commercial
-``@docx-editor.dev/pro`` package, which this extension does not use. Printing
-is included (:ref:`usage-print`); a PDF comes from the browser's print dialog
-(:guilabel:`Save as PDF`). Tracked
-changes and comments already in a document are shown as the engine renders
-them and kept on save.
+Only the free, Apache-2.0 packages of docx-editor.dev are used. Suggesting
+mode, tracked-change review (accept/reject, previous/next, markup views),
+comments, reviewers, real-time collaboration and custom nodes belong to the
+commercial ``@docx-editor.dev/pro`` package (EigenPal Pro licence), document
+automation to ``@docx-editor.dev/editor-api`` and PDF conversion to
+``@docx-editor.dev/docx-to-pdf``. None of them is installed, and the editor
+shows none of their controls — no disabled entries, no upgrade hints — to any
+user.
+
+Tracked changes already in a document are shown in their final state
+(insertions as text, deletions left out), as the open-source engine renders
+them; comments are not shown. Both are kept on save. Printing is included
+(:ref:`usage-print`); a PDF comes from the browser's print dialog
+(:guilabel:`Save as PDF`). Presence (who is online) is the extension's own.
+
+Licences
+========
+
+The extension is GPL-2.0-or-later. The editor bundle in
+:file:`Resources/Public/Vite/` contains ``@docx-editor.dev/core``, ``/vue``,
+``/i18n`` and ``/fonts`` (Apache-2.0), Vue (MIT) and their dependencies (MIT,
+Apache-2.0, MIT AND Zlib); the fonts are under the SIL Open Font License
+1.1 and the GUST Font License, HarfBuzz under its MIT-style licence. All
+licence texts ship in :file:`Resources/Public/Vite/licenses/`.
 
 Collaboration model
 ===================

@@ -47,9 +47,15 @@ can become new pages, split into the content elements that fit it.
 - English and German, editor chrome included (the upstream German catalogue is
   completed by the extension).
 
-Not included: tracked-change review (suggesting, accept/reject, markup
-views), comment threads and real-time collaboration — upstream ships them in
-the commercial `@docx-editor.dev/pro`, which this extension does not use. Documents that contain tracked changes or comments keep them on save.
+Only the free, Apache-2.0 packages of docx-editor.dev are used. What upstream
+sells as `@docx-editor.dev/pro` (EigenPal Pro licence: suggesting mode,
+tracked-change review with accept/reject and markup views, comments,
+reviewers, real-time collaboration, custom nodes), `@docx-editor.dev/editor-api`
+and `@docx-editor.dev/docx-to-pdf` is not installed, and the editor offers no
+trace of it — no disabled "Suggesting" mode, no comment rows, no upgrade
+hints, for any user. Tracked changes in a document show in their final state
+(as the open-source engine renders them), comments are not shown; both are
+kept on save. Presence ("2 editors online") is the extension's own.
 
 ## Requirements
 
@@ -229,8 +235,10 @@ Frontend sources live in `Build/Sources/`: the two custom elements, the Vue
 editor composition (`editor/*.vue`, compiled at build time; the bundle carries
 Vue's runtime-only build) and the curated-styles logic. `npm run test:build`
 runs the node tests in `Build/Tests/`: round-trip fidelity on the fixtures in
-`Build/Tests/Fixtures/` (headless, in happy-dom), the German catalogue overlay
-and the label keys. After changing `Build/Sources/` run `npm run build` and
+`Build/Tests/Fixtures/` (headless, in happy-dom), the editor chrome as the
+backend mounts it (no control of the commercial package in toolbar, menus,
+context menu or on a shortcut), the licences of everything bundled, the German
+catalogue overlay and the label keys. After changing `Build/Sources/` run `npm run build` and
 commit `Resources/Public/Vite/`; CI fails on drift. CSS in
 `Resources/Public/Css/` needs no build.
 
@@ -242,5 +250,18 @@ commit `Resources/Public/Vite/`; CI fails on drift. CSS in
 
 ## License
 
-GPL-2.0-or-later. The bundled editor packages are Apache-2.0, the fonts SIL
-OFL 1.1 / GUST; their licence texts ship in `Resources/Public/Vite/licenses/`.
+GPL-2.0-or-later.
+
+The editor bundle (`Resources/Public/Vite/`) contains the Apache-2.0 packages
+`@docx-editor.dev/core`, `/vue`, `/i18n` and `/fonts` (2.21), Vue (MIT) and
+their dependencies (MIT, Apache-2.0, MIT AND Zlib); the fonts are under
+the SIL Open Font License 1.1 (Liberation, Carlito, Caladea) and the GUST Font
+License (TeX Gyre Adventor), HarfBuzz under its MIT-style licence. The licence
+texts ship next to them in `Resources/Public/Vite/licenses/`:
+`THIRD-PARTY-LICENSES.md` (every bundled package with its licence text), the
+upstream packages' `THIRD_PARTY_NOTICES`, `HarfBuzz-COPYING.txt` and
+`fonts/`. None of the packages has a NOTICE file to carry. `npm run
+test:build` fails when a bundled or runtime dependency is under a licence
+outside the allowlist (Apache-2.0, MIT, BSD-2/3-Clause, ISC, 0BSD, Zlib,
+CC0-1.0, OFL-1.1, GUST) or when a commercial docx-editor.dev package appears
+in `package-lock.json`.

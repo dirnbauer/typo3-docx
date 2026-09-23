@@ -9,6 +9,18 @@ Changelog
 The full history is kept in
 `CHANGELOG.md <https://github.com/dirnbauer/typo3-docx/blob/main/CHANGELOG.md>`__.
 
+2.4.0
+=====
+
+-   Free features only: the editing-mode switch (with its disabled
+    *Suggesting* mode) and "Add a comment…" in the context menu are gone; no
+    control, row or hint of the commercial ``@docx-editor.dev/pro`` remains
+    for any user. Tracked changes still show in their final state; tracked
+    changes and comments are kept on save.
+-   Licence audit: only the Apache-2.0 docx-editor.dev packages are used; the
+    HarfBuzz licence now ships with the bundle. Tests fail on a disallowed
+    licence or a commercial package in :file:`package-lock.json`.
+
 2.3.0
 =====
 

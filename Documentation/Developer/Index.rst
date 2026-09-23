@@ -237,7 +237,7 @@ Frontend build
 ..  code-block:: bash
 
     npm ci
-    npm run test:build   # round-trip, catalogue and label tests
+    npm run test:build   # round-trip, chrome, licence, catalogue and label tests
     npm run build        # -> Resources/Public/Vite/
 
 Vite compiles the Vue single-file components; the bundle carries Vue's
@@ -257,8 +257,9 @@ runtime-only build, so nothing is compiled in the browser. Output:
       - :file:`harfbuzz-*.wasm` and the font files, fetched relative to the
         module.
     * - :file:`licenses/`
-      - Licences of everything bundled (Vite's licence report), the fonts'
-        licences and the upstream packages' third-party notices.
+      - Licences of everything bundled (Vite's licence report, with a note
+        for packages that ship no licence text), the fonts' licences,
+        HarfBuzz's and the upstream packages' third-party notices.
 
 Commit :file:`Resources/Public/Vite/` — the CI ``assets`` job rebuilds and
 fails on ``git diff``. In the DDEV lab, build to a scratch folder
@@ -277,6 +278,26 @@ content controls, bookmarks, tracked changes, footnotes, custom XML and custom
 properties survive. :file:`generate-fixtures.py` (python-docx) documents how
 the fixtures were made.
 
+Free features only
+------------------
+
+:file:`Build/Tests/chrome.test.js` builds :file:`Build/Sources/editor/mount.js`
+with Vite into a temporary folder (:file:`Build/Tests/lib/mounted-editor.js`),
+mounts it headless on the fixtures — editable and read-only — and fails when
+the toolbar, a menu, the context menu or a Word shortcut offers anything of
+``@docx-editor.dev/pro``: a control of the engine's ``review`` chrome group
+other than paragraph marks and forms protection, or a label such as
+*Suggesting*, *Add a comment…*, *Accept all changes shown* or a "requires the
+pro review module" hint. It also checks that tracked changes show in their
+final state and that tracked changes and comments survive a save.
+
+:file:`Build/Tests/licenses.test.js` fails when a commercial docx-editor.dev
+package (``/pro``, ``/editor-api``, ``/docx-to-pdf``) appears in
+:file:`package-lock.json` in any role, when a runtime dependency or a bundled
+package (as listed in :file:`licenses/THIRD-PARTY-LICENSES.md`) has a licence
+outside the allowlist, when a bundled package ships without licence text, or
+when a font or :file:`harfbuzz.wasm` ships without its licence.
+
 Upgrading the engine
 --------------------
 
@@ -285,7 +306,8 @@ same ``~2.x.y``. After an upgrade run ``npm run test:build`` —
 :file:`Build/Tests/i18n.test.js` fails for overlay keys upstream has
 translated since (drop them from :file:`i18n/de.json`) — rebuild, and check in
 the backend that the style picker, the H1–H4 buttons and the Review menu
-behave.
+behave. A new chrome control that belongs to the commercial package fails
+:file:`Build/Tests/chrome.test.js`; hide it in :file:`EditorShell.vue`.
 
 Quality gates
 =============

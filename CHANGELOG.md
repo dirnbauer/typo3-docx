@@ -2,6 +2,61 @@
 
 All notable changes to this project are documented in this file.
 
+## [2.4.0] - 2026-09-23
+
+Free features only. docx-editor.dev is Apache-2.0 except three packages under
+the EigenPal Pro Evaluation License (no production use without a paid
+agreement): `@docx-editor.dev/pro` (suggesting mode, tracked-change review,
+comments, reviewers, real-time collaboration, custom nodes),
+`/editor-api` and `/docx-to-pdf`. None of them was ever installed; now the
+editor also stops pointing at them.
+
+### Removed
+
+- The **editing-mode switch** in the toolbar. It offered *Suggesting* —
+  disabled, with the hint "comments and tracked changes require the pro review
+  module (@docx-editor.dev/pro)" — next to *Editing* and *Viewing*. A document
+  opens for editing, or for viewing where the user may only read it.
+- **"Add a comment…"** in the context menu (disabled, same hint).
+- The *Comments & Changes* toggle and the reviewers list stay out of the
+  toolbar for every user, read-only mode included. Menus, context menu and
+  shortcuts offer no suggesting, accept/reject, previous/next change, markup
+  view, comment or export row.
+
+### Added
+
+- `Build/Tests/chrome.test.js`: builds the editor mount with Vite, mounts it
+  headless (editable and read-only) and fails when the toolbar, a menu, the
+  context menu or a Word shortcut (Ctrl/Cmd+Alt+M, Ctrl/Cmd+Shift+E) offers a
+  control of the engine's review chrome other than paragraph marks and forms
+  protection, or a pro label or hint. It also proves that tracked changes show
+  in their final state (the open-source engine's rendering, per upstream's
+  docs) and that tracked changes and comments survive a save.
+- `Build/Tests/licenses.test.js` (runs in CI with `npm run test:build`): fails
+  when `@docx-editor.dev/pro`, `/editor-api` or `/docx-to-pdf` appears in
+  `package-lock.json` in any role; when a runtime dependency or a bundled
+  package has a licence outside the allowlist (Apache-2.0, MIT,
+  BSD-2/3-Clause, ISC, 0BSD, Zlib, CC0-1.0, OFL-1.1, GUST); when a bundled
+  package ships without licence text; or when a font or `harfbuzz.wasm` ships
+  without its licence.
+- `Resources/Public/Vite/licenses/HarfBuzz-COPYING.txt`: the licence of the
+  shipped text shaper, which the bundle carried without it.
+- `THIRD-PARTY-LICENSES.md` names the declared licence of a package that
+  ships no licence text (`@nodable/entities`, MIT).
+
+### Audit
+
+- Bundled: `@docx-editor.dev/core`, `/vue`, `/i18n` 2.21.1 (Apache-2.0),
+  `/fonts` 2.21.1 (Apache-2.0 AND OFL-1.1 AND GUST), Vue 3.5 (MIT) and 14
+  further packages (MIT, Apache-2.0, MIT AND Zlib); HarfBuzz
+  (MIT-style) inlined into core. No NOTICE files exist to carry. The free
+  tier has no licence key, telemetry or attribution requirement.
+- Fonts: Liberation, Carlito and Caladea (SIL OFL 1.1), TeX Gyre Adventor
+  (GUST Font License / LPPL 1.3c), shipped unmodified with their licence
+  texts in `licenses/fonts/`.
+- The engine code still contains the pro hint as a string; no control
+  shows it any more.
+
 ## [2.3.0] - 2026-09-23
 
 Two limits of the Word ↔ page round trip are gone: pages with many pictures
