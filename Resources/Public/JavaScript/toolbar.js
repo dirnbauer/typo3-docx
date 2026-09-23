@@ -8,7 +8,7 @@ import { notifySaveFailed } from '@webconsulting/docx-editor/notify.js';
 
 /**
  * DocHeader glue for <typo3-docx-editor>: the core Save split button (Save,
- * Save and close, Save as…), Close with the core "unsaved changes" dialog,
+ * Save and close, Save as…), Print, Close with the core "unsaved changes" dialog,
  * Ctrl/Cmd+S outside the editor (inside it, the editor's own shortcut asks
  * the element to save) and the folder browser and file name dialog for
  * "Save as…".
@@ -193,13 +193,18 @@ if (app) {
   // The DocHeader lives outside #docx-editor-app: the Save split button
   // (<button name> and dropdown <a data-name>) and Close.
   document.addEventListener('click', (event) => {
-    const trigger = event.target.closest('button[name], a[data-name], [data-docx-action="close"]');
+    const trigger = event.target.closest('button[name], a[data-name], [data-docx-action="close"], [data-docx-action="print"]');
     if (!trigger) {
       return;
     }
     if (trigger.dataset.docxAction === 'close') {
       event.preventDefault();
       confirmClose();
+      return;
+    }
+    if (trigger.dataset.docxAction === 'print') {
+      event.preventDefault();
+      editorElement()?.print();
       return;
     }
     const action = ACTIONS[trigger.getAttribute('name') ?? trigger.dataset.name];

@@ -14,6 +14,7 @@ import DocxEditorApp from './DocxEditorApp.vue';
  *   onReady?: (editor: object) => void,
  *   onChange?: (change: {revision: number}) => void,
  *   onSave?: () => void,
+ *   onPrint?: () => void,
  *   onFontError?: (error: unknown) => void,
  * }} options
  */
@@ -39,6 +40,7 @@ export function mountDocxEditor(host, options) {
           onReady: (editor) => options.onReady?.(editor),
           onChange: (change) => options.onChange?.(change),
           onSave: () => options.onSave?.(),
+          onPrint: () => options.onPrint?.(),
           onFontError: (error) => options.onFontError?.(error),
         });
     },

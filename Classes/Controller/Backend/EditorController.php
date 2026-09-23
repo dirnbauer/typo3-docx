@@ -81,6 +81,7 @@ final readonly class EditorController
             $this->addSaveButtons($view);
         }
         $this->addDownloadButton($view, $file);
+        $this->addPrintButton($view);
         $this->registerAssets();
 
         $view->assignMultiple([
@@ -200,6 +201,23 @@ final readonly class EditorController
                 ->setAttributes(['target' => '_blank', 'rel' => 'noopener', 'download' => $file->getName()]),
             ButtonBar::BUTTON_POSITION_LEFT,
             30,
+        );
+    }
+
+    /**
+     * Prints the pages of the document (toolbar.js hands it to the editor).
+     */
+    private function addPrintButton(ModuleTemplate $view): void
+    {
+        $view->addButtonToButtonBar(
+            $this->componentFactory->createGenericButton()
+                ->setLabel($this->translate('editor.print'))
+                ->setTitle($this->translate('editor.print'))
+                ->setIcon($this->iconFactory->getIcon('docx-editor-print', IconSize::SMALL))
+                ->setShowLabelText(true)
+                ->setAttributes(['type' => 'button', 'data-docx-action' => 'print']),
+            ButtonBar::BUTTON_POSITION_LEFT,
+            40,
         );
     }
 

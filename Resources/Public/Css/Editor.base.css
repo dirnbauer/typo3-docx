@@ -125,3 +125,69 @@ webcon-docx-editor > .webcon-docx-editor-host {
 .docx-editor .docx-content-control-boundary {
     background: transparent;
 }
+
+/*
+ * Printing (Build/Sources/editor/print.js): while html.webcon-docx-printing is
+ * set, the print media shows only the copied pages, each on a sheet of its own
+ * paper size (named @page rules added by print.js), without the editor's
+ * control frames, header/footer hints and page shadow.
+ */
+.webcon-docx-print {
+    display: none;
+}
+
+@media print {
+    html.webcon-docx-printing,
+    html.webcon-docx-printing body {
+        background: #fff !important;
+        height: auto !important;
+        margin: 0 !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+        padding: 0 !important;
+    }
+
+    html.webcon-docx-printing body > :not(.webcon-docx-print) {
+        display: none !important;
+    }
+
+    html.webcon-docx-printing .webcon-docx-print {
+        display: block !important;
+    }
+
+    /* The engine's .docx-editor spacing would push every sheet off its paper. */
+    .webcon-docx-print,
+    .webcon-docx-print .docx-paginated-surface,
+    .webcon-docx-print .docx-pages {
+        background: none !important;
+        border: 0 !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        position: static !important;
+        width: auto !important;
+    }
+
+    .webcon-docx-print .docx-page {
+        box-shadow: none !important;
+        break-after: page;
+        break-inside: avoid;
+        left: auto !important;
+        margin: 0 !important;
+        overflow: hidden;
+        position: relative !important;
+        top: auto !important;
+    }
+
+    .webcon-docx-print .docx-page:last-child {
+        break-after: auto;
+    }
+
+    .webcon-docx-print .docx-content-control-chrome,
+    .webcon-docx-print .docx-hf--placeholder,
+    .webcon-docx-print .docx-hf-edit-hint,
+    .webcon-docx-print [data-docx-caret],
+    .webcon-docx-print .docx-selection {
+        display: none !important;
+    }
+}

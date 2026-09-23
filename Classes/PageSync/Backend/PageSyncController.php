@@ -93,6 +93,17 @@ final readonly class PageSyncController
             20,
         );
         $this->addWordFileButtons($view, $pageUid, $languageId);
+        $printLabel = self::languageService()->sL('docx_editor.messages:editor.print');
+        $view->addButtonToButtonBar(
+            $this->componentFactory->createGenericButton()
+                ->setLabel($printLabel)
+                ->setTitle($printLabel)
+                ->setIcon($this->iconFactory->getIcon('docx-editor-print', IconSize::SMALL))
+                ->setShowLabelText(true)
+                ->setAttributes(['type' => 'button', 'data-page-sync-action' => 'print']),
+            ButtonBar::BUTTON_POSITION_LEFT,
+            40,
+        );
         $this->addLanguageSelector($view, $request, $languages, $languageId);
 
         $this->registerAssets(true);

@@ -117,6 +117,7 @@ final class BackendTest extends AbstractPageSyncTestCase
         self::assertStringContainsString('@webconsulting/docx-editor/page-sync/page-editor.js', $html);
         self::assertStringContainsString('data-page-sync-action="save"', $html);
         self::assertStringContainsString('data-page-sync-action="upload"', $html);
+        self::assertStringContainsString('data-page-sync-action="print"', $html);
         self::assertMatchesRegularExpression('#href="/typo3/docx-editor/page/download\?[^"]*id=1[^"]*"#', $html);
         self::assertStringContainsString('Deutsch', $html, 'The language selector offers the site languages');
     }

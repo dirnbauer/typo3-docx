@@ -19,6 +19,12 @@
         <target>%s bearbeiten</target>
       </segment>
     </unit>
+    <unit id="editor.print">
+      <segment>
+        <source>Print</source>
+        <target>Drucken</target>
+      </segment>
+    </unit>
     <unit id="editor.download">
       <segment>
         <source>Download</source>

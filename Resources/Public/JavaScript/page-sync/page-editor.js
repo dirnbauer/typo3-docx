@@ -14,7 +14,7 @@ import { review } from './review.js';
  * editor's File › Save, Ctrl/Cmd+S) shows the review of what the import would
  * change and writes it once confirmed, then reloads the page's document so
  * new elements carry their records. "Upload Word file" reviews a document
- * edited elsewhere the same way.
+ * edited elsewhere the same way; Print prints the pages.
  */
 
 const app = document.getElementById('docx-page-sync-app');
@@ -203,6 +203,9 @@ if (app && surface) {
     } else if (action === 'upload') {
       event.preventDefault();
       upload?.click();
+    } else if (action === 'print') {
+      event.preventDefault();
+      editor?.print();
     } else if (action === 'close') {
       event.preventDefault();
       confirmClose();

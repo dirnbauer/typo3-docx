@@ -30,7 +30,7 @@ import { engineLocale } from './i18n.js';
 /**
  * The composed editor: File/Format/Insert/Review menus without File › Open
  * and without the export converters (they need services this extension does
- * not run), the formatting toolbar with the curated style picker and the
+ * not run) but with File › Print (see print.js), the formatting toolbar with the curated style picker and the
  * H1–H4 buttons, rulers, navigation and the packaged popups. Mirrors what
  * the packaged <DocxEditor> renders; composition is what allows the
  * overrides.
@@ -48,7 +48,7 @@ const props = defineProps({
   labels: { type: Object, required: true },
 });
 
-const emit = defineEmits(['ready', 'change', 'save', 'font-error']);
+const emit = defineEmits(['ready', 'change', 'save', 'print', 'font-error']);
 
 // Fonts come from @docx-editor.dev/fonts, bundled into Resources/Public/Vite
 // and fetched same-origin only when a document names the family.
@@ -77,12 +77,27 @@ const tableInteractionLabel = (key) => t(key);
 const requestSave = () => emit('save');
 const ignoreOpen = () => {};
 
+// File › Print: the engine has no print slot (upstream prints through the commercial
+// package), so the row is the host's: Material Symbols "print", the catalogue's own label
+// and shortcut. Escape closes the menu before the pages are prepared.
+const PRINT_ICON = [
+  'M640-640v-120H320v120h-80v-200h480v200h-80Zm-480 80h640-640Zm560 100q17 0 28.5-11.5T760-500q0-17-11.5-28.5T720-540q-17 0-28.5 11.5T680-500q0 17 11.5 28.5T720-460Zm-80 260v-160H320v160h320Zm80 80H240v-160H80v-240q0-51 35-85.5t85-34.5h560q51 0 85.5 34.5T880-520v240H720v160Zm80-240v-160q0-17-11.5-28.5T760-560H200q-17 0-28.5 11.5T160-520v160h80v-80h480v80h80Z',
+];
+const printIcon = () =>
+  h('svg', { viewBox: '0 -960 960 960', width: 18, height: 18, 'aria-hidden': 'true', focusable: 'false' },
+    PRINT_ICON.map((d) => h('path', { d, fill: 'currentColor' })));
+const requestPrint = () => {
+  document.activeElement?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  emit('print');
+};
+
 const MenuFile = DocxEditorMenu.File;
 const MenuGeneric = DocxEditorMenu.Menu;
 const MenuItem = DocxEditorMenu.Item;
 const MenuSave = DocxEditorMenu.Save;
 const MenuSeparator = DocxEditorMenu.Separator;
 const MenuPageSetup = DocxEditorMenu.PageSetup;
+const MenuRow = DocxEditorMenu.Row;
 const ToolbarComments = DocxEditorToolbar.Comments;
 const ToolbarEditingMode = DocxEditorToolbar.EditingMode;
 const ToolbarContentControlRemove = DocxEditorToolbar.ContentControlRemove;
@@ -112,6 +127,12 @@ const ToolbarContentControlRemove = DocxEditorToolbar.ContentControlRemove;
           <MenuFile :preset="false">
             <MenuSave v-if="!readOnly" />
             <MenuSeparator v-if="!readOnly" />
+            <MenuRow
+              row-slot="file.print"
+              :icon="printIcon()"
+              :shortcut="t('toolbar.printShortcut')"
+              :select-handler="requestPrint"
+            >{{ t('toolbar.print') }}</MenuRow>
             <MenuPageSetup />
           </MenuFile>
           <MenuGeneric id="review" :preset="false">

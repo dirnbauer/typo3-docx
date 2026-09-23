@@ -1,5 +1,6 @@
 import { dropUnusedMaterializedStyles, materializeCuratedStyles } from './editor/curated-styles.js';
 import { mountDocxEditor } from './editor/mount.js';
+import { preparePrint, printDocument } from './editor/print.js';
 
 const DEFAULT_LABELS = Object.freeze({
   normal: 'Normal',
@@ -33,6 +34,10 @@ const DEFAULT_LABELS = Object.freeze({
  *   revision           engine revision, rises with every edit
  *   dirty              whether edits happened since load() / markClean()
  *   markClean(revision = this.revision)
+ *   print()            prints the pages (File › Print, Ctrl/Cmd+P): the browser's
+ *                      print dialog, one sheet per page at the document's paper size
+ *   preparePrint()     → Promise<cleanup>, the pages ready for print media without
+ *                      opening the dialog (headless PDF, tests)
  *   editor             the @docx-editor.dev/core editor instance, once ready
  *
  * Events (bubbling, composed)
@@ -62,6 +67,19 @@ export class WebconDocxEditorElement extends HTMLElement {
   #labels = DEFAULT_LABELS;
 
   #opening = null;
+
+  #printing = false;
+
+  // Ctrl/Cmd+P anywhere on the page prints the document instead of the page around it.
+  // No defaultPrevented check: the engine swallows the shortcut without printing.
+  #printShortcut = (event) => {
+    if (!(event.ctrlKey || event.metaKey) || event.shiftKey || event.altKey || event.key.toLowerCase() !== 'p') {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    this.print();
+  };
 
   get locale() {
     return this.getAttribute('locale') || 'en';
@@ -112,14 +130,17 @@ export class WebconDocxEditorElement extends HTMLElement {
       onReady: (editor) => this.#ready(editor),
       onChange: (change) => this.#changed(change),
       onSave: () => this.#emit('docx-editor:save-request'),
+      onPrint: () => this.print(),
       onFontError: (error) => this.#emit('docx-editor:font-error', { error }),
     });
     if (this.#document !== null) {
       this.#view.setDocument(this.#document);
     }
+    this.ownerDocument.addEventListener('keydown', this.#printShortcut, true);
   }
 
   disconnectedCallback() {
+    this.ownerDocument.removeEventListener('keydown', this.#printShortcut, true);
     this.#view?.unmount();
     this.#view = null;
     this.#editor = null;
@@ -172,6 +193,34 @@ export class WebconDocxEditorElement extends HTMLElement {
 
   focus() {
     this.#editor?.focus?.();
+  }
+
+  /**
+   * Prints the document through the browser's print dialog; resolves once the dialog was
+   * opened (and, where the browser waits for it, closed).
+   */
+  async print() {
+    if (this.#editor === null || this.#printing) {
+      return;
+    }
+    this.#printing = true;
+    try {
+      await printDocument(this.#editor, this);
+    } finally {
+      this.#printing = false;
+    }
+  }
+
+  /**
+   * Readies every page for print media without opening the dialog.
+   *
+   * @returns {Promise<() => void>} restores the editor
+   */
+  async preparePrint() {
+    if (this.#editor === null) {
+      throw new Error('No document is open.');
+    }
+    return preparePrint(this.#editor, this);
   }
 
   #ready(editor) {

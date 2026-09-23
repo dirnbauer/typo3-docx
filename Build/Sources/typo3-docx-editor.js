@@ -20,7 +20,7 @@ const REVISION_POLL_INTERVAL = 5000;
  * and adds what TYPO3 needs around it: loading and saving through the FAL
  * AJAX routes, "Save as…" into a folder, the presence badge and the
  * newer-version warning. The DocHeader glue (toolbar.js) drives it through
- * save(), saveAsToFolder() and `dirty`.
+ * save(), saveAsToFolder(), print() and `dirty`.
  *
  * Attributes
  *   file-identifier, file-name, revision   the FAL file and its revision
@@ -143,6 +143,11 @@ export class Typo3DocxEditorElement extends HTMLElement {
       this.#saving = null;
     });
     return this.#saving;
+  }
+
+  /** Prints the document (see <webcon-docx-editor> print()). */
+  print() {
+    return this.#editor?.print() ?? Promise.resolve();
   }
 
   /** Stores the document as a new file in a folder; resolves to {file, …}. */

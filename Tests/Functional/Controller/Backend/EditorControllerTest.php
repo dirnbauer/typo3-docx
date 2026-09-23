@@ -48,6 +48,9 @@ final class EditorControllerTest extends AbstractBackendRouteTestCase
         self::assertStringContainsString('data-name="_saveandclosedok"', $html);
         self::assertStringContainsString('data-name="_saveasdok"', $html);
         self::assertStringContainsString('download="example.docx"', $html);
+        // Print, handed to the editor by toolbar.js.
+        self::assertMatchesRegularExpression('#<button [^>]*data-docx-action="print"[^>]*>#', $html);
+        self::assertStringContainsString('Print', $html);
     }
 
     #[Test]

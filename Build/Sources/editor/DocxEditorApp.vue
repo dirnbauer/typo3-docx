@@ -16,7 +16,7 @@ const props = defineProps({
   labels: { type: Object, required: true },
 });
 
-const emit = defineEmits(['ready', 'change', 'save', 'font-error']);
+const emit = defineEmits(['ready', 'change', 'save', 'print', 'font-error']);
 
 const catalog = computed(() => editorCatalog(props.locale));
 </script>
@@ -32,6 +32,7 @@ const catalog = computed(() => editorCatalog(props.locale));
       @ready="emit('ready', $event)"
       @change="emit('change', $event)"
       @save="emit('save')"
+      @print="emit('print')"
       @font-error="emit('font-error', $event)"
     />
   </LocaleProvider>

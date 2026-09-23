@@ -16,6 +16,11 @@
         <source>Edit %s</source>
       </segment>
     </unit>
+    <unit id="editor.print">
+      <segment>
+        <source>Print</source>
+      </segment>
+    </unit>
     <unit id="editor.download">
       <segment>
         <source>Download</source>
