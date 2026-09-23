@@ -1,0 +1,21 @@
+"pages",,,,,,,,,,,,,
+,"uid","pid","title","slug","doktype","sys_language_uid","l10n_parent","perms_userid","perms_groupid","perms_user","perms_group","perms_everybody","deleted"
+,1,0,"Our services","/",1,0,0,1,1,31,31,1,0
+,2,1,"Unser Angebot","/",1,1,1,1,1,31,31,1,0
+,3,1,"Sub page","/sub",1,0,0,1,1,31,31,1,0
+"tt_content",,,,,,,,,,,,,,,,,,,,,,
+,"uid","pid","sorting","CType","colPos","sys_language_uid","l18n_parent","header","header_layout","subheader","bodytext","table_header_position","table_delimiter","table_enclosure","bullets_type","quote_text","author","pagesynctest_items","pagesynctest_settings","hidden","deleted"
+,1,1,128,"header",0,0,0,"Welcome",0,"","",0,124,0,0,"","",0,"",0,0
+,2,1,256,"text",0,0,0,"About us",0,"","<p>We build <strong>websites</strong> with <a href=""t3://page?uid=3"">TYPO3</a>.</p>
+<ul><li>Plan</li><li>Build</li></ul>",0,124,0,0,"","",0,"",0,0
+,3,1,384,"textmedia",0,0,0,"Our office",3,"","<p>Visit us in Vienna.</p>",0,124,0,0,"","",0,"",0,0
+,4,1,512,"table",0,0,0,"Prices",0,"","Plan|Price
+Basic|10 €
+Pro|20 €",1,124,0,0,"","",0,"",0,0
+,5,1,640,"pagesynctest_plugin",0,0,0,"Upcoming events",0,"","",0,124,0,0,"","",0,"a",0,0
+,6,1,768,"pagesynctest_accordion",0,0,0,"FAQ",0,"","",0,124,0,0,"","",2,"",0,0
+,7,1,896,"pagesynctest_quote",0,0,0,"",0,"","",0,124,0,0,"They understood us.","Anna",0,"",0,0
+"tx_pagesynctest_item",,,,,,,,,,,,,
+,"uid","pid","sorting","foreign_table_parent_uid","tablenames","fieldname","title","content","sys_language_uid","l10n_parent","hidden","deleted"
+,1,1,1,6,"tt_content","pagesynctest_items","What does it cost?","<p>It depends on the scope.</p>",0,0,0,0
+,2,1,2,6,"tt_content","pagesynctest_items","How long does it take?","<p>Usually two weeks.</p>",0,0,0,0

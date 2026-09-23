@@ -1,0 +1,14 @@
+{
+    "name": "webconsulting/pagesync-test",
+    "description": "Test fixture: element types shaped like Content Blocks elements, for the page round trip tests",
+    "type": "typo3-cms-extension",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "typo3/cms-core": "*"
+    },
+    "extra": {
+        "typo3/cms": {
+            "extension-key": "pagesync_test"
+        }
+    }
+}
