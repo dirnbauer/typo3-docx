@@ -16,9 +16,13 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 use Webconsulting\DocxEditor\PageSync\Document\Block;
 use Webconsulting\DocxEditor\PageSync\Document\ContentControl;
 use Webconsulting\DocxEditor\PageSync\Document\DocxDocument;
+use Webconsulting\DocxEditor\PageSync\Export\PageExporter;
 use Webconsulting\DocxEditor\PageSync\Ooxml\DocumentReader;
 use Webconsulting\DocxEditor\PageSync\Ooxml\DocumentWriter;
 use Webconsulting\DocxEditor\PageSync\Ooxml\WriteRequest;
+use Webconsulting\DocxEditor\PageSync\Plan\PlanBuilder;
+use Webconsulting\DocxEditor\PageSync\Plan\PlanEntry;
+use Webconsulting\DocxEditor\PageSync\Plan\SyncPlan;
 use Webconsulting\DocxEditor\Tests\Fixtures\PageSync\DocxFixtureBuilder;
 
 /**
@@ -140,6 +144,51 @@ abstract class AbstractPageSyncTestCase extends FunctionalTestCase
         self::assertIsArray($row, $table . ':' . $uid . ' does not exist');
 
         return $row;
+    }
+
+    protected function export(int $page, int $language, BackendUserAuthentication $user): DocxDocument
+    {
+        return $this->read($this->get(PageExporter::class)->export($page, $language, $user)->binary);
+    }
+
+    /**
+     * Writes the edited document as Word would save it, reads it back, and plans the import.
+     */
+    protected function plan(DocxDocument $document, int $page, int $language, BackendUserAuthentication $user): SyncPlan
+    {
+        $binary = $this->get(DocumentWriter::class)->write(new WriteRequest($document->blocks, $document->manifest, $document->title));
+
+        return $this->get(PlanBuilder::class)->build($this->read($binary), sha1($binary), $page, $language, $user);
+    }
+
+    protected static function entryFor(SyncPlan $plan, int $uid): PlanEntry
+    {
+        foreach ($plan->entries as $entry) {
+            if ($entry->table === 'tt_content' && $entry->uid === $uid) {
+                return $entry;
+            }
+        }
+        self::fail('No plan entry for tt_content:' . $uid);
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    protected function references(string $table, int $uid, string $field): array
+    {
+        $query = $this->get(ConnectionPool::class)->getQueryBuilderForTable('sys_file_reference');
+        $query->getRestrictions()->removeAll();
+
+        return $query->select('*')->from('sys_file_reference')
+            ->where(
+                $query->expr()->eq('tablenames', $query->createNamedParameter($table)),
+                $query->expr()->eq('fieldname', $query->createNamedParameter($field)),
+                $query->expr()->eq('uid_foreign', $query->createNamedParameter($uid, Connection::PARAM_INT)),
+                $query->expr()->eq('deleted', 0),
+            )
+            ->orderBy('sorting_foreign')
+            ->executeQuery()
+            ->fetchAllAssociative();
     }
 
     private function writeSiteConfiguration(): void
