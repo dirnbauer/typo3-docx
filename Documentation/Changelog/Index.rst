@@ -9,6 +9,13 @@ Changelog
 The full history is kept in
 `CHANGELOG.md <https://github.com/dirnbauer/typo3-docx/blob/main/CHANGELOG.md>`__.
 
+2.2.1
+=====
+
+-   :guilabel:`Edit in Word` works on real backend requests (it answered "No
+    backend user"); saves are attributed to the editor again and the editor
+    chrome follows a German backend language.
+
 2.2.0
 =====
 

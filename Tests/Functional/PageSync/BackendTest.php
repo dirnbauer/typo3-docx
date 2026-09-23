@@ -202,8 +202,7 @@ final class BackendTest extends AbstractPageSyncTestCase
         ])
             ->withQueryParams($query)
             ->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_BE)
-            ->withAttribute('route', $route instanceof Route ? $route : Route::fromSymfonyRoute($route, $routeIdentifier))
-            ->withAttribute('backend.user', $user);
+            ->withAttribute('route', $route instanceof Route ? $route : Route::fromSymfonyRoute($route, $routeIdentifier));
         if ($json !== null) {
             $stream = new Stream('php://temp', 'rw');
             $stream->write(json_encode($json, JSON_THROW_ON_ERROR));

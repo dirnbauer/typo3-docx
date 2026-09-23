@@ -147,7 +147,10 @@ final readonly class PageSyncApiController
      */
     private function respond(ServerRequestInterface $request, \Closure $action): ResponseInterface
     {
-        $user = $request->getAttribute('backend.user');
+        // The backend user lives in $GLOBALS['BE_USER']; TYPO3 sets no
+        // "backend.user" request attribute, so reading one answered every real
+        // request with "No backend user".
+        $user = $GLOBALS['BE_USER'] ?? null;
         $labels = $user instanceof BackendUserAuthentication
             ? $this->languageServiceFactory->createFromUserPreferences($user)
             : $this->languageServiceFactory->create('en');

@@ -105,7 +105,9 @@ final readonly class DocumentApiController extends AbstractDocxApiController
      */
     private function registerSave(ServerRequestInterface $request, string $fileIdentifier, string $binary): array
     {
-        $backendUser = $request->getAttribute('backend.user');
+        // Not a request attribute: TYPO3 sets none, which recorded every save as
+        // user 0 and hid who saved a newer version.
+        $backendUser = $GLOBALS['BE_USER'] ?? null;
         $userId = $backendUser instanceof BackendUserAuthentication ? ($backendUser->getUserId() ?? 0) : 0;
         $contentHash = $this->revisionService->computeContentHash($binary);
 

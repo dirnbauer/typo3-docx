@@ -1,6 +1,6 @@
 {
   "name": "typo3-docx-editor",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "private": true,
   "description": "Vite build for TYPO3 docx_editor: the <webcon-docx-editor> and <typo3-docx-editor> elements around @docx-editor.dev/vue",
   "type": "module",

@@ -71,13 +71,18 @@ final class EditorRequestResolverTest extends UnitTestCase
     public function resolveEditorLocaleMapsBackendUserLanguage(?string $lang, string $expected): void
     {
         $request = new ServerRequest('https://example.com/typo3/docx-editor/edit');
+        unset($GLOBALS['BE_USER']);
         if ($lang !== null) {
             $backendUser = self::createStub(BackendUserAuthentication::class);
             $backendUser->user = ['uid' => 1, 'lang' => $lang];
-            $request = $request->withAttribute('backend.user', $backendUser);
+            $GLOBALS['BE_USER'] = $backendUser;
         }
 
-        self::assertSame($expected, (new EditorRequestResolver())->resolveEditorLocale($request));
+        try {
+            self::assertSame($expected, (new EditorRequestResolver())->resolveEditorLocale($request));
+        } finally {
+            unset($GLOBALS['BE_USER']);
+        }
     }
 
     /**

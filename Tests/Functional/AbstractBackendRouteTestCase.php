@@ -67,8 +67,7 @@ abstract class AbstractBackendRouteTestCase extends FunctionalTestCase
         ]))
             ->withQueryParams($queryParams)
             ->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_BE)
-            ->withAttribute('route', $routeObject)
-            ->withAttribute('backend.user', $backendUser);
+            ->withAttribute('route', $routeObject);
 
         if ($json !== null) {
             $stream = new Stream('php://temp', 'rw');

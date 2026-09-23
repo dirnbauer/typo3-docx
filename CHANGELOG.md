@@ -2,6 +2,21 @@
 
 All notable changes to this project are documented in this file.
 
+## [2.2.1] - 2026-09-23
+
+### Fixed
+
+- *Edit in Word* failed on every real backend request with "Die Seite konnte
+  nicht geöffnet werden — No backend user": the page-sync API read the backend
+  user from a `backend.user` request attribute, which TYPO3 never sets. The
+  same lookup made the file editor record every save as user 0 (so the
+  newer-version warning could not name who saved) and kept the editor chrome
+  English for German editors. All three now read `$GLOBALS['BE_USER']`, like
+  the rest of the extension.
+- The functional tests injected that attribute by hand, which is why they
+  passed; they now build requests the way TYPO3 does, so the regression is
+  covered.
+
 ## [2.2.0] - 2026-09-23
 
 Printing is back — 1.x's *File › Print* went with the old engine, and

@@ -44,7 +44,10 @@ final readonly class EditorRequestResolver
      */
     public function resolveEditorLocale(ServerRequestInterface $request): string
     {
-        $backendUser = $request->getAttribute('backend.user');
+        // TYPO3 does not put the backend user on the request; reading a
+        // "backend.user" attribute returned null for every real request, so the
+        // editor stayed English for German editors.
+        $backendUser = $GLOBALS['BE_USER'] ?? null;
         if (!$backendUser instanceof BackendUserAuthentication) {
             return 'en';
         }
