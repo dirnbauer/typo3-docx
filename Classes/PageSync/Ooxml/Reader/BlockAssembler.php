@@ -245,11 +245,11 @@ final class BlockAssembler
         }
         $first = $inlines[0];
         if ($first instanceof Text) {
-            $inlines[0] = new Text(ltrim($first->text, " \t\u{00A0}"), $first->marks);
+            $inlines[0] = new Text(PlainText::trimStart($first->text, " \t\u{00A0}"), $first->marks);
         }
         $last = $inlines[$count - 1];
         if ($last instanceof Text) {
-            $inlines[$count - 1] = new Text(rtrim($last->text, " \t\u{00A0}"), $last->marks);
+            $inlines[$count - 1] = new Text(PlainText::trimEnd($last->text, " \t\u{00A0}"), $last->marks);
         }
 
         return array_values(array_filter(

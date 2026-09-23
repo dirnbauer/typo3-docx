@@ -293,7 +293,7 @@ final class PartAnalyzer
                     $paragraphLinks[] = $inline;
                     continue;
                 }
-                if ($inline instanceof Text && trim($inline->text, " \t\u{00A0}|·•–-") === '') {
+                if ($inline instanceof Text && PlainText::trim($inline->text, " \t\u{00A0}|·•–-") === '') {
                     continue;
                 }
                 $paragraphLinks = [];

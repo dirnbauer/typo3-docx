@@ -164,6 +164,24 @@ final class DocumentRoundTripTest extends UnitTestCase
         self::assertSame([], $empty->blocks);
     }
 
+    /**
+     * Found on real pages: "©" (C2 A9) lost its first byte to a byte-wise trim of "\u{00A0}"
+     * (C2 A0) and the field would have been emptied; "à" (C3 A0) at the end lost its last byte.
+     */
+    #[Test]
+    public function charactersSharingBytesWithANonBreakingSpaceSurvive(): void
+    {
+        $texts = ['© 2026 webconsulting studio', 'Voilà', '« Guillemets »', '° 45 ½', "\u{00A0}keeps the rest\u{00A0}"];
+        $binary = $this->writer()->write(new WriteRequest(array_map(static fn(string $text): Paragraph => new Paragraph([new Text($text)]), $texts)));
+
+        $read = array_map(static fn(Block $block): string => PlainText::ofBlock($block), $this->reader()->read($binary)->blocks);
+
+        self::assertSame(['© 2026 webconsulting studio', 'Voilà', '« Guillemets »', '° 45 ½', 'keeps the rest'], $read);
+        foreach ($read as $text) {
+            self::assertTrue(mb_check_encoding($text, 'UTF-8'));
+        }
+    }
+
     #[Test]
     public function whitespaceInALinkTargetIsPercentEncoded(): void
     {

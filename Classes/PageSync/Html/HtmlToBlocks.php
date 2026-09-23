@@ -183,7 +183,7 @@ final class HtmlToBlocks
     private function addParagraph(array $inlines, array &$blocks): void
     {
         $inlines = self::normalize($inlines);
-        if ($inlines === [] || trim(PlainText::ofInlines($inlines), " \n\t\u{00A0}") === '') {
+        if ($inlines === [] || PlainText::trim(PlainText::ofInlines($inlines)) === '') {
             return;
         }
         $blocks[] = new Paragraph($inlines);

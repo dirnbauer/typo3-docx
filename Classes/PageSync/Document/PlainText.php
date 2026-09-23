@@ -76,10 +76,38 @@ final class PlainText
         return trim((string)preg_replace('/[ \t\x{00A0}]+/u', ' ', $text));
     }
 
+    /**
+     * Strips the characters from both ends, character by character: PHP's trim() works on bytes,
+     * and a multibyte character in its list ("\u{00A0}" is C2 A0) cuts other characters apart
+     * ("©" is C2 A9, "à" is C3 A0).
+     */
+    public static function trim(string $text, string $characters = " \t\n\u{00A0}"): string
+    {
+        return self::trimEnd(self::trimStart($text, $characters), $characters);
+    }
+
+    public static function trimStart(string $text, string $characters = " \t\n\u{00A0}"): string
+    {
+        return (string)preg_replace('/^[' . self::characterClass($characters) . ']+/u', '', $text);
+    }
+
+    public static function trimEnd(string $text, string $characters = " \t\n\u{00A0}"): string
+    {
+        return (string)preg_replace('/[' . self::characterClass($characters) . ']+$/u', '', $text);
+    }
+
     public static function wordCount(string $text): int
     {
         $words = preg_split('/[^\p{L}\p{N}]+/u', $text, -1, PREG_SPLIT_NO_EMPTY);
 
         return is_array($words) ? count($words) : 0;
+    }
+
+    private static function characterClass(string $characters): string
+    {
+        return implode('', array_map(
+            static fn(string $character): string => preg_quote($character, '/'),
+            mb_str_split($characters),
+        ));
     }
 }
