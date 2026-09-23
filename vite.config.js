@@ -1,12 +1,18 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import { readdirSync, readFileSync } from 'node:fs';
+import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 /**
  * Licences Vite's own licence file cannot see: the font licences (SIL OFL,
- * GUST, LPPL) that travel with the font files, and the notices for code the
- * docx-editor.dev packages inline into their own dist (HarfBuzz and others).
+ * GUST, LPPL) that travel with the font files, HarfBuzz's for the shaper
+ * (harfbuzz.wasm), and the notices for code the docx-editor.dev packages
+ * inline into their own dist. Packages that ship no licence text get a line
+ * in THIRD-PARTY-LICENSES.md naming the licence their package.json declares.
+ *
+ * Only the Apache-2.0 packages of docx-editor.dev are bundled — never
+ * @docx-editor.dev/pro, /editor-api or /docx-to-pdf (EigenPal Pro Evaluation
+ * License). Build/Tests/licenses.test.js enforces both.
  */
 function packagedLicenses() {
   const packages = resolve(process.cwd(), 'node_modules/@docx-editor.dev');
@@ -16,6 +22,9 @@ function packagedLicenses() {
       for (const file of readdirSync(resolve(packages, 'fonts/licenses'))) {
         this.emitFile({ type: 'asset', fileName: `licenses/fonts/${file}`, source: readFileSync(resolve(packages, 'fonts/licenses', file)) });
       }
+      for (const file of readdirSync(resolve(packages, 'core/licenses'))) {
+        this.emitFile({ type: 'asset', fileName: `licenses/${file}`, source: readFileSync(resolve(packages, 'core/licenses', file)) });
+      }
       for (const name of ['core', 'vue', 'i18n', 'fonts']) {
         this.emitFile({
           type: 'asset',
@@ -23,6 +32,19 @@ function packagedLicenses() {
           source: readFileSync(resolve(packages, name, 'THIRD_PARTY_NOTICES.md')),
         });
       }
+    },
+    writeBundle(options) {
+      const file = resolve(options.dir ?? '', 'licenses/THIRD-PARTY-LICENSES.md');
+      const text = readFileSync(file, 'utf8').replace(
+        /^## (\S+) - (\S+) \(([^\n]+)\)\n\n(?=## |$)/gm,
+        (section, name, version, license) => {
+          const manifest = JSON.parse(readFileSync(resolve(process.cwd(), 'node_modules', name, 'package.json'), 'utf8'));
+          const repository = typeof manifest.repository === 'string' ? manifest.repository : manifest.repository?.url;
+          return `## ${name} - ${version} (${license})\n\nThe package ships no licence text; its package.json declares ${license}`
+            + `${repository ? ` (source: ${repository})` : ''}.\n\n`;
+        },
+      );
+      writeFileSync(file, text);
     },
   };
 }

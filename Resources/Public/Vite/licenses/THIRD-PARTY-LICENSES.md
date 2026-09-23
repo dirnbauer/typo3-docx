@@ -831,6 +831,8 @@ Apache License
 
 ## @nodable/entities - 3.0.0 (MIT)
 
+The package ships no licence text; its package.json declares MIT (source: git+https://github.com/nodable/val-parsers.git).
+
 ## @vue/reactivity - 3.5.43 (MIT)
 
 The MIT License (MIT)
