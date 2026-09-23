@@ -1,0 +1,21 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Webconsulting\DocxEditor\PageSync\Manifest;
+
+/**
+ * One exported field and the hash of the value it had in the export — the base of the
+ * three-way comparison between Word, TYPO3 and the export.
+ */
+final readonly class ManifestField
+{
+    public function __construct(
+        public string $name,
+        public string $hash,
+        /** The heading level the field was written with, for header fields; 0 otherwise. */
+        public int $level = 0,
+        /** Position of the field in the manifest, for the short "typo3:#record:field" tags. */
+        public int $reference = 0,
+    ) {}
+}

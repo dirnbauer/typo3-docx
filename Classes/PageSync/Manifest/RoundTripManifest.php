@@ -1,0 +1,156 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Webconsulting\DocxEditor\PageSync\Manifest;
+
+/**
+ * What a TYPO3 export wrote into the Word document about itself: which page, language and
+ * workspace it came from, when, and every exported record with the hashes of its field values.
+ */
+final readonly class RoundTripManifest
+{
+    public const string NAMESPACE = 'urn:typo3:docx-editor:roundtrip:1';
+    public const int VERSION = 1;
+
+    /**
+     * @param array<string, ManifestRecord> $records Keyed by "table:uid"
+     */
+    public function __construct(
+        public int $pageUid,
+        public string $siteIdentifier,
+        public int $language,
+        public int $workspace,
+        public \DateTimeImmutable $exportedAt,
+        public array $records = [],
+        /** False when the signature is missing or does not match: the base hashes cannot be trusted. */
+        public bool $trusted = true,
+        public int $exportedBy = 0,
+    ) {}
+
+    public function record(string $table, int $uid): ?ManifestRecord
+    {
+        return $this->records[$table . ':' . $uid] ?? null;
+    }
+
+    public function recordByReference(int $reference): ?ManifestRecord
+    {
+        return array_find($this->records, static fn(ManifestRecord $record): bool => $record->reference === $reference);
+    }
+
+    /**
+     * Resolves a manifest-reference tag ("typo3:#14:3") into its explicit form.
+     */
+    public function resolve(ControlTag $tag): ?ControlTag
+    {
+        if (!$tag->isReference()) {
+            return $tag;
+        }
+        $record = $this->recordByReference($tag->reference);
+        if ($record === null) {
+            return null;
+        }
+        if ($tag->fieldReference === 0) {
+            return ControlTag::record($record->table, $record->uid);
+        }
+        $field = $record->fieldByReference($tag->fieldReference);
+
+        return $field === null ? null : ControlTag::field($record->table, $record->uid, $field->name);
+    }
+
+    /**
+     * The content elements of the export, in exported order.
+     *
+     * @return list<ManifestRecord>
+     */
+    public function elements(): array
+    {
+        $elements = array_values(array_filter(
+            $this->records,
+            static fn(ManifestRecord $record): bool => $record->table === 'tt_content',
+        ));
+        usort($elements, static fn(ManifestRecord $a, ManifestRecord $b): int => $a->position <=> $b->position);
+
+        return $elements;
+    }
+
+    /**
+     * The collection items of one element, in exported order.
+     *
+     * @return list<ManifestRecord>
+     */
+    public function childrenOf(string $parentKey, string $parentField = ''): array
+    {
+        $children = array_values(array_filter(
+            $this->records,
+            static fn(ManifestRecord $record): bool => $record->parent === $parentKey
+                && ($parentField === '' || $record->parentField === $parentField),
+        ));
+        usort($children, static fn(ManifestRecord $a, ManifestRecord $b): int => $a->position <=> $b->position);
+
+        return $children;
+    }
+
+    public function withTrust(bool $trusted): self
+    {
+        return new self(
+            $this->pageUid,
+            $this->siteIdentifier,
+            $this->language,
+            $this->workspace,
+            $this->exportedAt,
+            $this->records,
+            $trusted,
+            $this->exportedBy,
+        );
+    }
+
+    /**
+     * The manifest as plain data in a fixed order — what the signature is computed over, so
+     * that an editor re-serialising the XML (attribute order, whitespace) does not break it.
+     *
+     * @return array<string, mixed>
+     */
+    public function toCanonicalArray(): array
+    {
+        $records = [];
+        $keys = array_keys($this->records);
+        sort($keys);
+        foreach ($keys as $key) {
+            $record = $this->records[$key];
+            $fields = [];
+            $names = array_keys($record->fields);
+            sort($names);
+            foreach ($names as $name) {
+                $field = $record->fields[$name];
+                $fields[] = [$field->name, $field->hash, $field->level, $field->reference];
+            }
+            $records[] = [
+                $record->table,
+                $record->uid,
+                $record->type,
+                $record->colPos,
+                $record->position,
+                $record->parent,
+                $record->parentField,
+                $record->language,
+                $record->locked,
+                $record->translationSource,
+                $record->fingerprint,
+                $record->reference,
+                $fields,
+            ];
+        }
+
+        return [
+            'version' => self::VERSION,
+            'page' => $this->pageUid,
+            'site' => $this->siteIdentifier,
+            'language' => $this->language,
+            'workspace' => $this->workspace,
+            'exported' => $this->exportedAt->format(\DateTimeInterface::ATOM),
+            'exportedBy' => $this->exportedBy,
+            'records' => $records,
+        ];
+    }
+}
