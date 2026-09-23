@@ -40,15 +40,16 @@ final readonly class FigureLoader
     }
 
     /**
-     * Whether every reference of the field is a web picture — otherwise the field is read-only
-     * in Word, because writing it back would drop the other files.
+     * Whether every reference of the field is a web picture whose file is there — otherwise the
+     * field is read-only in Word, because writing it back would drop the other files (or the
+     * reference to a file that went missing from the storage).
      *
      * @param array<string, mixed> $record
      */
     public function onlyPictures(string $table, array $record, string $field, int $workspaceId): bool
     {
         foreach ($this->records->fileReferences($table, $record, $field, $workspaceId) as $reference) {
-            if (!in_array($reference->getOriginalFile()->getMimeType(), ReadContext::IMAGE_MIME_TYPES, true)) {
+            if (!self::isPicture($reference)) {
                 return false;
             }
         }
@@ -58,13 +59,16 @@ final readonly class FigureLoader
 
     public static function figure(FileReference $reference): ?Figure
     {
-        $file = $reference->getOriginalFile();
-        if (!in_array($file->getMimeType(), ReadContext::IMAGE_MIME_TYPES, true)) {
+        if (!self::isPicture($reference)) {
             return null;
         }
+        $file = $reference->getOriginalFile();
         try {
             $bytes = $file->getContents();
         } catch (\Throwable) {
+            return null;
+        }
+        if ($bytes === '') {
             return null;
         }
         $alternative = $reference->getProperty('alternative');
@@ -83,5 +87,16 @@ final readonly class FigureLoader
             ),
             $caption === '' ? [] : [new Text($caption)],
         );
+    }
+
+    private static function isPicture(FileReference $reference): bool
+    {
+        try {
+            $file = $reference->getOriginalFile();
+
+            return in_array($file->getMimeType(), ReadContext::IMAGE_MIME_TYPES, true) && $file->getSize() > 0 && $file->exists();
+        } catch (\Throwable) {
+            return false;
+        }
     }
 }
