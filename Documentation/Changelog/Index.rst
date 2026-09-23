@@ -9,6 +9,20 @@ Changelog
 The full history is kept in
 `CHANGELOG.md <https://github.com/dirnbauer/typo3-docx/blob/main/CHANGELOG.md>`__.
 
+1.5.0
+=====
+
+-   Native TYPO3 v14 chrome: core Close (with the "unsaved changes" dialog)
+    and Save buttons, *Save and close*, a file name modal for *Save as…*, a
+    page heading, core badge and status indicator for presence, core callout
+    for newer revisions, and an error page with a DocHeader.
+-   Error messages and all script labels come from the ``docx_editor.messages``
+    domain in the backend user's language; the ``data-labels`` JSON and the
+    custom ICU formatter are gone.
+-   Dark mode: eigenpal's tokens are mapped with relative colour syntax, and
+    menus and popovers are themed; the document page stays white.
+-   PHP 8.5 gates CI next to 8.4.
+
 1.4.0
 =====
 

@@ -15,12 +15,14 @@ Features
 ========
 
 -   **Edit DOCX** action on `.docx` files in the file list
--   Full-page editor with TYPO3 docheader: back, download, save, save as,
-    FAL breadcrumbs, :kbd:`Ctrl/Cmd+S`
--   Style dropdown curated to Normal + Heading 1–4, H1–H4 toolbar shortcuts,
-    TYPO3 light/dark design tokens
+-   Full-page editor with the DocHeader of core's text file editor: Close
+    (with the core "unsaved changes" dialog), Save with *Save and close* and
+    *Save as…*, Download, FAL breadcrumb, :kbd:`Ctrl/Cmd+S`
+-   Style dropdown curated to Normal + Heading 1–4, H1–H4 toolbar shortcuts
+-   Light and dark mode through TYPO3's design tokens; the document page stays
+    white
 -   Presence (who is online) and revision-safe saves (HTTP 409 on conflict)
--   English and German labels (XLIFF 2, ICU plural for the presence badge)
+-   English and German labels and error messages (XLIFF 2, ICU plurals)
 
 Collaboration model
 ===================
@@ -33,4 +35,4 @@ Requirements
 ============
 
 -   TYPO3 14.3 LTS (``typo3/cms-core ^14.3.7``), Composer mode
--   PHP 8.4
+-   PHP 8.4 or 8.5

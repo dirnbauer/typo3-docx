@@ -2,6 +2,69 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.5.0] - 2026-09-23
+
+The editor page becomes a native TYPO3 v14 citizen: core DocHeader buttons
+and dialogs, core components for presence and conflicts, translated errors,
+and a theme that holds up in dark mode.
+
+### Added
+
+- **Save and close** in the Save dropdown, and **Close** with the core
+  "unsaved changes" dialog (keep editing, discard, save and close — the labels
+  of record editing). Reloading or navigating away with unsaved changes lets
+  the browser warn.
+- An `<h1>` ("Edit example.docx") with the presence badge next to it.
+- Translated error messages: `DocxEditorException` carries a label key of the
+  `docx_editor.messages` domain; the error page and the JSON API answer in the
+  backend user's language (English and German, every error message).
+- `Build/Sources/labels.test.js`: every label key a script asks for must exist
+  in English and German.
+
+### Changed
+
+- The DocHeader uses core buttons: `ComponentFactory::createCloseButton()`
+  instead of the custom "Back to Media", the core Save button as a split button
+  with *Save and close* and *Save as…*, and Download. Close honours a
+  `returnUrl` like core's text file editor and falls back to the file's folder.
+- *Save as…* asks for the file name in a TYPO3 modal instead of
+  `window.prompt()`.
+- The newer-revision banner is a core warning callout with a
+  *Reload document* button; presence is a core badge with a live
+  `<typo3-backend-status-indicator>` and the editors' names as tooltip.
+- The error page renders in the `Module` layout, so it has a DocHeader (with
+  Close), a heading and a core callout.
+- Scripts read their labels from `~labels/docx_editor.messages` (ICU plurals
+  through the core label provider); the `data-labels` JSON attribute, its PHP
+  builder and the hand-written ICU formatter (`docx-icu-format.js`) are gone.
+- The theme maps eigenpal's shadcn tokens with relative colour syntax
+  (`from var(--typo3-…) h s l`), so eigenpal's own utility classes follow the
+  backend in light and dark mode; `--doc-surface` and the other surface tokens
+  are mapped as well.
+- *File › Open* is hidden: it would have replaced the TYPO3 file with a local
+  one.
+- The loading state shows the core spinner.
+- Class constants are typed; PHPStan reports missing `#[\Override]`
+  attributes.
+- PHP 8.5 gates CI next to 8.4, the functional suite runs on both;
+  `actions/checkout` v7, `actions/setup-node` v7 with Node.js 24.
+
+### Fixed
+
+- Menus and popovers rendered with a white background in dark mode: the
+  theme's portal selector (`body > div > .ep-root`) no longer matched where the
+  popovers mount, and `--doc-surface` was not mapped.
+- eigenpal's shadcn tokens were mapped to HSL triples inside `light-dark()`
+  and to plain TYPO3 colours, both invalid in `hsl(var(--…))`, so every
+  utility using them fell back to transparent or inherited colours.
+- The presence dot used hard-coded hex colours.
+
+### Removed
+
+- `Build/Sources/docx-icu-format.js` and its test, the `editor.save`,
+  `editor.backToMedia`, `editor.saveAsPrompt`, `editor.remoteUpdate` and
+  `error.missingFile` labels.
+
 ## [1.4.0] - 2026-09-18
 
 Behaviour-preserving restructuring of the PHP layer and the JavaScript glue,

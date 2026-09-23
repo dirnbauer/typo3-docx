@@ -30,7 +30,10 @@ Routes
 
 All AJAX responses share the envelope ``{"ok": true, …}`` or
 ``{"ok": false, "error": "…"}`` with a matching HTTP status (400, 403, 404,
-409, 415).
+409, 415); the error is translated into the backend user's language.
+
+The editor route accepts a ``returnUrl`` like core's text file editor; without
+one, :guilabel:`Close` returns to the file's folder in the file list.
 
 ..  _security:
 
