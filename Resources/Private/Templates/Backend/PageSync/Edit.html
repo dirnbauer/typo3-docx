@@ -1,0 +1,47 @@
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+
+<f:layout name="Module" />
+
+<f:section name="Content">
+    <div class="docx-editor-module__header">
+        <h1>
+            <f:translate key="ui.edit.heading" domain="docx_editor.pagesync" arguments="{0: pageTitle}" />
+            <f:if condition="{languageTitle}"><span class="badge badge-default">{languageTitle}</span></f:if>
+        </h1>
+        <span class="badge badge-warning" role="status" data-page-sync-dirty hidden><f:translate key="ui.edit.unsaved" domain="docx_editor.pagesync" /></span>
+    </div>
+
+    <f:if condition="{bundleBuilt}">
+        <f:then>
+            <div
+                class="docx-editor-module page-sync"
+                id="docx-page-sync-app"
+                data-page="{pageUid}"
+                data-language="{languageId}"
+                data-editor-locale="{editorLocale}"
+                data-return-url="{returnUrl}"
+                data-max-upload="{maxUploadMegabytes}"
+            >
+                <p class="page-sync__hint"><f:translate key="ui.edit.hint" domain="docx_editor.pagesync" /></p>
+                <div class="docx-editor-module__surface" data-page-sync-surface aria-busy="true" aria-label="{f:translate(key: 'ui.edit.surface', domain: 'docx_editor.pagesync')}"></div>
+                <input
+                    type="file"
+                    hidden
+                    accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    aria-label="{f:translate(key: 'ui.upload', domain: 'docx_editor.pagesync')}"
+                    data-page-sync-upload
+                >
+            </div>
+        </f:then>
+        <f:else>
+            <f:be.infobox title="{f:translate(key: 'editor.buildMissing.title', domain: 'docx_editor.messages')}" state="2">
+                <f:translate key="editor.buildMissing" domain="docx_editor.messages" />
+            </f:be.infobox>
+        </f:else>
+    </f:if>
+</f:section>
+
+</html>

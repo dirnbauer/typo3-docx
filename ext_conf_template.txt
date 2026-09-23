@@ -1,0 +1,26 @@
+# cat=pageSync; type=string; label=LLL:EXT:docx_editor/Resources/Private/Language/locallang_pagesync.xlf:settings.imageFolder
+pageSync.imageFolder = 1:/user_upload/word/{page}/
+
+# cat=pageSync; type=boolean; label=LLL:EXT:docx_editor/Resources/Private/Language/locallang_pagesync.xlf:settings.newPagesHidden
+pageSync.newPagesHidden = 1
+
+# cat=pageSync; type=int+; label=LLL:EXT:docx_editor/Resources/Private/Language/locallang_pagesync.xlf:settings.maxUploadMegabytes
+pageSync.maxUploadMegabytes = 25
+
+# cat=pageSync; type=string; label=LLL:EXT:docx_editor/Resources/Private/Language/locallang_pagesync.xlf:settings.wordTemplate
+pageSync.wordTemplate =
+
+# cat=pageSync; type=string; label=LLL:EXT:docx_editor/Resources/Private/Language/locallang_pagesync.xlf:settings.excludedContentTypes
+pageSync.excludedContentTypes = html
+
+# cat=pageSync/jev; type=boolean; label=LLL:EXT:docx_editor/Resources/Private/Language/locallang_pagesync.xlf:settings.jevEnabled
+pageSync.jevEnabled = 1
+
+# cat=pageSync/jev; type=string; label=LLL:EXT:docx_editor/Resources/Private/Language/locallang_pagesync.xlf:settings.jevConfidenceThreshold
+pageSync.jevConfidenceThreshold = 0.6
+
+# cat=pageSync/jev; type=int+; label=LLL:EXT:docx_editor/Resources/Private/Language/locallang_pagesync.xlf:settings.jevMaxCandidates
+pageSync.jevMaxCandidates = 5
+
+# cat=pageSync/jev; type=int; label=LLL:EXT:docx_editor/Resources/Private/Language/locallang_pagesync.xlf:settings.jevCacheLifetime
+pageSync.jevCacheLifetime = -1

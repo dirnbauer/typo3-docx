@@ -22,11 +22,13 @@ use TYPO3\CMS\Core\Security\ContentSecurityPolicy\SourceScheme;
  *   - img-src blob: the engine paints the document's images from blob: URLs
  *     it creates from the package bytes.
  *
- * Every other backend route keeps the core policy.
+ * Every other backend route keeps the core policy. The engine runs on the
+ * file editor and on the page round trip's "Edit in Word" screen.
  */
 final readonly class AllowEditorEngineInContentSecurityPolicy
 {
     public const string ROUTE = 'docx_editor';
+    public const string PAGE_ROUTE = 'docx_editor_page';
 
     #[AsEventListener('docx-editor/content-security-policy')]
     public function __invoke(PolicyMutatedEvent $event): void
@@ -35,7 +37,7 @@ final readonly class AllowEditorEngineInContentSecurityPolicy
             return;
         }
         $route = $event->request->getAttribute('route');
-        if (!$route instanceof Route || $route->getOption('_identifier') !== self::ROUTE) {
+        if (!$route instanceof Route || !in_array($route->getOption('_identifier'), [self::ROUTE, self::PAGE_ROUTE], true)) {
             return;
         }
 

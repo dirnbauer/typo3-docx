@@ -511,6 +511,480 @@
         <target>Übersetzt</target>
       </segment>
     </unit>
+    <unit id="ui.wordFile">
+      <segment>
+        <source>Word</source>
+        <target>Word</target>
+      </segment>
+    </unit>
+    <unit id="ui.editInWord">
+      <segment>
+        <source>Edit in Word</source>
+        <target>In Word bearbeiten</target>
+      </segment>
+    </unit>
+    <unit id="ui.download">
+      <segment>
+        <source>Download as Word document</source>
+        <target>Als Word-Dokument herunterladen</target>
+      </segment>
+    </unit>
+    <unit id="ui.upload">
+      <segment>
+        <source>Upload Word document…</source>
+        <target>Word-Dokument hochladen …</target>
+      </segment>
+    </unit>
+    <unit id="ui.importAsSubpages">
+      <segment>
+        <source>Import Word document as subpages…</source>
+        <target>Word-Dokument als Unterseiten importieren …</target>
+      </segment>
+    </unit>
+    <unit id="ui.edit.title">
+      <segment>
+        <source>Edit in Word</source>
+        <target>In Word bearbeiten</target>
+      </segment>
+    </unit>
+    <unit id="ui.edit.heading">
+      <segment>
+        <source>Edit “%s” in Word</source>
+        <target>„%s“ in Word bearbeiten</target>
+      </segment>
+    </unit>
+    <unit id="ui.edit.hint">
+      <segment>
+        <source>Every framed block is a content element of the page, every inner frame one of its fields. Edit the text inside the frames, write new sections between them, delete or reorder whole elements — Save shows exactly what will change in TYPO3 before anything is written.</source>
+        <target>Jeder umrahmte Block ist ein Inhaltselement der Seite, jeder innere Rahmen eines seiner Felder. Bearbeiten Sie den Text in den Rahmen, schreiben Sie neue Abschnitte dazwischen, löschen oder verschieben Sie ganze Elemente – Speichern zeigt genau, was sich in TYPO3 ändern wird, bevor etwas geschrieben wird.</target>
+      </segment>
+    </unit>
+    <unit id="ui.edit.save">
+      <segment>
+        <source>Review and save</source>
+        <target>Prüfen und speichern</target>
+      </segment>
+    </unit>
+    <unit id="ui.edit.surface">
+      <segment>
+        <source>Word document of the page</source>
+        <target>Word-Dokument der Seite</target>
+      </segment>
+    </unit>
+    <unit id="ui.edit.unsaved">
+      <segment>
+        <source>Unsaved changes</source>
+        <target>Ungespeicherte Änderungen</target>
+      </segment>
+    </unit>
+    <unit id="ui.edit.skippedTitle">
+      <segment>
+        <source>Not every element is in the document</source>
+        <target>Nicht jedes Element ist im Dokument</target>
+      </segment>
+    </unit>
+    <unit id="ui.edit.skipped">
+      <segment>
+        <source>%d elements are in containers or in columns the page layout does not show; edit them in the Page module.</source>
+        <target>%d Elemente liegen in Containern oder in Spalten, die das Seitenlayout nicht zeigt; bearbeiten Sie sie im Seitenmodul.</target>
+      </segment>
+    </unit>
+    <unit id="ui.upload.dirtyTitle">
+      <segment>
+        <source>Replace your unsaved changes?</source>
+        <target>Ungespeicherte Änderungen ersetzen?</target>
+      </segment>
+    </unit>
+    <unit id="ui.upload.dirtyText">
+      <segment>
+        <source>The editor has changes that are not saved. Importing another document reloads the page and discards them.</source>
+        <target>Der Editor enthält ungespeicherte Änderungen. Der Import eines anderen Dokuments lädt die Seite neu und verwirft sie.</target>
+      </segment>
+    </unit>
+    <unit id="ui.upload.continue">
+      <segment>
+        <source>Import anyway</source>
+        <target>Trotzdem importieren</target>
+      </segment>
+    </unit>
+    <unit id="ui.new.title">
+      <segment>
+        <source>Import Word document</source>
+        <target>Word-Dokument importieren</target>
+      </segment>
+    </unit>
+    <unit id="ui.new.heading">
+      <segment>
+        <source>Import a Word document as subpages of “%s”</source>
+        <target>Word-Dokument als Unterseiten von „%s“ importieren</target>
+      </segment>
+    </unit>
+    <unit id="ui.new.intro">
+      <segment>
+        <source>The document is split into content elements that fit its structure: headings, paragraphs, lists, tables, pictures and quotes. You review every element and its content type before the pages are created.</source>
+        <target>Das Dokument wird in Inhaltselemente zerlegt, die zu seiner Struktur passen: Überschriften, Absätze, Listen, Tabellen, Bilder und Zitate. Sie prüfen jedes Element und seinen Inhaltstyp, bevor die Seiten angelegt werden.</target>
+      </segment>
+    </unit>
+    <unit id="ui.new.file">
+      <segment>
+        <source>Word document (.docx)</source>
+        <target>Word-Dokument (.docx)</target>
+      </segment>
+    </unit>
+    <unit id="ui.new.fileHelp">
+      <segment>
+        <source>Up to %d MB.</source>
+        <target>Bis zu %d MB.</target>
+      </segment>
+    </unit>
+    <unit id="ui.new.split">
+      <segment>
+        <source>Pages</source>
+        <target>Seiten</target>
+      </segment>
+    </unit>
+    <unit id="ui.new.split.none">
+      <segment>
+        <source>One page — its title is the first heading 1</source>
+        <target>Eine Seite – ihr Titel ist die erste Überschrift 1</target>
+      </segment>
+    </unit>
+    <unit id="ui.new.split.h1">
+      <segment>
+        <source>A page for every heading 1</source>
+        <target>Eine Seite je Überschrift 1</target>
+      </segment>
+    </unit>
+    <unit id="ui.new.split.pagebreak">
+      <segment>
+        <source>A page for every page break</source>
+        <target>Eine Seite je Seitenumbruch</target>
+      </segment>
+    </unit>
+    <unit id="ui.new.hidden">
+      <segment>
+        <source>New pages are created hidden, so you can check them before they go online.</source>
+        <target>Neue Seiten werden verborgen angelegt, damit Sie sie prüfen können, bevor sie online gehen.</target>
+      </segment>
+    </unit>
+    <unit id="ui.new.submit">
+      <segment>
+        <source>Review import</source>
+        <target>Import prüfen</target>
+      </segment>
+    </unit>
+    <unit id="ui.new.created">
+      <segment>
+        <source>Created pages</source>
+        <target>Angelegte Seiten</target>
+      </segment>
+    </unit>
+    <unit id="ui.new.openPage">
+      <segment>
+        <source>Open “%s” in the Page module</source>
+        <target>„%s“ im Seitenmodul öffnen</target>
+      </segment>
+    </unit>
+    <unit id="ui.review.title">
+      <segment>
+        <source>Review changes before saving</source>
+        <target>Änderungen vor dem Speichern prüfen</target>
+      </segment>
+    </unit>
+    <unit id="ui.review.titleNew">
+      <segment>
+        <source>Review the new pages</source>
+        <target>Neue Seiten prüfen</target>
+      </segment>
+    </unit>
+    <unit id="ui.review.page">
+      <segment>
+        <source>Content of the page</source>
+        <target>Inhalt der Seite</target>
+      </segment>
+    </unit>
+    <unit id="ui.review.newPage">
+      <segment>
+        <source>New page “%s”</source>
+        <target>Neue Seite „%s“</target>
+      </segment>
+    </unit>
+    <unit id="ui.review.nothing">
+      <segment>
+        <source>The document matches the page: there is nothing to import.</source>
+        <target>Das Dokument entspricht der Seite: Es gibt nichts zu importieren.</target>
+      </segment>
+    </unit>
+    <unit id="ui.review.showUnchanged">
+      <segment>
+        <source>Show unchanged elements (%d)</source>
+        <target>Unveränderte Elemente anzeigen (%d)</target>
+      </segment>
+    </unit>
+    <unit id="ui.review.column.include">
+      <segment>
+        <source>Import</source>
+        <target>Importieren</target>
+      </segment>
+    </unit>
+    <unit id="ui.review.column.element">
+      <segment>
+        <source>Element</source>
+        <target>Element</target>
+      </segment>
+    </unit>
+    <unit id="ui.review.column.change">
+      <segment>
+        <source>Change</source>
+        <target>Änderung</target>
+      </segment>
+    </unit>
+    <unit id="ui.review.column.details">
+      <segment>
+        <source>Details</source>
+        <target>Details</target>
+      </segment>
+    </unit>
+    <unit id="ui.review.include">
+      <segment>
+        <source>Import “%s”</source>
+        <target>„%s“ importieren</target>
+      </segment>
+    </unit>
+    <unit id="ui.review.untitled">
+      <segment>
+        <source>(without heading)</source>
+        <target>(ohne Überschrift)</target>
+      </segment>
+    </unit>
+    <unit id="ui.review.contentType">
+      <segment>
+        <source>Content type</source>
+        <target>Inhaltstyp</target>
+      </segment>
+    </unit>
+    <unit id="ui.review.typeOption">
+      <segment>
+        <source>%s — %s fit</source>
+        <target>%s – %s Übereinstimmung</target>
+      </segment>
+    </unit>
+    <unit id="ui.review.decidedByJev">
+      <segment>
+        <source>Chosen by Jev (%s sure)</source>
+        <target>Von Jev gewählt (%s sicher)</target>
+      </segment>
+    </unit>
+    <unit id="ui.review.decidedByStructure">
+      <segment>
+        <source>Chosen by structure</source>
+        <target>Nach Struktur gewählt</target>
+      </segment>
+    </unit>
+    <unit id="ui.review.needsReview">
+      <segment>
+        <source>Please check the content type.</source>
+        <target>Bitte prüfen Sie den Inhaltstyp.</target>
+      </segment>
+    </unit>
+    <unit id="ui.review.jevUnavailable">
+      <segment>
+        <source>Jev was not asked: %s</source>
+        <target>Jev wurde nicht gefragt: %s</target>
+      </segment>
+    </unit>
+    <unit id="ui.review.why">
+      <segment>
+        <source>Why this type?</source>
+        <target>Warum dieser Typ?</target>
+      </segment>
+    </unit>
+    <unit id="ui.review.lost">
+      <segment>
+        <source>Has no field for: %s</source>
+        <target>Hat kein Feld für: %s</target>
+      </segment>
+    </unit>
+    <unit id="ui.review.missingRequired">
+      <segment>
+        <source>Required fields left empty: %s</source>
+        <target>Leer bleibende Pflichtfelder: %s</target>
+      </segment>
+    </unit>
+    <unit id="ui.review.conflictLegend">
+      <segment>
+        <source>%s was changed in Word and in TYPO3</source>
+        <target>%s wurde in Word und in TYPO3 geändert</target>
+      </segment>
+    </unit>
+    <unit id="ui.review.keepTypo3">
+      <segment>
+        <source>Keep the TYPO3 version</source>
+        <target>TYPO3-Fassung behalten</target>
+      </segment>
+    </unit>
+    <unit id="ui.review.takeWord">
+      <segment>
+        <source>Take the Word version</source>
+        <target>Word-Fassung übernehmen</target>
+      </segment>
+    </unit>
+    <unit id="ui.review.empty">
+      <segment>
+        <source>(empty)</source>
+        <target>(leer)</target>
+      </segment>
+    </unit>
+    <unit id="ui.review.lossy">
+      <segment>
+        <source>Formatting that Word cannot represent (CSS classes, styles) is removed from this field.</source>
+        <target>Formatierungen, die Word nicht darstellen kann (CSS-Klassen, Stile), werden aus diesem Feld entfernt.</target>
+      </segment>
+    </unit>
+    <unit id="ui.review.confirmDelete">
+      <segment>
+        <source>Delete “%s”</source>
+        <target>„%s“ löschen</target>
+      </segment>
+    </unit>
+    <unit id="ui.review.moves">
+      <segment>
+        <source>Apply the order of the Word document (%d elements move)</source>
+        <target>Reihenfolge des Word-Dokuments übernehmen (%d Elemente werden verschoben)</target>
+      </segment>
+    </unit>
+    <unit id="ui.review.cancel">
+      <segment>
+        <source>Cancel</source>
+        <target>Abbrechen</target>
+      </segment>
+    </unit>
+    <unit id="ui.review.close">
+      <segment>
+        <source>Close</source>
+        <target>Schließen</target>
+      </segment>
+    </unit>
+    <unit id="ui.review.apply">
+      <segment>
+        <source>Import</source>
+        <target>Importieren</target>
+      </segment>
+    </unit>
+    <unit id="ui.applied.title">
+      <segment>
+        <source>Imported</source>
+        <target>Importiert</target>
+      </segment>
+    </unit>
+    <unit id="ui.applied.summary">
+      <segment>
+        <source>%d created, %d changed, %d deleted, %d moved, %d translated.</source>
+        <target>%d angelegt, %d geändert, %d gelöscht, %d verschoben, %d übersetzt.</target>
+      </segment>
+    </unit>
+    <unit id="ui.applied.partly">
+      <segment>
+        <source>Imported with errors</source>
+        <target>Mit Fehlern importiert</target>
+      </segment>
+    </unit>
+    <unit id="ui.outdated.title">
+      <segment>
+        <source>The page has changed</source>
+        <target>Die Seite wurde geändert</target>
+      </segment>
+    </unit>
+    <unit id="ui.outdated.text">
+      <segment>
+        <source>Someone changed the page since the review. Save again to review the current state.</source>
+        <target>Jemand hat die Seite seit der Prüfung geändert. Speichern Sie erneut, um den aktuellen Stand zu prüfen.</target>
+      </segment>
+    </unit>
+    <unit id="ui.error.title">
+      <segment>
+        <source>The page cannot be edited in Word</source>
+        <target>Die Seite kann nicht in Word bearbeitet werden</target>
+      </segment>
+    </unit>
+    <unit id="ui.error.open">
+      <segment>
+        <source>The page could not be opened</source>
+        <target>Die Seite konnte nicht geöffnet werden</target>
+      </segment>
+    </unit>
+    <unit id="ui.error.preview">
+      <segment>
+        <source>The document could not be imported</source>
+        <target>Das Dokument konnte nicht importiert werden</target>
+      </segment>
+    </unit>
+    <unit id="ui.error.response">
+      <segment>
+        <source>The server gave no usable answer.</source>
+        <target>Der Server hat keine verwertbare Antwort gegeben.</target>
+      </segment>
+    </unit>
+    <unit id="error.invalidRequest">
+      <segment>
+        <source>The request is not valid.</source>
+        <target>Die Anfrage ist ungültig.</target>
+      </segment>
+    </unit>
+    <unit id="settings.imageFolder">
+      <segment>
+        <source>Picture folder: FAL folder for pictures that come from Word documents; {page} is replaced by the page uid. Identical pictures are stored once.</source>
+        <target>Bilderordner: FAL-Ordner für Bilder aus Word-Dokumenten; {page} wird durch die Seiten-UID ersetzt. Identische Bilder werden nur einmal gespeichert.</target>
+      </segment>
+    </unit>
+    <unit id="settings.newPagesHidden">
+      <segment>
+        <source>New pages hidden: pages created from a Word document start hidden, for review before they go online.</source>
+        <target>Neue Seiten verborgen: Aus einem Word-Dokument angelegte Seiten beginnen verborgen, zur Prüfung vor der Veröffentlichung.</target>
+      </segment>
+    </unit>
+    <unit id="settings.maxUploadMegabytes">
+      <segment>
+        <source>Maximum document size (MB): larger Word documents are refused, as are packages that unpack to far more than their size.</source>
+        <target>Maximale Dokumentgröße (MB): Größere Word-Dokumente werden abgelehnt, ebenso Pakete, die sich auf ein Vielfaches ihrer Größe entpacken.</target>
+      </segment>
+    </unit>
+    <unit id="settings.wordTemplate">
+      <segment>
+        <source>Word template: an EXT: or project path to a .dotx or .docx whose styles exported documents use (fonts, colours, heading styles). Empty for the built-in template.</source>
+        <target>Word-Vorlage: EXT:- oder Projektpfad zu einer .dotx- oder .docx-Datei, deren Formatvorlagen exportierte Dokumente verwenden (Schriften, Farben, Überschriften). Leer für die eingebaute Vorlage.</target>
+      </segment>
+    </unit>
+    <unit id="settings.excludedContentTypes">
+      <segment>
+        <source>Excluded content types: comma-separated CTypes never proposed for new content from Word.</source>
+        <target>Ausgeschlossene Inhaltstypen: Kommagetrennte CTypes, die für neuen Inhalt aus Word nie vorgeschlagen werden.</target>
+      </segment>
+    </unit>
+    <unit id="settings.jevEnabled">
+      <segment>
+        <source>Ask Jev: when webcon_jev is installed, Jev chooses between content types that fit a new part about equally well.</source>
+        <target>Jev fragen: Ist webcon_jev installiert, wählt Jev zwischen Inhaltstypen, die zu einem neuen Abschnitt etwa gleich gut passen.</target>
+      </segment>
+    </unit>
+    <unit id="settings.jevConfidenceThreshold">
+      <segment>
+        <source>Jev confidence threshold (0–1): below it, Jev's answer is shown but the best structural fit is kept and the part is marked for review.</source>
+        <target>Jev-Sicherheitsschwelle (0–1): Darunter wird Jevs Antwort angezeigt, aber die strukturell beste Wahl behalten und der Abschnitt zur Prüfung markiert.</target>
+      </segment>
+    </unit>
+    <unit id="settings.jevMaxCandidates">
+      <segment>
+        <source>Jev candidates: how many of the best structural fits Jev chooses between (2–12).</source>
+        <target>Jev-Kandidaten: Zwischen wie vielen der strukturell besten Treffer Jev wählt (2–12).</target>
+      </segment>
+    </unit>
+    <unit id="settings.jevCacheLifetime">
+      <segment>
+        <source>Jev cache lifetime (seconds): how long Jev's answer for the same part is reused; -1 uses webcon_jev's setting.</source>
+        <target>Jev-Cache-Dauer (Sekunden): Wie lange Jevs Antwort für denselben Abschnitt wiederverwendet wird; -1 übernimmt die Einstellung von webcon_jev.</target>
+      </segment>
+    </unit>
     <unit id="warning.linkedImage">
       <segment>
         <source>A picture is only linked, not embedded, and was left out (%s).</source>

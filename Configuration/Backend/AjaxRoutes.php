@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Webconsulting\DocxEditor\Controller\Backend\CollaborationApiController;
 use Webconsulting\DocxEditor\Controller\Backend\DocumentApiController;
+use Webconsulting\DocxEditor\PageSync\Backend\PageSyncApiController;
 
 return [
     'docx_editor_document_load' => [
@@ -45,5 +46,25 @@ return [
         'path' => '/docx-editor/collab/revision',
         'target' => CollaborationApiController::class . '::revisionAction',
         'methods' => ['GET'],
+    ],
+    'docx_editor_page_load' => [
+        'path' => '/docx-editor/page/load',
+        'target' => PageSyncApiController::class . '::loadAction',
+        'methods' => ['GET'],
+    ],
+    'docx_editor_page_preview' => [
+        'path' => '/docx-editor/page/preview',
+        'target' => PageSyncApiController::class . '::previewAction',
+        'methods' => ['POST'],
+    ],
+    'docx_editor_page_apply' => [
+        'path' => '/docx-editor/page/apply',
+        'target' => PageSyncApiController::class . '::applyAction',
+        'methods' => ['POST'],
+    ],
+    'docx_editor_page_discard' => [
+        'path' => '/docx-editor/page/discard',
+        'target' => PageSyncApiController::class . '::discardAction',
+        'methods' => ['POST'],
     ],
 ];

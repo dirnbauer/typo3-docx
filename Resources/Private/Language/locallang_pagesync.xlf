@@ -426,6 +426,401 @@
         <source>Translated</source>
       </segment>
     </unit>
+    <unit id="ui.wordFile">
+      <segment>
+        <source>Word</source>
+      </segment>
+    </unit>
+    <unit id="ui.editInWord">
+      <segment>
+        <source>Edit in Word</source>
+      </segment>
+    </unit>
+    <unit id="ui.download">
+      <segment>
+        <source>Download as Word document</source>
+      </segment>
+    </unit>
+    <unit id="ui.upload">
+      <segment>
+        <source>Upload Word document…</source>
+      </segment>
+    </unit>
+    <unit id="ui.importAsSubpages">
+      <segment>
+        <source>Import Word document as subpages…</source>
+      </segment>
+    </unit>
+    <unit id="ui.edit.title">
+      <segment>
+        <source>Edit in Word</source>
+      </segment>
+    </unit>
+    <unit id="ui.edit.heading">
+      <segment>
+        <source>Edit “%s” in Word</source>
+      </segment>
+    </unit>
+    <unit id="ui.edit.hint">
+      <segment>
+        <source>Every framed block is a content element of the page, every inner frame one of its fields. Edit the text inside the frames, write new sections between them, delete or reorder whole elements — Save shows exactly what will change in TYPO3 before anything is written.</source>
+      </segment>
+    </unit>
+    <unit id="ui.edit.save">
+      <segment>
+        <source>Review and save</source>
+      </segment>
+    </unit>
+    <unit id="ui.edit.surface">
+      <segment>
+        <source>Word document of the page</source>
+      </segment>
+    </unit>
+    <unit id="ui.edit.unsaved">
+      <segment>
+        <source>Unsaved changes</source>
+      </segment>
+    </unit>
+    <unit id="ui.edit.skippedTitle">
+      <segment>
+        <source>Not every element is in the document</source>
+      </segment>
+    </unit>
+    <unit id="ui.edit.skipped">
+      <segment>
+        <source>%d elements are in containers or in columns the page layout does not show; edit them in the Page module.</source>
+      </segment>
+    </unit>
+    <unit id="ui.upload.dirtyTitle">
+      <segment>
+        <source>Replace your unsaved changes?</source>
+      </segment>
+    </unit>
+    <unit id="ui.upload.dirtyText">
+      <segment>
+        <source>The editor has changes that are not saved. Importing another document reloads the page and discards them.</source>
+      </segment>
+    </unit>
+    <unit id="ui.upload.continue">
+      <segment>
+        <source>Import anyway</source>
+      </segment>
+    </unit>
+    <unit id="ui.new.title">
+      <segment>
+        <source>Import Word document</source>
+      </segment>
+    </unit>
+    <unit id="ui.new.heading">
+      <segment>
+        <source>Import a Word document as subpages of “%s”</source>
+      </segment>
+    </unit>
+    <unit id="ui.new.intro">
+      <segment>
+        <source>The document is split into content elements that fit its structure: headings, paragraphs, lists, tables, pictures and quotes. You review every element and its content type before the pages are created.</source>
+      </segment>
+    </unit>
+    <unit id="ui.new.file">
+      <segment>
+        <source>Word document (.docx)</source>
+      </segment>
+    </unit>
+    <unit id="ui.new.fileHelp">
+      <segment>
+        <source>Up to %d MB.</source>
+      </segment>
+    </unit>
+    <unit id="ui.new.split">
+      <segment>
+        <source>Pages</source>
+      </segment>
+    </unit>
+    <unit id="ui.new.split.none">
+      <segment>
+        <source>One page — its title is the first heading 1</source>
+      </segment>
+    </unit>
+    <unit id="ui.new.split.h1">
+      <segment>
+        <source>A page for every heading 1</source>
+      </segment>
+    </unit>
+    <unit id="ui.new.split.pagebreak">
+      <segment>
+        <source>A page for every page break</source>
+      </segment>
+    </unit>
+    <unit id="ui.new.hidden">
+      <segment>
+        <source>New pages are created hidden, so you can check them before they go online.</source>
+      </segment>
+    </unit>
+    <unit id="ui.new.submit">
+      <segment>
+        <source>Review import</source>
+      </segment>
+    </unit>
+    <unit id="ui.new.created">
+      <segment>
+        <source>Created pages</source>
+      </segment>
+    </unit>
+    <unit id="ui.new.openPage">
+      <segment>
+        <source>Open “%s” in the Page module</source>
+      </segment>
+    </unit>
+    <unit id="ui.review.title">
+      <segment>
+        <source>Review changes before saving</source>
+      </segment>
+    </unit>
+    <unit id="ui.review.titleNew">
+      <segment>
+        <source>Review the new pages</source>
+      </segment>
+    </unit>
+    <unit id="ui.review.page">
+      <segment>
+        <source>Content of the page</source>
+      </segment>
+    </unit>
+    <unit id="ui.review.newPage">
+      <segment>
+        <source>New page “%s”</source>
+      </segment>
+    </unit>
+    <unit id="ui.review.nothing">
+      <segment>
+        <source>The document matches the page: there is nothing to import.</source>
+      </segment>
+    </unit>
+    <unit id="ui.review.showUnchanged">
+      <segment>
+        <source>Show unchanged elements (%d)</source>
+      </segment>
+    </unit>
+    <unit id="ui.review.column.include">
+      <segment>
+        <source>Import</source>
+      </segment>
+    </unit>
+    <unit id="ui.review.column.element">
+      <segment>
+        <source>Element</source>
+      </segment>
+    </unit>
+    <unit id="ui.review.column.change">
+      <segment>
+        <source>Change</source>
+      </segment>
+    </unit>
+    <unit id="ui.review.column.details">
+      <segment>
+        <source>Details</source>
+      </segment>
+    </unit>
+    <unit id="ui.review.include">
+      <segment>
+        <source>Import “%s”</source>
+      </segment>
+    </unit>
+    <unit id="ui.review.untitled">
+      <segment>
+        <source>(without heading)</source>
+      </segment>
+    </unit>
+    <unit id="ui.review.contentType">
+      <segment>
+        <source>Content type</source>
+      </segment>
+    </unit>
+    <unit id="ui.review.typeOption">
+      <segment>
+        <source>%s — %s fit</source>
+      </segment>
+    </unit>
+    <unit id="ui.review.decidedByJev">
+      <segment>
+        <source>Chosen by Jev (%s sure)</source>
+      </segment>
+    </unit>
+    <unit id="ui.review.decidedByStructure">
+      <segment>
+        <source>Chosen by structure</source>
+      </segment>
+    </unit>
+    <unit id="ui.review.needsReview">
+      <segment>
+        <source>Please check the content type.</source>
+      </segment>
+    </unit>
+    <unit id="ui.review.jevUnavailable">
+      <segment>
+        <source>Jev was not asked: %s</source>
+      </segment>
+    </unit>
+    <unit id="ui.review.why">
+      <segment>
+        <source>Why this type?</source>
+      </segment>
+    </unit>
+    <unit id="ui.review.lost">
+      <segment>
+        <source>Has no field for: %s</source>
+      </segment>
+    </unit>
+    <unit id="ui.review.missingRequired">
+      <segment>
+        <source>Required fields left empty: %s</source>
+      </segment>
+    </unit>
+    <unit id="ui.review.conflictLegend">
+      <segment>
+        <source>%s was changed in Word and in TYPO3</source>
+      </segment>
+    </unit>
+    <unit id="ui.review.keepTypo3">
+      <segment>
+        <source>Keep the TYPO3 version</source>
+      </segment>
+    </unit>
+    <unit id="ui.review.takeWord">
+      <segment>
+        <source>Take the Word version</source>
+      </segment>
+    </unit>
+    <unit id="ui.review.empty">
+      <segment>
+        <source>(empty)</source>
+      </segment>
+    </unit>
+    <unit id="ui.review.lossy">
+      <segment>
+        <source>Formatting that Word cannot represent (CSS classes, styles) is removed from this field.</source>
+      </segment>
+    </unit>
+    <unit id="ui.review.confirmDelete">
+      <segment>
+        <source>Delete “%s”</source>
+      </segment>
+    </unit>
+    <unit id="ui.review.moves">
+      <segment>
+        <source>Apply the order of the Word document (%d elements move)</source>
+      </segment>
+    </unit>
+    <unit id="ui.review.cancel">
+      <segment>
+        <source>Cancel</source>
+      </segment>
+    </unit>
+    <unit id="ui.review.close">
+      <segment>
+        <source>Close</source>
+      </segment>
+    </unit>
+    <unit id="ui.review.apply">
+      <segment>
+        <source>Import</source>
+      </segment>
+    </unit>
+    <unit id="ui.applied.title">
+      <segment>
+        <source>Imported</source>
+      </segment>
+    </unit>
+    <unit id="ui.applied.summary">
+      <segment>
+        <source>%d created, %d changed, %d deleted, %d moved, %d translated.</source>
+      </segment>
+    </unit>
+    <unit id="ui.applied.partly">
+      <segment>
+        <source>Imported with errors</source>
+      </segment>
+    </unit>
+    <unit id="ui.outdated.title">
+      <segment>
+        <source>The page has changed</source>
+      </segment>
+    </unit>
+    <unit id="ui.outdated.text">
+      <segment>
+        <source>Someone changed the page since the review. Save again to review the current state.</source>
+      </segment>
+    </unit>
+    <unit id="ui.error.title">
+      <segment>
+        <source>The page cannot be edited in Word</source>
+      </segment>
+    </unit>
+    <unit id="ui.error.open">
+      <segment>
+        <source>The page could not be opened</source>
+      </segment>
+    </unit>
+    <unit id="ui.error.preview">
+      <segment>
+        <source>The document could not be imported</source>
+      </segment>
+    </unit>
+    <unit id="ui.error.response">
+      <segment>
+        <source>The server gave no usable answer.</source>
+      </segment>
+    </unit>
+    <unit id="error.invalidRequest">
+      <segment>
+        <source>The request is not valid.</source>
+      </segment>
+    </unit>
+    <unit id="settings.imageFolder">
+      <segment>
+        <source>Picture folder: FAL folder for pictures that come from Word documents; {page} is replaced by the page uid. Identical pictures are stored once.</source>
+      </segment>
+    </unit>
+    <unit id="settings.newPagesHidden">
+      <segment>
+        <source>New pages hidden: pages created from a Word document start hidden, for review before they go online.</source>
+      </segment>
+    </unit>
+    <unit id="settings.maxUploadMegabytes">
+      <segment>
+        <source>Maximum document size (MB): larger Word documents are refused, as are packages that unpack to far more than their size.</source>
+      </segment>
+    </unit>
+    <unit id="settings.wordTemplate">
+      <segment>
+        <source>Word template: an EXT: or project path to a .dotx or .docx whose styles exported documents use (fonts, colours, heading styles). Empty for the built-in template.</source>
+      </segment>
+    </unit>
+    <unit id="settings.excludedContentTypes">
+      <segment>
+        <source>Excluded content types: comma-separated CTypes never proposed for new content from Word.</source>
+      </segment>
+    </unit>
+    <unit id="settings.jevEnabled">
+      <segment>
+        <source>Ask Jev: when webcon_jev is installed, Jev chooses between content types that fit a new part about equally well.</source>
+      </segment>
+    </unit>
+    <unit id="settings.jevConfidenceThreshold">
+      <segment>
+        <source>Jev confidence threshold (0–1): below it, Jev's answer is shown but the best structural fit is kept and the part is marked for review.</source>
+      </segment>
+    </unit>
+    <unit id="settings.jevMaxCandidates">
+      <segment>
+        <source>Jev candidates: how many of the best structural fits Jev chooses between (2–12).</source>
+      </segment>
+    </unit>
+    <unit id="settings.jevCacheLifetime">
+      <segment>
+        <source>Jev cache lifetime (seconds): how long Jev's answer for the same part is reused; -1 uses webcon_jev's setting.</source>
+      </segment>
+    </unit>
     <unit id="warning.linkedImage">
       <segment>
         <source>A picture is only linked, not embedded, and was left out (%s).</source>
