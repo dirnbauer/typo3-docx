@@ -12,6 +12,8 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use Webconsulting\DocxEditor\PageSync\Configuration\PageSyncSettings;
 use Webconsulting\DocxEditor\PageSync\Exception\PageSyncException;
 use Webconsulting\DocxEditor\PageSync\Service\PageSyncService;
 
@@ -21,6 +23,7 @@ final class ExportPageCommand extends Command
     public function __construct(
         private readonly PageSyncService $pageSync,
         private readonly LanguageServiceFactory $languageServiceFactory,
+        private readonly PageSyncSettings $settings,
     ) {
         parent::__construct();
     }
@@ -32,7 +35,7 @@ final class ExportPageCommand extends Command
             ->addArgument('page', InputArgument::REQUIRED, 'Uid of the page')
             ->addOption('language', 'l', InputOption::VALUE_REQUIRED, 'Language id of the page translation to export', '0')
             ->addOption('workspace', 'w', InputOption::VALUE_REQUIRED, 'Workspace id to export from', '0')
-            ->addOption('out', 'o', InputOption::VALUE_REQUIRED, 'File or directory to write to (default: the current directory)');
+            ->addOption('out', 'o', InputOption::VALUE_REQUIRED, 'File or directory to write to (default: the current directory; a path ending in / is a directory and is created)');
     }
 
     #[\Override]
@@ -51,6 +54,9 @@ final class ExportPageCommand extends Command
 
         $out = $input->getOption('out');
         $target = is_string($out) && $out !== '' ? $out : (string)getcwd();
+        if (str_ends_with($target, '/') && !is_dir($target)) {
+            GeneralUtility::mkdir_deep($target);
+        }
         if (is_dir($target)) {
             $target = rtrim($target, '/') . '/' . $result->fileName;
         }
@@ -59,7 +65,14 @@ final class ExportPageCommand extends Command
 
             return Command::FAILURE;
         }
-        $io->success(sprintf('%d content elements written to %s', $result->elementCount, $target));
+        $size = strlen($result->binary);
+        $io->success(sprintf('%d content elements written to %s (%s MB)', $result->elementCount, $target, number_format($size / 1048576, 1)));
+        if ($size > $this->settings->maxUploadMegabytes() * 1048576) {
+            $io->warning(sprintf(
+                'The document is larger than the %d MB an import accepts (pageSync.maxUploadMegabytes). Lower pageSync.pictureResolution or raise the limit to import it again.',
+                $this->settings->maxUploadMegabytes(),
+            ));
+        }
         if ($result->skipped !== []) {
             $io->note(sprintf('Not part of the document (no column on the page, or inside a container): tt_content %s', implode(', ', $result->skipped)));
         }
