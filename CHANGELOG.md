@@ -2,6 +2,36 @@
 
 All notable changes to this project are documented in this file.
 
+## [2.2.0] - 2026-09-23
+
+Printing is back — 1.x's *File › Print* went with the old engine, and
+docx-editor.dev prints only through its commercial package.
+
+### Added
+
+- **Print** in the DocHeader (file editor and *Edit in Word*), as *File ›
+  Print* and on Ctrl/Cmd+P: the browser's print dialog with the pages as the
+  editor lays them out, one sheet per page at the document's paper size
+  (named `@page` rules per section: A4, Letter, landscape…), without control
+  frames, header/footer hints or page shadows. *Save as PDF* in the dialog
+  makes a PDF.
+- `<webcon-docx-editor>` `print()` and `preparePrint()` (the pages ready for
+  print media without the dialog — resolves to a cleanup function, for
+  headless PDF rendering); `<typo3-docx-editor>` `print()`.
+- Icon `docx-editor-print` (core ships no printer icon).
+
+### Notes
+
+- The engine paints only the pages near the viewport; printing shows the
+  document at 100 % in a viewport as tall as the document until every page is
+  painted, copies the pages and restores zoom and scroll after `afterprint`.
+  Checked headless with Chromium's print media: 23 A4 pages (a lab page with
+  16 pictures) → a 23-page A4 PDF; a Letter document with a landscape section
+  → Letter and Letter-landscape sheets.
+- `@docx-editor.dev/docx-to-pdf` is not published on npm, so the browser's
+  print pipeline it is: no new dependency and no CSP change (pictures are the
+  `blob:` URLs the editor routes already allow).
+
 ## [2.1.0] - 2026-09-23
 
 Edit pages in Word: a page and its content elements as one Word document,

@@ -34,7 +34,10 @@ can become new pages, split into the content elements that fit it.
 - Style picker curated to **Normal + Heading 1–4** plus H1–H4 toolbar buttons.
   Word keeps unused headings latent; the editor adds Word's definitions while
   a document is open and keeps only the ones you applied.
-- Menus: File (Save, Page setup — no *Open*, which would replace the FAL
+- **Print** (DocHeader, File › Print, Ctrl/Cmd+P): one sheet per page at the
+  document's own paper size — landscape sections print landscape; the
+  browser's *Save as PDF* makes a PDF.
+- Menus: File (Save, Print, Page setup — no *Open*, which would replace the FAL
   file), Format, Insert, Review (paragraph marks, forms protection).
 - The editor chrome, menus and dialogs follow the backend's light and dark mode
   through TYPO3's design tokens; the document page stays white, as in Word.
@@ -45,9 +48,8 @@ can become new pages, split into the content elements that fit it.
   completed by the extension).
 
 Not included: tracked-change review (suggesting, accept/reject, markup
-views), comment threads, real-time collaboration and PDF export — upstream
-ships them in the commercial `@docx-editor.dev/pro`, which this extension does
-not use. Documents that contain tracked changes or comments keep them on save.
+views), comment threads and real-time collaboration — upstream ships them in
+the commercial `@docx-editor.dev/pro`, which this extension does not use. Documents that contain tracked changes or comments keep them on save.
 
 ## Requirements
 
@@ -63,7 +65,7 @@ not use. Documents that contain tracked changes or comments keep them on save.
 ## Install
 
 ```bash
-composer require webconsulting/docx-editor:^2.1
+composer require webconsulting/docx-editor:^2.2
 vendor/bin/typo3 extension:setup
 ```
 
@@ -186,6 +188,8 @@ editor.addEventListener('docx-editor:save-request', async () => {
 | `load(source)` | opens a document; resolves once it is shown |
 | `serialize()` | the document as DOCX bytes: the **opened package, re-serialized** by the engine's package serializer — never a new document; unmodeled markup, `w:sdt`, bookmarks and custom XML parts survive |
 | `revision`, `dirty`, `markClean(revision)` | edit tracking |
+| `print()` | the browser's print dialog with one sheet per page at the document's paper size (also File › Print and Ctrl/Cmd+P) |
+| `preparePrint()` | readies the pages for print media without the dialog and resolves to a cleanup function — for headless PDF rendering |
 | `editor` | the `@docx-editor.dev/core` editor instance (commands, queries) |
 | events | `docx-editor:ready` {editor}, `docx-editor:change` {dirty, revision}, `docx-editor:save-request`, `docx-editor:error` {message}, `docx-editor:font-error` {error} |
 

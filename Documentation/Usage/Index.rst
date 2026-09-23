@@ -25,13 +25,28 @@ Heading 1.
 Menus
 =====
 
--   :guilabel:`File`: :guilabel:`Save` and :guilabel:`Page setup`. There is no
-    :guilabel:`Open` — it would replace the FAL file with a local one.
+-   :guilabel:`File`: :guilabel:`Save`, :guilabel:`Print` and
+    :guilabel:`Page setup`. There is no :guilabel:`Open` — it would replace
+    the FAL file with a local one.
 -   :guilabel:`Format`, :guilabel:`Insert`: text and paragraph formatting, the
     paragraph dialog, images, tables, notes, breaks, table of contents.
 -   :guilabel:`Review`: show paragraph marks, protect the document for forms.
     Tracked-change review and comment threads are not included (see
     :ref:`introduction`); existing tracked changes and comments are kept.
+
+..  _usage-print:
+
+Print
+=====
+
+:guilabel:`Print` in the DocHeader, :guilabel:`File > Print` or
+:kbd:`Ctrl+P` / :kbd:`Cmd+P` opens the browser's print dialog with the
+document's pages as the editor lays them out: one sheet per page, at the
+document's paper size (A4, Letter, a landscape section in landscape), with
+the margins of the document and without the editor's frames and marks. Choose
+:guilabel:`Save as PDF` in the dialog for a PDF. The same works in
+:guilabel:`Edit in Word` (:ref:`page-sync`) — there the content-control frames
+are left out as well.
 
 Save
 ====

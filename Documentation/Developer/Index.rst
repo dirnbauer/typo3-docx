@@ -85,6 +85,17 @@ module, comment rail, collaboration and PDF export live in the commercial
 therefore keeps only paragraph marks and forms protection, and the toolbar
 has no comment button.
 
+Printing (:file:`Build/Sources/editor/print.js`) needs neither: the engine
+paints only the pages near the viewport, so ``preparePrint()`` shows the
+document at 100 % in a viewport as tall as the document, waits until every
+page is painted, copies the pages into a print-only container and adds one
+named ``@page`` rule per paper size (``size`` from the page geometry, no
+margin — the margins are part of the painted page). The print stylesheet in
+:file:`Editor.base.css` hides everything else while
+``html.webcon-docx-printing`` is set; ``afterprint`` restores zoom and scroll.
+No CSP change is needed: the pages' pictures are the ``blob:`` URLs the
+editor route already allows, and the backend policy allows inline styles.
+
 Curated styles
 --------------
 
@@ -110,7 +121,11 @@ exports ``WebconDocxEditorElement`` (``<webcon-docx-editor>``),
     Attributes ``locale`` (``de``/``en``), ``readonly`` and
     ``content-controls="show"``; property ``labels``; methods
     ``load(bytes)`` (resolves when the document is shown),
-    ``serialize()`` (``Uint8Array``), ``markClean(revision)``; properties
+    ``serialize()`` (``Uint8Array``), ``markClean(revision)``, ``print()``
+    (the browser's print dialog, one sheet per page at the document's paper
+    size; also :guilabel:`File › Print` and :kbd:`Ctrl/Cmd+P`) and
+    ``preparePrint()`` (the pages ready for print media without the dialog;
+    resolves to a cleanup function — for headless PDF rendering); properties
     ``revision``, ``dirty`` and ``editor`` (the core editor instance); events
     ``docx-editor:ready``, ``docx-editor:change`` (``{dirty, revision}``),
     ``docx-editor:save-request`` (File › Save, the toolbar, :kbd:`Ctrl/Cmd+S`),

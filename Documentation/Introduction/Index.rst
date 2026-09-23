@@ -36,8 +36,10 @@ Not included
 ============
 
 Tracked-change review (suggesting mode, accept/reject, markup views), comment
-threads, real-time collaboration and PDF export are part of the commercial
-``@docx-editor.dev/pro`` package, which this extension does not use. Tracked
+threads and real-time collaboration are part of the commercial
+``@docx-editor.dev/pro`` package, which this extension does not use. Printing
+is included (:ref:`usage-print`); a PDF comes from the browser's print dialog
+(:guilabel:`Save as PDF`). Tracked
 changes and comments already in a document are shown as the engine renders
 them and kept on save.
 

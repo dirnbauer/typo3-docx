@@ -9,6 +9,14 @@ Changelog
 The full history is kept in
 `CHANGELOG.md <https://github.com/dirnbauer/typo3-docx/blob/main/CHANGELOG.md>`__.
 
+2.2.0
+=====
+
+-   Print (:ref:`usage-print`): DocHeader button, :guilabel:`File > Print` and
+    :kbd:`Ctrl/Cmd+P` in the file editor and in :guilabel:`Edit in Word`; one
+    sheet per page at the document's paper size, PDF through the browser's
+    print dialog. No commercial package, no new dependency, no CSP change.
+
 2.1.0
 =====
 
