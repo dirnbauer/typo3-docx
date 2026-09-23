@@ -18,6 +18,7 @@ use Webconsulting\DocxEditor\PageSync\Document\Block;
 use Webconsulting\DocxEditor\PageSync\Document\Bookmark;
 use Webconsulting\DocxEditor\PageSync\Document\ContentControl;
 use Webconsulting\DocxEditor\PageSync\Document\ControlLock;
+use Webconsulting\DocxEditor\PageSync\Document\Figure;
 use Webconsulting\DocxEditor\PageSync\Document\Heading;
 use Webconsulting\DocxEditor\PageSync\Document\Link;
 use Webconsulting\DocxEditor\PageSync\Document\Paragraph;
@@ -45,8 +46,11 @@ use Webconsulting\DocxEditor\PageSync\Schema\FieldRole;
  * The page title comes first, then each column of the page's backend layout with its content
  * elements. Every element is a content control tagged with its record, holding one control per
  * editable field — a collection holds one control per child record. What Word cannot edit
- * (plugins, links, non-image files, rich text with embedded media) is shown read-only. The
- * manifest records the hash of every exported field, so the import can tell what changed where.
+ * (plugins, links, non-image files, rich text with embedded media) is shown read-only; a link
+ * field as what it points to ("Page: About us (/Home/About us/)"). The manifest records the hash
+ * of every exported field, so the import can tell what changed where, the stored value of every
+ * link field, and every picture — embedded as a copy no larger than Word shows it — with the file
+ * reference it came from.
  */
 #[Autoconfigure(public: true)]
 final readonly class PageExporter
@@ -149,6 +153,7 @@ final readonly class PageExporter
             exportedAt: new \DateTimeImmutable(),
             records: $state->manifestRecords(),
             exportedBy: (int)($user->user['uid'] ?? 0),
+            pictures: $state->manifestPictures(),
         );
         $pageTitle = trim((string)($pageInLanguage['title'] ?? ''));
         $binary = $this->writer->write(new WriteRequest(
@@ -320,6 +325,11 @@ final readonly class PageExporter
             $fieldBlocks = $content->blocks;
             if ($locked && $fieldBlocks === []) {
                 $fieldBlocks = $this->lockedSummary($field, $content, $labels);
+            }
+            foreach ($fieldBlocks as $block) {
+                if ($block instanceof Figure) {
+                    $state->picture($block->image);
+                }
             }
             $blocks[] = new ContentControl(
                 $this->tag($state, $table, $uid, $field->name),

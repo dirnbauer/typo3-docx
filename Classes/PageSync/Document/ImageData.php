@@ -6,16 +6,39 @@ namespace Webconsulting\DocxEditor\PageSync\Document;
 
 /**
  * The bytes of a picture, as embedded in the Word package or read from FAL.
+ *
+ * The bytes may come from a loader that runs the first time they are needed: a picture exported
+ * from TYPO3 is scaled down only when a document is written, never when an import merely
+ * compares which pictures a field holds.
  */
 final class ImageData
 {
+    public string $bytes {
+        get => $this->loaded ??= ($this->loader)();
+    }
+
+    private ?string $loaded = null;
+
     private ?string $sha1 = null;
 
+    /** @var \Closure(): string */
+    private readonly \Closure $loader;
+
+    /**
+     * @param string|\Closure(): string $bytes The bytes, or what produces them
+     */
     public function __construct(
-        public readonly string $bytes,
+        string|\Closure $bytes,
         public readonly string $mimeType,
         public readonly string $fileName,
-    ) {}
+    ) {
+        if (is_string($bytes)) {
+            $this->loaded = $bytes;
+            $this->loader = static fn(): string => '';
+        } else {
+            $this->loader = $bytes;
+        }
+    }
 
     public function sha1(): string
     {

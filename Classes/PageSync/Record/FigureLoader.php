@@ -9,16 +9,20 @@ use Webconsulting\DocxEditor\PageSync\Document\Figure;
 use Webconsulting\DocxEditor\PageSync\Document\Image;
 use Webconsulting\DocxEditor\PageSync\Document\ImageData;
 use Webconsulting\DocxEditor\PageSync\Document\Text;
+use Webconsulting\DocxEditor\PageSync\Export\PictureDerivatives;
+use Webconsulting\DocxEditor\PageSync\Ooxml\DocumentWriter;
 use Webconsulting\DocxEditor\PageSync\Ooxml\Reader\ReadContext;
 
 /**
- * The pictures of a file field as figures: the file's bytes, the reference's alt text, title and
- * caption. Files that are not web pictures are left out.
+ * The pictures of a file field as figures: the file reference and file each one stands for, the
+ * reference's alt text, title and caption, and — read only when a document is written — the
+ * bytes to embed (see PictureDerivatives). Files that are not web pictures are left out.
  */
 final readonly class FigureLoader
 {
     public function __construct(
         private RecordRepository $records,
+        private PictureDerivatives $derivatives,
     ) {}
 
     /**
@@ -30,7 +34,7 @@ final readonly class FigureLoader
     {
         $figures = [];
         foreach ($this->records->fileReferences($table, $record, $field, $workspaceId) as $reference) {
-            $figure = self::figure($reference);
+            $figure = $this->figure($reference);
             if ($figure !== null) {
                 $figures[] = $figure;
             }
@@ -57,33 +61,29 @@ final readonly class FigureLoader
         return true;
     }
 
-    public static function figure(FileReference $reference): ?Figure
+    public function figure(FileReference $reference): ?Figure
     {
         if (!self::isPicture($reference)) {
             return null;
         }
         $file = $reference->getOriginalFile();
-        try {
-            $bytes = $file->getContents();
-        } catch (\Throwable) {
-            return null;
-        }
-        if ($bytes === '') {
-            return null;
-        }
         $alternative = $reference->getProperty('alternative');
         $title = $reference->getProperty('title');
         $caption = $reference->getProperty('description');
         $caption = is_scalar($caption) ? trim((string)$caption) : '';
+        // Shown at the file's own size, whatever size the embedded copy has.
+        [$width, $height] = PictureDerivatives::dimensions($file);
 
         return new Figure(
             new Image(
-                new ImageData($bytes, $file->getMimeType(), $file->getName()),
+                new ImageData(fn(): string => $this->derivatives->bytes($file), $file->getMimeType(), $file->getName()),
                 is_scalar($alternative) ? (string)$alternative : '',
                 is_scalar($title) ? (string)$title : '',
-                0,
-                0,
+                $width * DocumentWriter::EMU_PER_PIXEL,
+                $height * DocumentWriter::EMU_PER_PIXEL,
                 $file->getUid(),
+                $reference->getUid(),
+                $file->getSha1(),
             ),
             $caption === '' ? [] : [new Text($caption)],
         );

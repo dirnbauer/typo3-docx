@@ -29,6 +29,7 @@ use Webconsulting\DocxEditor\PageSync\Document\Quote;
 use Webconsulting\DocxEditor\PageSync\Document\Table;
 use Webconsulting\DocxEditor\PageSync\Document\Text;
 use Webconsulting\DocxEditor\PageSync\Exception\PageSyncException;
+use Webconsulting\DocxEditor\PageSync\Manifest\ControlTag;
 use Webconsulting\DocxEditor\PageSync\Manifest\ManifestXml;
 use Webconsulting\DocxEditor\PageSync\Ooxml\Writer\WriterState;
 
@@ -40,9 +41,11 @@ use Webconsulting\DocxEditor\PageSync\Ooxml\Writer\WriterState;
 #[Autoconfigure(public: true)]
 final readonly class DocumentWriter
 {
-    /** The text width of an A4 page with 2.5 cm margins, in EMU. */
-    private const int MAX_IMAGE_WIDTH_EMU = 5_760_720;
-    private const int EMU_PER_PIXEL = 9525;
+    /** The text width of an A4 page with 2.5 cm margins, in EMU: no picture is shown wider. */
+    public const int MAX_IMAGE_WIDTH_EMU = 5_760_720;
+    /** Word shows a picture without a size at 96 pixels per inch. */
+    public const int EMU_PER_PIXEL = 9525;
+    public const int EMU_PER_INCH = 914_400;
     private const int TEXT_WIDTH_TWIPS = 9072;
 
     public function __construct(
@@ -493,7 +496,9 @@ final readonly class DocumentWriter
         $inline->appendChild($effect);
         $docPr = $document->createElementNS(Ns::WP, 'wp:docPr');
         $docPr->setAttribute('id', (string)$id);
-        $docPr->setAttribute('name', 'Picture ' . $id);
+        // A picture from TYPO3 is named after its file reference: Word, LibreOffice and the
+        // backend editor keep the name, and the import recognises the picture by it.
+        $docPr->setAttribute('name', $image->referenceUid > 0 ? ControlTag::record('sys_file_reference', $image->referenceUid)->toString() : 'Picture ' . $id);
         if ($image->alternative !== '') {
             $docPr->setAttribute('descr', self::xmlSafe($image->alternative));
         }

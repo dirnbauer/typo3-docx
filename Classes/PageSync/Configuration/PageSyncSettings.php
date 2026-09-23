@@ -53,6 +53,23 @@ final readonly class PageSyncSettings
     }
 
     /**
+     * Pixels per inch at the size Word shows a picture (at most the text width): exported pictures
+     * larger than that are embedded as a scaled-down copy. 0 embeds them at their stored size.
+     */
+    public function pictureResolution(): int
+    {
+        return max(0, min(1200, $this->int('pictureResolution', 150)));
+    }
+
+    /**
+     * The longest edge, in pixels, of an exported picture; 0 for no limit.
+     */
+    public function pictureMaxEdge(): int
+    {
+        return max(0, min(20000, $this->int('pictureMaxEdge', 2000)));
+    }
+
+    /**
      * An EXT: or project path to a .dotx/.docx whose styles exported documents use.
      */
     public function wordTemplate(): string

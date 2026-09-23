@@ -7,6 +7,12 @@ pageSync.newPagesHidden = 1
 # cat=pageSync; type=int+; label=LLL:EXT:docx_editor/Resources/Private/Language/locallang_pagesync.xlf:settings.maxUploadMegabytes
 pageSync.maxUploadMegabytes = 25
 
+# cat=pageSync; type=int+; label=LLL:EXT:docx_editor/Resources/Private/Language/locallang_pagesync.xlf:settings.pictureResolution
+pageSync.pictureResolution = 150
+
+# cat=pageSync; type=int+; label=LLL:EXT:docx_editor/Resources/Private/Language/locallang_pagesync.xlf:settings.pictureMaxEdge
+pageSync.pictureMaxEdge = 2000
+
 # cat=pageSync; type=string; label=LLL:EXT:docx_editor/Resources/Private/Language/locallang_pagesync.xlf:settings.wordTemplate
 pageSync.wordTemplate =
 

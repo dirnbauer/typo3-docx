@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Webconsulting\DocxEditor\PageSync\Export;
 
+use Webconsulting\DocxEditor\PageSync\Document\Image;
 use Webconsulting\DocxEditor\PageSync\Manifest\ManifestField;
+use Webconsulting\DocxEditor\PageSync\Manifest\ManifestPicture;
 use Webconsulting\DocxEditor\PageSync\Manifest\ManifestRecord;
 
 /**
@@ -18,6 +20,9 @@ final class ExportState
 
     /** @var array<string, ManifestRecord> */
     private array $records = [];
+
+    /** @var array<int, ManifestPicture> by file reference uid */
+    private array $pictures = [];
 
     /** @var array<string, int> "table:uid" => reference */
     private array $references = [];
@@ -58,6 +63,25 @@ final class ExportState
             translationSource: $translationSource,
             fingerprint: $fingerprint,
         );
+    }
+
+    /**
+     * Records an exported picture, so the import can tell it from a picture put in by the editor.
+     * Reading the hash of the embedded bytes makes the picture's smaller copy.
+     */
+    public function picture(Image $image): void
+    {
+        if ($image->referenceUid > 0 && $image->fileUid > 0 && $image->fileSha1 !== '') {
+            $this->pictures[$image->referenceUid] = new ManifestPicture($image->referenceUid, $image->fileUid, $image->fileSha1, $image->data->sha1());
+        }
+    }
+
+    /**
+     * @return list<ManifestPicture>
+     */
+    public function manifestPictures(): array
+    {
+        return array_values($this->pictures);
     }
 
     public function referenceFor(string $table, int $uid): int

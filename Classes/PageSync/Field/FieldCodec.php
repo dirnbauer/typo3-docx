@@ -39,7 +39,8 @@ use Webconsulting\DocxEditor\PageSync\Schema\FieldRole;
  * - Rich text: class-free HTML (see BlocksToHtml), compared after one more HTML round trip.
  * - The core table: CSV in bodytext with the record's delimiter and enclosure.
  * - The core bullet list: one item per line; the numbering follows bullets_type.
- * - Pictures: the file bytes (sha1), alt text and caption of each reference, in order.
+ * - Pictures: which picture each one is (see Image::identity() — the TYPO3 file it stands for,
+ *   as the document holds a smaller copy of it), alt text and caption, in order.
  * - Links and everything else: shown read-only.
  */
 final readonly class FieldCodec
@@ -445,7 +446,7 @@ final readonly class FieldCodec
     private static function canonicalFigures(array $figures): string
     {
         return (string)json_encode(array_map(
-            static fn(Figure $figure): array => [$figure->image->data->sha1(), trim($figure->image->alternative), trim(PlainText::ofInlines($figure->caption))],
+            static fn(Figure $figure): array => [$figure->image->identity(), trim($figure->image->alternative), trim(PlainText::ofInlines($figure->caption))],
             $figures,
         ), JSON_UNESCAPED_UNICODE);
     }

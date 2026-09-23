@@ -7,6 +7,7 @@ namespace Webconsulting\DocxEditor\PageSync\Apply;
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
+use TYPO3\CMS\Core\Resource\FileReference;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Webconsulting\DocxEditor\PageSync\Configuration\PageSyncSettings;
 use Webconsulting\DocxEditor\PageSync\Document\Figure;
@@ -437,9 +438,10 @@ final readonly class PlanApplier
     }
 
     /**
-     * The references a file field gets for the pictures Word holds: existing references whose
-     * file has the same bytes are kept (with alt text and caption updated), new pictures are
-     * stored in FAL and referenced, and references to pictures no longer in Word are deleted.
+     * The references a file field gets for the pictures Word holds: the reference an exported
+     * picture came from, or else one to the same file, is kept (with alt text and caption
+     * updated); other pictures are stored in FAL and referenced — an exported picture used once
+     * more refers to its file again — and references to pictures no longer in Word are deleted.
      *
      * @param array<string, mixed> $record
      * @param list<Figure> $figures
@@ -452,13 +454,11 @@ final readonly class PlanApplier
         $used = [];
         $ids = [];
         foreach ($figures as $figure) {
-            $match = null;
-            foreach ($current as $reference) {
-                if (!isset($used[$reference->getUid()]) && $reference->getOriginalFile()->getSha1() === $figure->image->data->sha1()) {
-                    $match = $reference;
-                    break;
-                }
-            }
+            $image = $figure->image;
+            $available = static fn(FileReference $reference): bool => !isset($used[$reference->getUid()])
+                && $reference->getOriginalFile()->getSha1() === $image->identity();
+            $match = array_find($current, static fn(FileReference $reference): bool => $image->referenceUid > 0 && $reference->getUid() === $image->referenceUid && $available($reference))
+                ?? array_find($current, $available);
             if ($match === null) {
                 array_push($ids, ...$this->newReferences($job, [$figure], (int)($record['pid'] ?? $job->plan->pageUid)));
                 continue;

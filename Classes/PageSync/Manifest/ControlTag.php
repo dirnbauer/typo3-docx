@@ -15,6 +15,9 @@ namespace Webconsulting\DocxEditor\PageSync\Manifest;
  *   typo3:summary                   a read-only summary (plugins, settings, links)
  *   typo3:#14 / typo3:#14:3         a manifest reference, used where the explicit form would
  *                                   exceed the 64 characters Word allows for a tag
+ *
+ * An exported picture carries the record form of its file reference as its name (wp:docPr),
+ * "typo3:sys_file_reference:31".
  */
 final readonly class ControlTag
 {

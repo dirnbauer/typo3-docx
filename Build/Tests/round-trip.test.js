@@ -11,7 +11,7 @@ import { GlobalRegistrator } from '@happy-dom/global-registrator';
 import { after, before, describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { strFromU8, unzipSync } from 'fflate';
+import { strFromU8, strToU8, unzipSync, zipSync } from 'fflate';
 import { canonicalPackage, packageDifferences } from './lib/ooxml-canonical.js';
 import {
   curatedStyleOptions,
@@ -147,6 +147,33 @@ describe('edited save', () => {
     assert.match(part(edited, 'word/footnotes.xml'), /A footnote that has to survive\./);
     assert.equal(canonicalPackage(edited).get('customXml/item2.xml'), canonicalPackage(opened).get('customXml/item2.xml'));
     assert.match(part(edited, 'docProps/custom.xml'), /name="typo3PageUid"[^>]*><vt:i4>42<\/vt:i4>/);
+  });
+});
+
+describe('exported pictures', () => {
+  // The page export names every picture after its file reference and records the embedded
+  // bytes in its manifest; the import recognises an unchanged picture by both. Editing the page
+  // in the backend must keep them.
+  test('keeps the name and the bytes of a picture through an edit', async () => {
+    const original = unzipSync(FIXTURES['features.docx']());
+    const document = strFromU8(original['word/document.xml']);
+    const named = document.replace(/(<wp:docPr\b[^>]*\bname=")[^"]*"/, '$1typo3:sys_file_reference:31"');
+    assert.notEqual(named, document, 'the fixture has a picture');
+    const opened = await save(zipSync({ ...original, 'word/document.xml': strToU8(named) }));
+
+    const paraId = paragraphIdOf(opened, 'Round-trip features');
+    const edited = await withEditor(opened, async (editor) => {
+      assert.equal(editor.exec({ type: 'setSelection', anchor: { paraId } }).ok, true);
+      assert.equal(editor.exec({ type: 'insertText', text: 'Edited: ' }).ok, true);
+      return new Uint8Array(await editor.save());
+    });
+
+    assert.match(part(edited, 'word/document.xml'), /<wp:docPr\b[^>]*name="typo3:sys_file_reference:31"/);
+    const media = (bytes) => Object.entries(unzipSync(bytes))
+      .filter(([name]) => name.startsWith('word/media/'))
+      .map(([, data]) => Buffer.from(data).toString('base64'))
+      .sort();
+    assert.deepEqual(media(edited), media(FIXTURES['features.docx']()));
   });
 });
 

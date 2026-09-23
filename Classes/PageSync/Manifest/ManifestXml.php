@@ -84,6 +84,15 @@ final readonly class ManifestXml
             $root->appendChild($element);
         }
 
+        foreach ($manifest->pictures as $picture) {
+            $element = $document->createElementNS(RoundTripManifest::NAMESPACE, 't3:picture');
+            $element->setAttribute('reference', (string)$picture->reference);
+            $element->setAttribute('file', (string)$picture->file);
+            $element->setAttribute('sha1', $picture->sha1);
+            $element->setAttribute('embedded', $picture->embedded);
+            $root->appendChild($element);
+        }
+
         return (string)$document->saveXML();
     }
 
@@ -185,6 +194,17 @@ final readonly class ManifestXml
             $records[$record->key()] = $record;
         }
 
+        $pictures = [];
+        foreach ($root->getElementsByTagNameNS(RoundTripManifest::NAMESPACE, 'picture') as $element) {
+            $reference = (int)$element->getAttribute('reference');
+            $file = (int)$element->getAttribute('file');
+            $sha1 = $element->getAttribute('sha1');
+            $embedded = $element->getAttribute('embedded');
+            if ($reference > 0 && $file > 0 && $sha1 !== '' && $embedded !== '') {
+                $pictures[] = new ManifestPicture($reference, $file, $sha1, $embedded);
+            }
+        }
+
         $manifest = new RoundTripManifest(
             pageUid: (int)$page->getAttribute('uid'),
             siteIdentifier: $page->getAttribute('site'),
@@ -193,6 +213,7 @@ final readonly class ManifestXml
             exportedAt: $exportedAt === false ? new \DateTimeImmutable('@0') : $exportedAt,
             records: $records,
             exportedBy: (int)$page->getAttribute('exportedBy'),
+            pictures: $pictures,
         );
 
         $signature = $root->getAttribute('signature');

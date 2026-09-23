@@ -6,7 +6,8 @@ namespace Webconsulting\DocxEditor\PageSync\Manifest;
 
 /**
  * What a TYPO3 export wrote into the Word document about itself: which page, language and
- * workspace it came from, when, and every exported record with the hashes of its field values.
+ * workspace it came from, when, every exported record with the hashes of its field values, and
+ * every exported picture with the file it stands for.
  */
 final readonly class RoundTripManifest
 {
@@ -15,6 +16,7 @@ final readonly class RoundTripManifest
 
     /**
      * @param array<string, ManifestRecord> $records Keyed by "table:uid"
+     * @param list<ManifestPicture> $pictures
      */
     public function __construct(
         public int $pageUid,
@@ -26,6 +28,7 @@ final readonly class RoundTripManifest
         /** False when the signature is missing or does not match: the base hashes cannot be trusted. */
         public bool $trusted = true,
         public int $exportedBy = 0,
+        public array $pictures = [],
     ) {}
 
     public function record(string $table, int $uid): ?ManifestRecord
@@ -36,6 +39,22 @@ final readonly class RoundTripManifest
     public function recordByReference(int $reference): ?ManifestRecord
     {
         return array_find($this->records, static fn(ManifestRecord $record): bool => $record->reference === $reference);
+    }
+
+    /**
+     * The exported picture of a file reference.
+     */
+    public function picture(int $reference): ?ManifestPicture
+    {
+        return array_find($this->pictures, static fn(ManifestPicture $picture): bool => $picture->reference === $reference);
+    }
+
+    /**
+     * The exported picture whose bytes the document held.
+     */
+    public function pictureByEmbeddedHash(string $sha1): ?ManifestPicture
+    {
+        return array_find($this->pictures, static fn(ManifestPicture $picture): bool => $picture->embedded === $sha1);
     }
 
     /**
@@ -102,6 +121,7 @@ final readonly class RoundTripManifest
             $this->records,
             $trusted,
             $this->exportedBy,
+            $this->pictures,
         );
     }
 
@@ -147,7 +167,7 @@ final readonly class RoundTripManifest
             ];
         }
 
-        return [
+        $canonical = [
             'version' => self::VERSION,
             'page' => $this->pageUid,
             'site' => $this->siteIdentifier,
@@ -157,5 +177,15 @@ final readonly class RoundTripManifest
             'exportedBy' => $this->exportedBy,
             'records' => $records,
         ];
+        if ($this->pictures !== []) {
+            $pictures = array_map(
+                static fn(ManifestPicture $picture): array => [$picture->reference, $picture->file, $picture->sha1, $picture->embedded],
+                $this->pictures,
+            );
+            sort($pictures);
+            $canonical['pictures'] = $pictures;
+        }
+
+        return $canonical;
     }
 }

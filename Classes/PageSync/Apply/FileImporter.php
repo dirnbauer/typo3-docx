@@ -18,7 +18,8 @@ use Webconsulting\DocxEditor\PageSync\Exception\PageSyncException;
 /**
  * Stores pictures from Word in FAL: in the configured folder (created when missing), under a
  * name made from the alt text, and only once — a picture whose bytes are already in the folder
- * is reused.
+ * is reused. A picture exported from TYPO3 is its file, not a new one: the document holds a
+ * smaller copy of it.
  */
 final readonly class FileImporter
 {
@@ -32,7 +33,7 @@ final readonly class FileImporter
         if ($image->fileUid > 0) {
             try {
                 $existing = $this->resourceFactory->getFileObject($image->fileUid);
-                if ($existing->getSha1() === $image->data->sha1()) {
+                if ($existing->getSha1() === $image->identity() && $existing->checkActionPermission('read')) {
                     return $existing;
                 }
             } catch (\Throwable) {

@@ -826,6 +826,16 @@
         <source>Maximum document size (MB): larger Word documents are refused, as are packages that unpack to far more than their size.</source>
       </segment>
     </unit>
+    <unit id="settings.pictureResolution">
+      <segment>
+        <source>Picture resolution (ppi): exported pictures are embedded as a copy with this many pixels per inch at the size Word shows them (at most the text width) — 150 is what Word calls "Web", 220 "Print". Unchanged pictures come back as the same file; 0 embeds the stored files.</source>
+      </segment>
+    </unit>
+    <unit id="settings.pictureMaxEdge">
+      <segment>
+        <source>Longest picture edge (px): no exported picture is embedded with a longer edge; 0 for no limit.</source>
+      </segment>
+    </unit>
     <unit id="settings.wordTemplate">
       <segment>
         <source>Word template: an EXT: or project path to a .dotx or .docx whose styles exported documents use (fonts, colours, heading styles). Empty for the built-in template.</source>

@@ -103,6 +103,9 @@ jobs:
       - name: Install dependencies
         run: composer install --no-progress --no-interaction
 
+      - name: Install ImageMagick (the picture tests scale with TYPO3's image processing)
+        run: command -v convert || (sudo apt-get update && sudo apt-get install -y --no-install-recommends imagemagick)
+
       - name: Functional tests
         run: composer test:functional
 

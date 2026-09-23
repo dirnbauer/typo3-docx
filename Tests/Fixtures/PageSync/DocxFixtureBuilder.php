@@ -153,4 +153,30 @@ final class DocxFixtureBuilder
 
         return (string)ob_get_clean();
     }
+
+    /**
+     * A PNG of random pixels — like a photo, it does not compress to almost nothing, so a
+     * scaled-down copy is smaller than the file. The same seed gives the same picture.
+     *
+     * @param int<1, max> $width
+     * @param int<1, max> $height
+     */
+    public static function photo(int $width, int $height, int $seed = 1): string
+    {
+        $image = imagecreatetruecolor($width, $height);
+        if ($image === false) {
+            throw new \RuntimeException('GD cannot create an image', 1790000101);
+        }
+        mt_srand($seed);
+        for ($y = 0; $y < $height; $y++) {
+            for ($x = 0; $x < $width; $x++) {
+                imagesetpixel($image, $x, $y, mt_rand(0, 0xFFFFFF));
+            }
+        }
+        mt_srand();
+        ob_start();
+        imagepng($image);
+
+        return (string)ob_get_clean();
+    }
 }

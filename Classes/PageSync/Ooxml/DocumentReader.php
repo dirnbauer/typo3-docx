@@ -70,7 +70,9 @@ final readonly class DocumentReader
             }
         }
 
-        $context = new ReadContext($archive, $relationships, $styles, $numbering);
+        $manifest = $this->manifestXml->find($archive, $mainPart);
+        // Pictures are recognised through the manifest only when TYPO3 signed it.
+        $context = new ReadContext($archive, $relationships, $styles, $numbering, $manifest?->trusted === true ? $manifest : null);
         $document = $archive->xml($mainPart);
         $body = null;
         foreach ($document->getElementsByTagNameNS(Ns::W, 'body') as $candidate) {
@@ -85,7 +87,7 @@ final readonly class DocumentReader
 
         return new DocxDocument(
             blocks: $blocks,
-            manifest: $this->manifestXml->find($archive, $mainPart),
+            manifest: $manifest,
             customProperties: $this->readCustomProperties($archive),
             title: $this->readTitle($archive),
             warnings: $context->warnings,
@@ -448,6 +450,7 @@ final readonly class DocumentReader
         }
         $alternative = $docPr?->getAttribute('descr') ?? '';
         $title = $docPr?->getAttribute('title') ?? '';
+        $name = $docPr?->getAttribute('name') ?? '';
         $width = (int)($extent?->getAttribute('cx') ?? 0);
         $height = (int)($extent?->getAttribute('cy') ?? 0);
 
@@ -461,7 +464,7 @@ final readonly class DocumentReader
                 }
                 continue;
             }
-            $image = $context->image($relationshipId, $alternative, $title, $width, $height);
+            $image = $context->image($relationshipId, $alternative, $title, $width, $height, $name);
             if ($image !== null) {
                 $out->add(new InlineImage($image));
             }
