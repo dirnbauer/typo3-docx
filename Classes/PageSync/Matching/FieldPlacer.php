@@ -322,7 +322,7 @@ final class FieldPlacer
     /**
      * One item into the child record type of a collection.
      */
-    private function placeItem(PartItem $item, ElementShape $child): Placement
+    public function placeItem(PartItem $item, ElementShape $child): Placement
     {
         $state = new PlacementBuilder($child);
         $titleWeight = $item->titleText() === '' ? 0.0 : 1.0;
