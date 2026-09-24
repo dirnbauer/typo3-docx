@@ -9,6 +9,14 @@ Changelog
 The full history is kept in
 `CHANGELOG.md <https://github.com/dirnbauer/typo3-docx/blob/main/CHANGELOG.md>`__.
 
+2.4.2
+=====
+
+-   The file list's tile view can open a .docx file in the editor: the file's
+    context menu (right click on a tile) offers :guilabel:`Edit DOCX` right
+    after :guilabel:`Edit metadata`. Tiles show no action buttons, so the
+    editor was only reachable from the list view before.
+
 2.4.0
 =====
 

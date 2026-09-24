@@ -2,6 +2,24 @@
 
 All notable changes to this project are documented in this file.
 
+## [2.4.2] - 2026-09-24
+
+### Fixed
+
+- A .docx file can be opened in the editor from the file list's **tile
+  view**. Tiles show no action buttons: a click edits the metadata and a
+  right click opens the file's context menu, which had no editor entry, so
+  "Edit DOCX" was only reachable from the list view. The context menu now
+  offers **Edit DOCX** right after *Edit metadata*, for .docx files the user
+  may read (`EditDocxItemProvider`). It shows on a right click in the list
+  view too.
+
+## [2.4.1] - 2026-09-24
+
+### Changed
+
+- The extension icon follows the TYPO3 v14 icon style.
+
 ## [2.4.0] - 2026-09-23
 
 Free features only. docx-editor.dev is Apache-2.0 except three packages under
