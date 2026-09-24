@@ -10,7 +10,9 @@ Open and edit
 =============
 
 #.  Open :guilabel:`Media` > :guilabel:`Filelist` and browse to a `.docx` file.
-#.  Choose the :guilabel:`Edit DOCX` action.
+#.  Choose the :guilabel:`Edit DOCX` action. In the list view it is one of the
+    file's buttons; in the tile view, right-click the tile and choose it from
+    the context menu.
 #.  Edit in the full-page editor. The style picker offers
     :guilabel:`Normal` and :guilabel:`Heading 1`–:guilabel:`Heading 4`; the same
     headings are available as H1–H4 buttons at the end of the toolbar.

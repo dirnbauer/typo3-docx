@@ -1,6 +1,7 @@
 /**
- * Context menu callbacks of the page round trip (PageSyncItemProvider):
- * open the URL the item carries in the content frame.
+ * Context menu callbacks of the page round trip (PageSyncItemProvider) and of
+ * "Edit DOCX" on a file (EditDocxItemProvider): open the URL the item carries
+ * in the content frame.
  */
 export default {
   openInContent(table, uid, dataset) {

@@ -29,7 +29,10 @@ Architecture
         :file:`CollaborationSessionService.php`
       - Revision counter and presence sessions.
     * - :file:`Classes/EventListener/AddDocxEditFileActionListener.php`
-      - Adds :guilabel:`Edit DOCX` to the file list.
+      - Adds :guilabel:`Edit DOCX` to the file list's buttons (list view).
+    * - :file:`Classes/ContextMenu/EditDocxItemProvider.php`
+      - Adds :guilabel:`Edit DOCX` to a .docx file's context menu, after
+        :guilabel:`Edit metadata`; the tile view has no buttons, only this menu.
     * - :file:`Classes/EventListener/AllowEditorEngineInContentSecurityPolicy.php`
       - ``'wasm-unsafe-eval'`` and ``blob:`` images on the editor route only
         (see :ref:`security`).
