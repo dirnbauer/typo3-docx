@@ -16,6 +16,15 @@ import { applyImport, discardImport } from '@webconsulting/docx-editor/page-sync
  * discarded) or the import was refused.
  */
 
+/**
+ * TYPO3's Modal renders in the backend's top document, not in the module frame
+ * whose page loads PageSync.css, so review() links the stylesheet into the
+ * document that hosts the modal. The cache-busting query the import map gives
+ * this module versions the stylesheet too.
+ */
+const STYLESHEET = new URL('../../Css/PageSync.css', import.meta.url);
+STYLESHEET.search = new URL(import.meta.url).search;
+
 const WRITES = new Set(['create', 'update', 'conflict', 'translate']);
 const BADGES = {
   create: 'badge-success',
@@ -346,6 +355,23 @@ function renderReview(preview, state) {
   return { container, anyWrites, error };
 }
 
+/**
+ * Links PageSync.css into the modal's document once. A module opened in a tab
+ * of its own hosts its modals itself, and its page loads the stylesheet.
+ */
+function ensureStylesheet(hostDocument) {
+  if (hostDocument === document) {
+    return;
+  }
+  const present = [...hostDocument.querySelectorAll('link[rel="stylesheet"]')].some((link) => link.href === STYLESHEET.href);
+  if (!present) {
+    const link = hostDocument.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = STYLESHEET.href;
+    hostDocument.head.append(link);
+  }
+}
+
 function summarize(results) {
   const total = (key) => results.reduce((sum, result) => sum + (Array.isArray(result[key]) ? result[key].length : Object.keys(result[key] ?? {}).length), 0);
   return label('ui.applied.summary', [total('created'), total('updated'), total('deleted'), total('moved'), total('translated')]);
@@ -424,6 +450,7 @@ export function review(preview, options = {}) {
       staticBackdrop: true,
       buttons,
     });
+    ensureStylesheet(modal.ownerDocument);
     modal.addEventListener('typo3-modal-hidden', () => {
       if (!outcome.applied) {
         discardImport(preview.id);

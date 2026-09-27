@@ -240,7 +240,7 @@ Frontend build
 ..  code-block:: bash
 
     npm ci
-    npm run test:build   # round-trip, chrome, licence, catalogue and label tests
+    npm run test:build   # round-trip, chrome, licence, catalogue, label and review tests
     npm run build        # -> Resources/Public/Vite/
 
 Vite compiles the Vue single-file components; the bundle carries Vue's

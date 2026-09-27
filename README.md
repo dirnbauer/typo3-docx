@@ -238,7 +238,9 @@ runs the node tests in `Build/Tests/`: round-trip fidelity on the fixtures in
 `Build/Tests/Fixtures/` (headless, in happy-dom), the editor chrome as the
 backend mounts it (no control of the commercial package in toolbar, menus,
 context menu or on a shortcut), the licences of everything bundled, the German
-catalogue overlay and the label keys. After changing `Build/Sources/` run `npm run build` and
+catalogue overlay, the label keys and the page round trip's review dialog
+bringing its stylesheet into the backend document that shows it. After
+changing `Build/Sources/` run `npm run build` and
 commit `Resources/Public/Vite/`; CI fails on drift. CSS in
 `Resources/Public/Css/` needs no build.
 
