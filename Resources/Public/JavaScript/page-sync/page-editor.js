@@ -5,8 +5,8 @@ import { SeverityEnum } from '@typo3/backend/enum/severity.js';
 import labels from '~labels/docx_editor.pagesync';
 import editorLabels from '~labels/docx_editor.messages';
 import coreLabels from '~labels/backend.alt_doc';
-import { decodeBase64, loadPage, previewImport } from './api.js';
-import { review } from './review.js';
+import { decodeBase64, loadPage, previewImport } from '@webconsulting/docx-editor/page-sync/api.js';
+import { review } from '@webconsulting/docx-editor/page-sync/review.js';
 
 /**
  * "Edit in Word": the page as a Word document in <webcon-docx-editor>.

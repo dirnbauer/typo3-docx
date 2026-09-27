@@ -1,7 +1,7 @@
 import Notification from '@typo3/backend/notification.js';
 import labels from '~labels/docx_editor.pagesync';
-import { previewImport } from './api.js';
-import { review } from './review.js';
+import { previewImport } from '@webconsulting/docx-editor/page-sync/api.js';
+import { review } from '@webconsulting/docx-editor/page-sync/review.js';
 
 /**
  * "Import Word file as subpages": upload a document, choose how it is split

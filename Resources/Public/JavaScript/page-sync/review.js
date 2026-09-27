@@ -2,7 +2,7 @@ import Modal from '@typo3/backend/modal.js';
 import Notification from '@typo3/backend/notification.js';
 import { SeverityEnum } from '@typo3/backend/enum/severity.js';
 import labels from '~labels/docx_editor.pagesync';
-import { applyImport, discardImport } from './api.js';
+import { applyImport, discardImport } from '@webconsulting/docx-editor/page-sync/api.js';
 
 /**
  * The review of an import: what importing the Word document would create,
