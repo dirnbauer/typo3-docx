@@ -2,6 +2,24 @@
 
 All notable changes to this project are documented in this file.
 
+## [2.4.3] - 2026-09-27
+
+### Fixed
+
+- The page round trip's **review dialog** (*Review changes before saving*,
+  and *Review the new pages* for *Import Word document as subpages…*) is
+  styled inside the backend. TYPO3 opens modals in the backend's top
+  document, but `PageSync.css` was only loaded into the module frame:
+  unchanged elements showed although *Show unchanged elements* was off, and
+  "changed in Word" ran into the new text. It looked right only with *Edit in
+  Word* open in a tab of its own. The review now links the stylesheet into
+  the document that shows it (`review.js`); nothing else in the backend
+  loads it.
+- The page round trip's scripts import `api.js` and `review.js` through the
+  import map (`@webconsulting/docx-editor/page-sync/…`) instead of by
+  relative path, so they carry TYPO3's cache-busting suffix. A browser that
+  had cached them kept running the old scripts after an update.
+
 ## [2.4.2] - 2026-09-24
 
 ### Fixed

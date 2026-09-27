@@ -13,7 +13,7 @@ DOCX Editor
     |composer_name|
 
 :Version:
-    2.4.2
+    2.4.3
 
 :Language:
     en

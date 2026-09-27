@@ -9,6 +9,18 @@ Changelog
 The full history is kept in
 `CHANGELOG.md <https://github.com/dirnbauer/typo3-docx/blob/main/CHANGELOG.md>`__.
 
+2.4.3
+=====
+
+-   The review dialog of the page round trip is styled inside the backend:
+    unchanged elements stay hidden until :guilabel:`Show unchanged elements`
+    is switched on, and a changed field's new text shows below its status.
+    TYPO3 opens the dialog in the backend's top document, which lacked the
+    stylesheet, so it only looked right with :guilabel:`Edit in Word` open in
+    a tab of its own.
+-   The page round trip's scripts load through the import map, so an update
+    reaches browsers that had cached them.
+
 2.4.2
 =====
 
