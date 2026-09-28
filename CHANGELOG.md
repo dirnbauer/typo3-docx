@@ -2,6 +2,29 @@
 
 All notable changes to this project are documented in this file.
 
+## [2.5.0] - 2026-09-28
+
+Word import into a Desiderio page: lists and quotes now land in the site's
+own elements instead of core bullets and loose text.
+
+### Added
+
+- A list whose every line starts with a short title and a colon ("A clear
+  plan: goals and pages agreed on day one.") is read as items, so collection
+  types (feature grids, steps) compete for it; a plain list stays a list for
+  the bullet list element. A numbered list reads as steps: element types
+  named "steps", "process" or "timeline" get the name hint, and Jev decides
+  between them and an accordion. The round trip of existing collections is
+  unchanged.
+- A short line right after a quote ("Mira Kovač, Head of Marketing,
+  Northwind", with or without a leading dash) is the quote's author. It used
+  to become a text element of its own; now it fills the author and role
+  fields.
+
+On the lab, a sample document (intro, feature list, numbered steps, FAQ,
+quote with author, price table) imports as text, a content grid, how-to
+steps, FAQ and quote with author and role, and a table.
+
 ## [2.4.3] - 2026-09-27
 
 ### Fixed

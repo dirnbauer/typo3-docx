@@ -29,6 +29,13 @@ The full history is kept in
     after :guilabel:`Edit metadata`. Tiles show no action buttons, so the
     editor was only reachable from the list view before.
 
+2.5.0
+=====
+
+-   Word import: a list of "Title: text" lines becomes the items of a
+    collection (a numbered one reads as steps), and a short line after a
+    quote fills its author and role fields.
+
 2.4.0
 =====
 
