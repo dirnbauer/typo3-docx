@@ -141,6 +141,45 @@ final class ContentTypeMatcherTest extends UnitTestCase
     }
 
     #[Test]
+    public function aQuoteAndTheNameBelowItGoIntoTheQuoteElement(): void
+    {
+        $match = $this->matchOne([
+            new Quote([self::p('We went from an empty folder to a live site in one week.')]),
+            self::p('Mira Kovač, Head of Marketing'),
+        ]);
+
+        $chosen = self::chosen($match);
+        self::assertSame('desiderio_quote', $chosen->cType);
+        self::assertSame('Mira Kovač', self::text($chosen->mapping()->assignment('author')?->value));
+        self::assertSame('Head of Marketing', self::text($chosen->mapping()->assignment('role')?->value));
+    }
+
+    #[Test]
+    public function aNumberedListOfTitledLinesIsOfferedToJevAsSteps(): void
+    {
+        // Steps and an accordion both hold "title: text" items; which one the list is, is a
+        // semantic call, so it goes to Jev with the steps element among the contenders.
+        $client = new FakeJevClient(static fn(string $name, $question): array => ['desiderio_howtosteps', 0.93]);
+        $match = $this->matchOne([
+            new Heading(2, [new Text('How the week works')]),
+            new ListBlock([
+                new ListItem(0, true, [new Text('Monday: we agree the goals and the page structure.')]),
+                new ListItem(0, true, [new Text('Thursday: your editors add real content.')]),
+                new ListItem(0, true, [new Text('Friday: we test, fix and go live.')]),
+            ]),
+        ], $client);
+
+        $question = $client->calls[0]['questions']['p1'] ?? null;
+        self::assertNotNull($question);
+        self::assertArrayHasKey('desiderio_howtosteps', $question->criteria);
+        self::assertArrayNotHasKey('bullets', $question->criteria, 'titled lines are items, not a bullet list');
+        self::assertSame('desiderio_howtosteps', $match->chosen?->cType);
+        $items = $match->chosen->mapping()->assignment('desiderio_howtosteps_items')?->value;
+        self::assertInstanceOf(CollectionValue::class, $items);
+        self::assertCount(3, $items->items);
+    }
+
+    #[Test]
     public function figuresWithLabelsBecomeStatistics(): void
     {
         $match = $this->matchOne([

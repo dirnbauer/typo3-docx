@@ -26,6 +26,7 @@ final readonly class PartShape
      * @param list<Figure> $images Pictures with their captions
      * @param list<PartItem> $items
      * @param list<Link> $links A call to action: links that stand on their own at the end of the part
+     * @param bool $itemsAreSteps The items were the lines of a numbered list: steps in an order
      */
     public function __construct(
         public ?Heading $heading = null,
@@ -37,6 +38,7 @@ final readonly class PartShape
         public ?CodeBlock $code = null,
         public array $items = [],
         public array $links = [],
+        public bool $itemsAreSteps = false,
     ) {}
 
     public function headingText(): string

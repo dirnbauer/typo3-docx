@@ -130,7 +130,11 @@ How the content type is chosen
 For every part, each allowed type is scored on how well the part fills its
 fields: a heading into the header, text into the body, a picture into an image
 field, question/answer pairs or numbered steps into a collection, a quote into
-a quote field. Types that would lose content or leave required fields empty
+a quote field. A list whose every line starts with a short title and a colon
+("A clear plan: goals and pages agreed on day one.") becomes the items of a
+collection, and a numbered one reads as steps; a plain list stays a list. A
+short line right after a quote, like "Mira Kovač, Head of Marketing", is its
+author, split over the name and role fields where the type has both. Types that would lose content or leave required fields empty
 score lower. The allowed types are the ones the New Content Element wizard
 offers for that column — backend layout restrictions, TSconfig and the
 editor's permissions included.

@@ -14,6 +14,7 @@ use Webconsulting\DocxEditor\PageSync\Document\HorizontalRule;
 use Webconsulting\DocxEditor\PageSync\Document\Inline;
 use Webconsulting\DocxEditor\PageSync\Document\InlineImage;
 use Webconsulting\DocxEditor\PageSync\Document\Link;
+use Webconsulting\DocxEditor\PageSync\Document\ListBlock;
 use Webconsulting\DocxEditor\PageSync\Document\PageBreak;
 use Webconsulting\DocxEditor\PageSync\Document\Paragraph;
 use Webconsulting\DocxEditor\PageSync\Document\ParagraphRole;
@@ -35,6 +36,7 @@ final class PartAnalyzer
     private const float MIN_LEAD_IN_SHARE = 0.3;
     private const int MAX_ANSWER_BLOCKS = 4;
     private const int MAX_INTRO_BLOCKS = 2;
+    private const int MAX_LIST_TITLE_LENGTH = 60;
 
     /**
      * @param list<Block> $blocks
@@ -103,9 +105,12 @@ final class PartAnalyzer
         }
 
         $items = [];
+        $itemsAreSteps = false;
         $detected = $this->detectItems($content, $heading === null ? 0 : $heading->level);
         if ($detected !== null) {
             [$content, $items] = $detected;
+        } elseif (($listed = self::itemsByTitledList($content)) !== null) {
+            [$content, $items, $itemsAreSteps] = $listed;
         }
 
         return new PartShape(
@@ -118,6 +123,7 @@ final class PartAnalyzer
             code: $code,
             items: $items,
             links: $links,
+            itemsAreSteps: $itemsAreSteps,
         );
     }
 
@@ -223,6 +229,78 @@ final class PartAnalyzer
         }
 
         return [array_slice($content, 0, $titleIndexes[0]), $items];
+    }
+
+    /**
+     * A list whose every line starts with a short title and a colon — "A clear plan: goals and
+     * pages agreed on day one." — lists features or steps, which a collection holds better than a
+     * bullet list. Plain lists stay the part's body. Only new content is read this way: the round
+     * trip's collections (PlanBuilder) use detectItems(), which leaves lists alone.
+     *
+     * @param list<Block> $content
+     *
+     * @return array{0: list<Block>, 1: list<PartItem>, 2: bool}|null The intro, the items, and
+     *         whether the list was numbered
+     */
+    private static function itemsByTitledList(array $content): ?array
+    {
+        $list = $content[count($content) - 1] ?? null;
+        $intro = array_slice($content, 0, -1);
+        if (!$list instanceof ListBlock || count($list->items) < 2 || count($intro) > self::MAX_INTRO_BLOCKS
+            || !array_all($intro, static fn(Block $block): bool => $block instanceof Paragraph)
+        ) {
+            return null;
+        }
+        $items = [];
+        foreach ($list->items as $entry) {
+            $split = $entry->level === 0 ? self::splitAtTitle($entry->inlines) : null;
+            if ($split === null) {
+                return null;
+            }
+            [$title, $rest] = $split;
+            $items[] = new PartItem($title, $rest === [] ? [] : [new Paragraph($rest)]);
+        }
+
+        return [$intro, $items, $list->isOrdered()];
+    }
+
+    /**
+     * "Title: rest" split at the first colon followed by a space, where the title is plain text
+     * of at most MAX_LIST_TITLE_LENGTH characters; the rest keeps its formatting and links.
+     *
+     * @param list<Inline> $inlines
+     *
+     * @return array{0: list<Inline>, 1: list<Inline>}|null
+     */
+    private static function splitAtTitle(array $inlines): ?array
+    {
+        $title = '';
+        foreach ($inlines as $index => $inline) {
+            if (!$inline instanceof Text) {
+                return null;
+            }
+            $colon = mb_strpos($inline->text, ': ');
+            if ($colon === false) {
+                $title .= $inline->text;
+                if (mb_strlen($title) > self::MAX_LIST_TITLE_LENGTH) {
+                    return null;
+                }
+                continue;
+            }
+            $title = trim($title . mb_substr($inline->text, 0, $colon));
+            if ($title === '' || mb_strlen($title) > self::MAX_LIST_TITLE_LENGTH) {
+                return null;
+            }
+            $after = ltrim(mb_substr($inline->text, $colon + 2));
+            $rest = array_slice($inlines, $index + 1);
+            if ($after !== '') {
+                array_unshift($rest, new Text($after, $inline->marks));
+            }
+
+            return [[new Text($title)], $rest];
+        }
+
+        return null;
     }
 
     /**

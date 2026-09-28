@@ -20,6 +20,7 @@ use Webconsulting\DocxEditor\PageSync\Document\Marks;
 use Webconsulting\DocxEditor\PageSync\Document\PageBreak;
 use Webconsulting\DocxEditor\PageSync\Document\Paragraph;
 use Webconsulting\DocxEditor\PageSync\Document\ParagraphRole;
+use Webconsulting\DocxEditor\PageSync\Document\PlainText;
 use Webconsulting\DocxEditor\PageSync\Document\Quote;
 use Webconsulting\DocxEditor\PageSync\Document\Table;
 use Webconsulting\DocxEditor\PageSync\Document\TableCell;
@@ -178,6 +179,52 @@ final class SegmenterTest extends UnitTestCase
 
         self::assertTrue($parts[0]->shape->bodyIsOnlyList());
         self::assertStringContainsString('1 list', $parts[0]->shape->describe());
+    }
+
+    #[Test]
+    public function listLinesThatStartWithATitleAreItems(): void
+    {
+        $features = $this->segment([
+            new Heading(2, [new Text('What you get')]),
+            new ListBlock([
+                new ListItem(0, false, [new Text('A clear plan: goals and pages agreed on '), new Text('day one', new Marks(bold: true)), new Text('.')]),
+                new ListItem(0, false, [new Text('A working site: built in TYPO3 and ready for your editors.')]),
+            ]),
+        ])[0]->shape;
+        self::assertSame(['A clear plan', 'A working site'], array_map(static fn($item): string => $item->titleText(), $features->items));
+        self::assertSame('goals and pages agreed on day one.', $features->items[0]->bodyText());
+        self::assertSame([], $features->body);
+        self::assertFalse($features->itemsAreSteps);
+
+        $steps = $this->segment([
+            new Heading(2, [new Text('How the week works')]),
+            new ListBlock([new ListItem(0, true, [new Text('Monday: we agree the goals.')]), new ListItem(0, true, [new Text('Friday: we go live.')])]),
+        ])[0]->shape;
+        self::assertTrue($steps->itemsAreSteps, 'a numbered list is steps');
+
+        $mixed = $this->segment([
+            new Heading(2, [new Text('Checklist')]),
+            new ListBlock([new ListItem(0, false, [new Text('A clear plan: goals agreed')]), new ListItem(0, false, [new Text('Coffee')])]),
+        ])[0]->shape;
+        self::assertSame([], $mixed->items, 'one line without a title keeps it a plain list');
+        self::assertTrue($mixed->bodyIsOnlyList());
+    }
+
+    #[Test]
+    public function aShortLineAfterAQuoteIsItsCitation(): void
+    {
+        $parts = $this->segment([
+            new Heading(2, [new Text('What participants say')]),
+            new Quote([self::p('We went live in one week.')]),
+            self::p('— Mira Kovač, Head of Marketing, Northwind'),
+            self::p('A sentence after it stays text.'),
+        ]);
+        self::assertCount(2, $parts);
+        self::assertSame('Mira Kovač, Head of Marketing, Northwind', trim(PlainText::ofInlines($parts[0]->shape->quote->citation ?? [])));
+        self::assertSame('A sentence after it stays text.', $parts[1]->shape->bodyText());
+
+        $sentence = $this->segment([new Quote([self::p('Short.')]), self::p('This line is a sentence of its own.')]);
+        self::assertSame([], $sentence[0]->shape->quote->citation ?? null, 'a sentence is not a citation');
     }
 
     /**

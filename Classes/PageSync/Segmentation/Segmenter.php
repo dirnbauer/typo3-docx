@@ -9,9 +9,13 @@ use Webconsulting\DocxEditor\PageSync\Document\Bookmark;
 use Webconsulting\DocxEditor\PageSync\Document\CodeBlock;
 use Webconsulting\DocxEditor\PageSync\Document\Heading;
 use Webconsulting\DocxEditor\PageSync\Document\HorizontalRule;
+use Webconsulting\DocxEditor\PageSync\Document\Inline;
 use Webconsulting\DocxEditor\PageSync\Document\PageBreak;
+use Webconsulting\DocxEditor\PageSync\Document\Paragraph;
+use Webconsulting\DocxEditor\PageSync\Document\PlainText;
 use Webconsulting\DocxEditor\PageSync\Document\Quote;
 use Webconsulting\DocxEditor\PageSync\Document\Table;
+use Webconsulting\DocxEditor\PageSync\Document\Text;
 
 /**
  * Splits content without round-trip controls into the parts that become content elements.
@@ -20,7 +24,8 @@ use Webconsulting\DocxEditor\PageSync\Document\Table;
  * - The highest heading level present opens sections; each section is one part, and deeper
  *   headings inside it either form items (a FAQ, a feature list) or stay subheadings of its text.
  * - A table, quote or code block amid other content becomes a part of its own; a heading right
- *   before it stays with it.
+ *   before it stays with it. A short line right after a quote without citation, like
+ *   "Mira Kovač, Head of Marketing", is that quote's citation.
  * - Content between the start and end of a round-trip bookmark stays together as one part and
  *   carries the element it came from.
  */
@@ -148,7 +153,8 @@ final readonly class Segmenter
     private function standalone(array $section): array
     {
         $heading = ($section[0] ?? null) instanceof Heading ? $section[0] : null;
-        $content = $heading === null ? $section : array_slice($section, 1);
+        $content = self::withCitations($heading === null ? $section : array_slice($section, 1));
+        $section = $heading === null ? $content : [$heading, ...$content];
         $standalone = array_filter($content, static fn(Block $block): bool => self::isStandalone($block));
         // Alone (with its heading), the block is simply the part's subject.
         if ($standalone === [] || count($content) === 1) {
@@ -175,6 +181,63 @@ final readonly class Segmenter
         }
 
         return $groups;
+    }
+
+    /**
+     * Word has no citation for a quote; people write the author on the next line.
+     *
+     * @param list<Block> $blocks
+     *
+     * @return list<Block>
+     */
+    private static function withCitations(array $blocks): array
+    {
+        $result = [];
+        for ($i = 0, $count = count($blocks); $i < $count; $i++) {
+            $block = $blocks[$i];
+            $next = $blocks[$i + 1] ?? null;
+            if ($block instanceof Quote && $block->citation === [] && $next instanceof Paragraph && self::isCitation($next)) {
+                $result[] = new Quote($block->paragraphs, self::withoutDash($next));
+                $i++;
+                continue;
+            }
+            $result[] = $block;
+        }
+
+        return $result;
+    }
+
+    /**
+     * A name, optionally with a role: one short line that is not a sentence.
+     */
+    private static function isCitation(Paragraph $paragraph): bool
+    {
+        $text = self::withoutLeadingDash(trim(PlainText::ofInlines($paragraph->inlines)));
+
+        return $text !== '' && mb_strlen($text) <= 100 && !str_contains($text, "\n")
+            && !preg_match('/[.!?:;]$/u', $text);
+    }
+
+    /**
+     * @return list<Inline>
+     */
+    private static function withoutDash(Paragraph $paragraph): array
+    {
+        $inlines = $paragraph->inlines;
+        $first = $inlines[0] ?? null;
+        if ($first instanceof Text) {
+            $inlines[0] = new Text(self::withoutLeadingDash($first->text), $first->marks);
+        }
+
+        return $inlines;
+    }
+
+    /**
+     * "— Mira Kovač" → "Mira Kovač": dashes, tildes and spaces before the name.
+     */
+    private static function withoutLeadingDash(string $text): string
+    {
+        return trim((string)preg_replace('/^[\s\x{00A0}\x{2013}\x{2014}~-]+/u', '', $text));
     }
 
     private static function isStandalone(Block $block): bool

@@ -15,7 +15,7 @@ use Webconsulting\DocxEditor\PageSync\Segmentation\PartShape;
 
 /**
  * Reads what a type is for from its name: items that are questions suit an "accordion" or a
- * "faq", items titled with figures suit "stats", a quote suits a "testimonial", pictures on
+ * "faq", items titled with figures suit "stats", the lines of a numbered list suit "steps", a quote suits a "testimonial", pictures on
  * their own suit a "gallery", a top heading with a subtitle and a button suits a "hero".
  *
  * Structure decides first; the hint only tips the balance between types that fit equally well.
@@ -40,6 +40,8 @@ final readonly class NameHintRule implements MappingRuleInterface
                 => array_intersect($words, ['faq', 'faqs', 'accordion', 'question', 'questions', 'answer', 'qa']) !== [],
             $part->items !== [] && self::most($part->items, static fn(PartItem $item): bool => $item->isFigure())
                 => array_intersect($words, ['stat', 'stats', 'statistic', 'statistics', 'kpi', 'kpis', 'number', 'numbers', 'counter', 'figures', 'metrics']) !== [],
+            $part->items !== [] && $part->itemsAreSteps
+                => array_intersect($words, ['step', 'steps', 'howto', 'process', 'procedure', 'timeline', 'instructions']) !== [],
             $part->quote !== null => array_intersect($words, ['quote', 'quotes', 'testimonial', 'testimonials', 'citation']) !== [],
             $part->images !== [] && $part->body === [] && $part->items === []
                 => array_intersect($words, ['gallery', 'slider', 'carousel', 'images', 'photos']) !== [],
