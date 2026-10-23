@@ -176,7 +176,7 @@ describe('the editor offers nothing of the commercial package', () => {
     test(`toolbar${readOnly ? ' (read-only)' : ''}: no editing mode, comments, reviewers or markup views`, async () => {
       const { host, close } = await open(fixture('features.docx'), { readOnly });
       try {
-        const toolbar = host.querySelector('[role="toolbar"]');
+        const toolbar = host.querySelector('[data-testid="docx-toolbar"]');
         assert.ok(toolbar, 'the toolbar is there');
         assert.ok(slotsIn(toolbar).includes('text.bold'), 'the toolbar is populated');
         assertNothingCommercial(toolbar, 'The toolbar');

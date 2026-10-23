@@ -9,6 +9,14 @@ Changelog
 The full history is kept in
 `CHANGELOG.md <https://github.com/dirnbauer/typo3-docx/blob/main/CHANGELOG.md>`__.
 
+2.5.1
+=====
+
+-   Rebuild the editor with the Apache-2.0 docx-editor.dev 2.32.0 packages,
+    Vue 3.5.44 and Vite 8.3.5, including bundled licence notices.
+-   Use the complete upstream German catalogue in place of the local overlay.
+-   Verify the updated toolbar, document round trips and licence contents.
+
 2.4.3
 =====
 

@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented in this file.
 
+## 2.5.1 — 2026-10-23
+
+- Update the Apache-2.0 docx-editor.dev engine, Vue adapter, fonts and translations to 2.32.0; rebuild the editor and bundled licence notices.
+- Use the complete upstream German catalogue and remove the translation overlay it replaces.
+- Follow the upstream toolbar’s stable test identifier after its accessible container changed to a fieldset.
+- Update Vue, Vite and the headless DOM test runtime; document round-trip and licence checks pass.
+
 ## [2.5.0] - 2026-09-28
 
 Word import into a Desiderio page: lists and quotes now land in the site's

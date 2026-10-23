@@ -1,16 +1,13 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { en } from '@docx-editor.dev/i18n';
 import de from '@docx-editor.dev/i18n/de';
+import { editorCatalog } from '../Sources/editor/i18n.js';
 
 /**
- * Build/Sources/editor/i18n/de.json fills the keys the upstream German
- * catalogue leaves untranslated. It must only name keys the English
- * catalogue has, and only keys upstream still leaves open: after an upgrade
- * that translates one, drop it from the overlay.
+ * The upstream German catalogue now translates the complete editor. Keep
+ * every English key translated and its ICU placeholders intact on upgrades.
  */
-const overlay = JSON.parse(readFileSync(new URL('../Sources/editor/i18n/de.json', import.meta.url), 'utf8'));
 
 function leaves(tree, prefix = '') {
   return Object.entries(tree).flatMap(([key, value]) =>
@@ -22,18 +19,18 @@ function lookup(tree, path) {
   return path.split('.').reduce((node, key) => (node === undefined || node === null ? undefined : node[key]), tree);
 }
 
-test('the German overlay only translates open upstream keys', () => {
-  const entries = leaves(overlay);
-  assert.ok(entries.length > 100, 'the overlay was read');
-  for (const [path, value] of entries) {
-    assert.equal(typeof lookup(en, path), 'string', `${path} is not an English catalogue key`);
-    assert.equal(lookup(de, path), null, `${path} is translated upstream now; drop it from de.json`);
-    assert.ok(typeof value === 'string' && value !== '', `${path} needs a translation`);
+test('the German catalogue translates every English key', () => {
+  const entries = leaves(en);
+  assert.ok(entries.length > 100, 'the catalogue was read');
+  for (const [path] of entries) {
+    const value = lookup(de, path);
+    assert.ok(typeof value === 'string' && value !== '', `${path} needs a German translation`);
+    assert.equal(lookup(editorCatalog('de'), path), value, `${path} uses the upstream translation`);
   }
 });
 
-test('the German overlay keeps the ICU placeholders of the English source', () => {
-  for (const [path, value] of leaves(overlay)) {
+test('the German catalogue keeps the ICU placeholders of the English source', () => {
+  for (const [path, value] of leaves(de)) {
     const placeholders = (text) => [...text.matchAll(/\{(\w+)/g)].map((match) => match[1]).sort();
     assert.deepEqual(placeholders(value), placeholders(lookup(en, path)), path);
   }

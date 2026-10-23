@@ -10,17 +10,17 @@
     "test:build": "node --test Build/Tests/*.test.js"
   },
   "dependencies": {
-    "@docx-editor.dev/core": "~2.21.1",
-    "@docx-editor.dev/fonts": "~2.21.1",
-    "@docx-editor.dev/i18n": "~2.21.1",
-    "@docx-editor.dev/vue": "~2.21.1",
+    "@docx-editor.dev/core": "~2.32.0",
+    "@docx-editor.dev/fonts": "~2.32.0",
+    "@docx-editor.dev/i18n": "~2.32.0",
+    "@docx-editor.dev/vue": "~2.32.0",
     "fflate": "^0.8.3",
-    "vue": "^3.5.43"
+    "vue": "^3.5.44"
   },
   "devDependencies": {
-    "@happy-dom/global-registrator": "^20.14.5",
-    "@vitejs/plugin-vue": "^6.0.9",
-    "vite": "^8.3.0"
+    "@happy-dom/global-registrator": "^21.0.4",
+    "@vitejs/plugin-vue": "^6.0.10",
+    "vite": "^8.3.5"
   },
   "engines": {
     "node": ">=22.12"

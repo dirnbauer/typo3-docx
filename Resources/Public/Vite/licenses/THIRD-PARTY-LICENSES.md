@@ -2,7 +2,7 @@
 
 The app bundles dependencies which contain the following licenses:
 
-## @docx-editor.dev/core - 2.21.1 (Apache-2.0)
+## @docx-editor.dev/core - 2.32.0 (Apache-2.0)
 
 Apache License
                            Version 2.0, January 2004
@@ -206,7 +206,7 @@ Apache License
    See the License for the specific language governing permissions and
    limitations under the License.
 
-## @docx-editor.dev/fonts - 2.21.1 (Apache-2.0 AND OFL-1.1 AND LicenseRef-GUST-Font-License)
+## @docx-editor.dev/fonts - 2.32.0 (Apache-2.0 AND OFL-1.1 AND LicenseRef-GUST-Font-License)
 
 This Apache-2.0 license covers this package's own code only.
 
@@ -421,7 +421,7 @@ ships alongside the binaries in `licenses/`.
    See the License for the specific language governing permissions and
    limitations under the License.
 
-## @docx-editor.dev/i18n - 2.21.1 (Apache-2.0)
+## @docx-editor.dev/i18n - 2.32.0 (Apache-2.0)
 
 Apache License
                            Version 2.0, January 2004
@@ -625,7 +625,7 @@ Apache License
    See the License for the specific language governing permissions and
    limitations under the License.
 
-## @docx-editor.dev/vue - 2.21.1 (Apache-2.0)
+## @docx-editor.dev/vue - 2.32.0 (Apache-2.0)
 
 Apache License
                            Version 2.0, January 2004
@@ -833,7 +833,7 @@ Apache License
 
 The package ships no licence text; its package.json declares MIT (source: git+https://github.com/nodable/val-parsers.git).
 
-## @vue/reactivity - 3.5.43 (MIT)
+## @vue/reactivity - 3.5.44 (MIT)
 
 The MIT License (MIT)
 
@@ -857,7 +857,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-## @vue/runtime-core - 3.5.43 (MIT)
+## @vue/runtime-core - 3.5.44 (MIT)
 
 The MIT License (MIT)
 
@@ -881,7 +881,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-## @vue/runtime-dom - 3.5.43 (MIT)
+## @vue/runtime-dom - 3.5.44 (MIT)
 
 The MIT License (MIT)
 
@@ -905,7 +905,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-## @vue/shared - 3.5.43 (MIT)
+## @vue/shared - 3.5.44 (MIT)
 
 The MIT License (MIT)
 
@@ -1394,7 +1394,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-## vue - 3.5.43 (MIT)
+## vue - 3.5.44 (MIT)
 
 The MIT License (MIT)
 
