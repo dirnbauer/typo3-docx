@@ -9,6 +9,12 @@ Changelog
 The full history is kept in
 `CHANGELOG.md <https://github.com/dirnbauer/typo3-docx/blob/main/CHANGELOG.md>`__.
 
+2.5.2
+=====
+
+-   Keep list numbering and section segmentation explicit under the current
+    PHPStan inference, with the same document output.
+
 2.5.1
 =====
 

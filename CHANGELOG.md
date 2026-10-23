@@ -2,6 +2,10 @@
 
 All notable changes to this project are documented in this file.
 
+## 2.5.2 — 2026-10-23
+
+- Keep Word list numbering and section segmentation explicit under the current PHPStan inference: reuse the resolved default list order and append the final non-empty section directly.
+
 ## 2.5.1 — 2026-10-23
 
 - Update the Apache-2.0 docx-editor.dev engine, Vue adapter, fonts and translations to 2.32.0; rebuild the editor and bundled licence notices.

@@ -86,7 +86,7 @@ final class WriterState
         $abstract = $this->abstractNumberings[$pattern] ??= ['id' => count($this->abstractNumberings), 'levels' => $levels];
 
         $numId = count($this->numberings) + 1;
-        $this->numberings[] = ['numId' => $numId, 'abstractId' => $abstract['id'], 'ordered' => $levels[0]];
+        $this->numberings[] = ['numId' => $numId, 'abstractId' => $abstract['id'], 'ordered' => $defaultOrdered];
 
         return $numId;
     }

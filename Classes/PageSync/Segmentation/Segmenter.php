@@ -136,9 +136,7 @@ final readonly class Segmenter
             }
             $current[] = $block;
         }
-        if ($current !== []) {
-            $sections[] = $current;
-        }
+        $sections[] = $current;
 
         return $sections;
     }
