@@ -829,7 +829,7 @@ Apache License
    See the License for the specific language governing permissions and
    limitations under the License.
 
-## @nodable/entities - 3.0.0 (MIT)
+## @nodable/entities - 3.1.0 (MIT)
 
 The package ships no licence text; its package.json declares MIT (source: git+https://github.com/nodable/val-parsers.git).
 
@@ -1182,7 +1182,7 @@ Apache License
    See the License for the specific language governing permissions and
    limitations under the License.
 
-## fast-xml-parser - 5.11.1 (MIT)
+## fast-xml-parser - 5.11.2 (MIT)
 
 MIT License
 
@@ -1324,7 +1324,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-## prosemirror-model - 1.25.11 (MIT)
+## prosemirror-model - 1.25.12 (MIT)
 
 Copyright (C) 2015-2017 by Marijn Haverbeke <marijn@haverbeke.berlin> and others
 
@@ -1346,7 +1346,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-## strnum - 2.4.2 (MIT)
+## strnum - 2.5.1 (MIT)
 
 MIT License
 

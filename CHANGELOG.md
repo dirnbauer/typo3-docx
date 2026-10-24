@@ -2,6 +2,10 @@
 
 All notable changes to this project are documented in this file.
 
+## 2.5.3 — 2026-10-24
+
+- Refresh the ProseMirror, XML and build dependency lock; rebuild the editor and bundled licence notices on Node 26.12.1 with npm 12.2.1.
+
 ## 2.5.2 — 2026-10-23
 
 - Keep Word list numbering and section segmentation explicit under the current PHPStan inference: reuse the resolved default list order and append the final non-empty section directly.
