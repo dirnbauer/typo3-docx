@@ -171,6 +171,12 @@ cannot process are embedded as they are. A page full of large pictures
 exports to a fraction of its former size and fits the upload limit on the way
 back.
 
+WebP is the exception: Word saves a WebP picture back as PNG, so an unchanged
+WebP would come back as a new picture. A WebP is therefore always embedded as
+a copy in a format Word keeps unchanged — JPEG, or PNG when it has
+transparency — however small it is. The file in TYPO3 stays a WebP. Animated
+WebPs are embedded as they are.
+
 The copy only stands in for the file: every picture is named after its file
 reference (``typo3:sys_file_reference:31``, Word shows the name in the
 :guilabel:`Selection Pane`), and the manifest records which copy stands for

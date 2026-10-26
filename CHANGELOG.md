@@ -2,6 +2,10 @@
 
 All notable changes to this project are documented in this file.
 
+## 2.5.4 — 2026-10-26
+
+- An unchanged WebP picture no longer comes back from Word as a replaced picture: Word saves WebP back as PNG, so the export now embeds every WebP as a JPEG copy (PNG when it has transparency), which Word keeps byte for byte. The file in TYPO3 stays a WebP; animated WebPs are embedded as they are.
+
 ## 2.5.3 — 2026-10-24
 
 - Refresh the ProseMirror, XML and build dependency lock; rebuild the editor and bundled licence notices on Node 26.12.1 with npm 12.2.1.

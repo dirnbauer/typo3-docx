@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 use Webconsulting\DocxEditor\PageSync\Export\PictureDerivatives;
+use Webconsulting\DocxEditor\Tests\Fixtures\PageSync\DocxFixtureBuilder;
 
 final class PictureDerivativesTest extends UnitTestCase
 {
@@ -38,5 +39,52 @@ final class PictureDerivativesTest extends UnitTestCase
     public function aPictureIsEmbeddedAsLargeAsWordShowsIt(int $width, int $height, int $resolution, int $maxEdge, ?array $expected): void
     {
         self::assertSame($expected, PictureDerivatives::targetSize($width, $height, $resolution, $maxEdge));
+    }
+
+    /**
+     * @return array<string, array{0: string, 1: string|null}>
+     */
+    public static function webps(): array
+    {
+        return [
+            'lossy' => [self::webp('VP8 ', "\x30\x01\x00\x9d\x01\x2a"), 'jpg'],
+            'lossless, opaque' => [self::webp('VP8L', "\x2f" . pack('V', 15 | (7 << 14))), 'jpg'],
+            'lossless with transparency' => [self::webp('VP8L', "\x2f" . pack('V', 15 | (7 << 14) | (1 << 28))), 'png'],
+            'extended, opaque' => [self::webp('VP8X', "\x00\x00\x00\x00"), 'jpg'],
+            'extended with transparency' => [self::webp('VP8X', "\x10\x00\x00\x00"), 'png'],
+            'animated' => [self::webp('VP8X', "\x12\x00\x00\x00"), null],
+            'no WebP' => [str_pad("\x89PNG\r\n\x1a\n", 40, "\x00"), null],
+            'cut off' => ['RIFF', null],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('webps')]
+    public function aWebpIsEmbeddedInAFormatWordKeeps(string $bytes, ?string $expected): void
+    {
+        self::assertSame($expected, PictureDerivatives::webpFormat($bytes));
+    }
+
+    #[Test]
+    public function theEmbeddedBytesTellTheirFormat(): void
+    {
+        $image = imagecreatetruecolor(4, 2);
+        self::assertNotFalse($image);
+        ob_start();
+        imagejpeg($image);
+        $jpeg = (string)ob_get_clean();
+
+        self::assertSame('image/jpeg', PictureDerivatives::mimeType($jpeg, 'image/webp'), 'A JPEG copy of a WebP');
+        self::assertSame('image/png', PictureDerivatives::mimeType(DocxFixtureBuilder::photo(4, 2), 'image/png'));
+        self::assertSame('image/webp', PictureDerivatives::mimeType(self::webp('VP8 ', ''), 'image/webp'), 'The WebP as it is');
+        self::assertSame('image/gif', PictureDerivatives::mimeType('', 'image/gif'));
+    }
+
+    private static function webp(string $chunk, string $data): string
+    {
+        $data = str_pad($data, 18, "\x00");
+        $body = 'WEBP' . $chunk . pack('V', strlen($data)) . $data;
+
+        return 'RIFF' . pack('V', strlen($body)) . $body;
     }
 }

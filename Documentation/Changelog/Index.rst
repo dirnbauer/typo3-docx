@@ -9,6 +9,13 @@ Changelog
 The full history is kept in
 `CHANGELOG.md <https://github.com/dirnbauer/typo3-docx/blob/main/CHANGELOG.md>`__.
 
+2.5.4
+=====
+
+-   An unchanged WebP picture comes back from Word as the same file reference:
+    it is embedded as a JPEG copy (PNG with transparency), because Word saves
+    WebP back as PNG.
+
 2.5.2
 =====
 

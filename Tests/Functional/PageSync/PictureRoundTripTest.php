@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Webconsulting\DocxEditor\Tests\Functional\PageSync;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -79,6 +80,55 @@ final class PictureRoundTripTest extends AbstractPageSyncTestCase
 
         self::assertSame(EntryAction::Unchanged, self::entryFor($plan, 3)->action);
         self::assertFalse($plan->hasWrites());
+    }
+
+    /**
+     * Word saves a WebP back as PNG; a copy in a format Word keeps comes back as it went out.
+     *
+     * @return array<string, array{0: bool, 1: string}>
+     */
+    public static function webps(): array
+    {
+        return [
+            'an opaque WebP travels as JPEG' => [false, 'image/jpeg'],
+            'a transparent WebP travels as PNG' => [true, 'image/png'],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('webps')]
+    public function aWebpTravelsInAFormatWordKeepsAndComesBackUnchanged(bool $transparent, string $embeddedAs): void
+    {
+        $file = $this->useOfficePicture('office.webp', self::webp(64, 32, $transparent));
+        self::assertSame('image/webp', $file->getMimeType());
+        $user = $this->backendUser(1);
+        $exported = $this->export(1, 0, $user);
+        $image = $this->officePicture($exported);
+
+        $size = getimagesizefromstring($image->data->bytes);
+        self::assertIsArray($size);
+        self::assertSame([16, 8, $embeddedAs], [$size[0], $size[1], $size['mime']]);
+        self::assertSame($embeddedAs, $image->data->mimeType);
+        self::assertSame($file->getSha1(), $image->fileSha1);
+        self::assertSame($image->data->sha1(), $exported->manifest?->picture($image->referenceUid)?->embedded);
+
+        $plan = $this->plan($exported, 1, 0, $user);
+        self::assertSame(EntryAction::Unchanged, self::entryFor($plan, 3)->action);
+        self::assertFalse($plan->hasWrites());
+    }
+
+    /**
+     * Small enough to stay unscaled, a WebP still travels as a copy.
+     */
+    #[Test]
+    public function aSmallWebpTravelsAsACopyToo(): void
+    {
+        $this->useOfficePicture('badge.webp', self::webp(12, 6, false));
+        $image = $this->officePicture($this->export(1, 0, $this->backendUser(1)));
+
+        $size = getimagesizefromstring($image->data->bytes);
+        self::assertIsArray($size);
+        self::assertSame([12, 6, 'image/jpeg'], [$size[0], $size[1], $size['mime']]);
     }
 
     #[Test]
@@ -263,6 +313,45 @@ final class PictureRoundTripTest extends AbstractPageSyncTestCase
             )
             ->executeQuery()
             ->fetchAllAssociative();
+    }
+
+    /**
+     * Puts a new file behind the office picture's file reference.
+     */
+    private function useOfficePicture(string $name, string $bytes): File
+    {
+        file_put_contents($this->instancePath . '/fileadmin/pagesync/' . $name, $bytes);
+        $file = $this->get(StorageRepository::class)->findByUid(1)?->getFile('/pagesync/' . $name);
+        self::assertInstanceOf(File::class, $file);
+        $reference = $this->references('tt_content', 3, 'assets')[0] ?? [];
+        $this->get(ConnectionPool::class)->getConnectionForTable('sys_file_reference')
+            ->update('sys_file_reference', ['uid_local' => $file->getUid()], ['uid' => (int)($reference['uid'] ?? 0)]);
+
+        return $file;
+    }
+
+    /**
+     * A photo-like WebP; a transparent one has a see-through left half.
+     *
+     * @param positive-int $width
+     * @param positive-int $height
+     */
+    private static function webp(int $width, int $height, bool $transparent): string
+    {
+        if (!function_exists('imagewebp')) {
+            self::markTestSkipped('GD has no WebP support.');
+        }
+        $image = imagecreatefromstring(DocxFixtureBuilder::photo($width, $height));
+        self::assertNotFalse($image);
+        if ($transparent) {
+            imagealphablending($image, false);
+            imagesavealpha($image, true);
+            imagefilledrectangle($image, 0, 0, intdiv($width, 2), $height - 1, (int)imagecolorallocatealpha($image, 0, 0, 0, 127));
+        }
+        ob_start();
+        imagewebp($image, null, 90);
+
+        return (string)ob_get_clean();
     }
 
     private function rowCount(string $table): int

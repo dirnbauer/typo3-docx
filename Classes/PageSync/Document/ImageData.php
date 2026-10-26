@@ -9,7 +9,8 @@ namespace Webconsulting\DocxEditor\PageSync\Document;
  *
  * The bytes may come from a loader that runs the first time they are needed: a picture exported
  * from TYPO3 is scaled down only when a document is written, never when an import merely
- * compares which pictures a field holds.
+ * compares which pictures a field holds. Such a copy may have another format than the file, so
+ * its MIME type can be told from the bytes once they are there.
  */
 final class ImageData
 {
@@ -17,19 +18,26 @@ final class ImageData
         get => $this->loaded ??= ($this->loader)();
     }
 
+    public string $mimeType {
+        get => $this->resolvedMimeType ??= is_string($this->mimeTypeSource) ? $this->mimeTypeSource : ($this->mimeTypeSource)($this->bytes);
+    }
+
     private ?string $loaded = null;
 
     private ?string $sha1 = null;
+
+    private ?string $resolvedMimeType = null;
 
     /** @var \Closure(): string */
     private readonly \Closure $loader;
 
     /**
      * @param string|\Closure(): string $bytes The bytes, or what produces them
+     * @param string|\Closure(string): string $mimeTypeSource The MIME type, or what tells it from the bytes
      */
     public function __construct(
         string|\Closure $bytes,
-        public readonly string $mimeType,
+        private readonly string|\Closure $mimeTypeSource,
         public readonly string $fileName,
     ) {
         if (is_string($bytes)) {

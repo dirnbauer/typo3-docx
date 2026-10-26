@@ -76,7 +76,11 @@ final readonly class FigureLoader
 
         return new Figure(
             new Image(
-                new ImageData(fn(): string => $this->derivatives->bytes($file), $file->getMimeType(), $file->getName()),
+                new ImageData(
+                    fn(): string => $this->derivatives->bytes($file),
+                    static fn(string $bytes): string => PictureDerivatives::mimeType($bytes, $file->getMimeType()),
+                    $file->getName(),
+                ),
                 is_scalar($alternative) ? (string)$alternative : '',
                 is_scalar($title) ? (string)$title : '',
                 $width * DocumentWriter::EMU_PER_PIXEL,
